@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
+
+    <title>Rogue Components Test Page</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/vuetify@3.3.9/dist/vuetify-labs.min.css" rel="stylesheet">
+
+    <style>
+
+      [v-cloak] { display: none; }
+      .hard-left {
+	  position:absolute;
+	  top: -20px;
+	  right: -30px;
+      }
+      
+    </style>
+
+  </head>
+  
+  <body>
+
+    <div id="app">
+
+      <div v-cloak>
+
+	<v-app>
+	  <v-app-bar
+	    :elevation="2"
+	    class="white">
+	    <v-app-bar-nav-icon @click.stop="collapseSubMenus();pageProps.rail = !pageProps.rail"></v-app-bar-nav-icon>
+	    
+	    <v-app-bar-title>
+	      ~{pageProps.appBarTitle}~ 
+	    </v-app-bar-title>
+	    <v-spacer></v-spacer>
+	    <v-btn icon="mdi-theme-light-dark" @click="toggleTheme">
+	    </v-btn>
+	  </v-app-bar>
+
+	  <v-main>
+	    <v-container>
+	      
+	      <rc-confirm-dialog ref="confirm">
+	      </rc-confirm-dialog>	    
+	      
+	      <v-dialog
+		v-model="progressDialog"
+		hide-overlay
+		persistent
+		width="400"
+		transition="dialog-top-transition"
+		>
+		<v-card
+		  dark
+		  color="deep-purple accent-1"
+		  >
+		  <v-toolbar
+		    color="deep-purple"
+		    dark
+		    >
+		    Processing selected items
+		  </v-toolbar>
+		  <v-card-text>
+		    ~{progressText}~
+		    <v-progress-linear
+		      striped
+		      v-model="percentComplete"
+		      height="20"
+		      color="light-blue"
+		      ></v-progress-linear>
+		  </v-card-text>
+		</v-card>
+	      </v-dialog>
+	      
+	      
+	      <section>
+		
+		<v-row>
+		</v-row>
+		<v-row>
+		  <v-col cols="6">
+		    <v-form
+		      v-model="phoneform"
+		      @submit.prevent="onSubmit"
+		      validate-on="submit"
+		      >
+			  
+
+		      <v-card>
+			<v-card-text>
+			  <rc-phone-field
+			    v-model="testphone"
+			    :rules=[validPhone]
+			    label="Test Phone"
+			    variant="underlined"
+			    class="pa-4"
+			    clearable>
+			  </rc-phone-field>
+			  
+			  <rc-pattern-field
+			    ref="bob"
+			    field-pattern="???-??-????"
+			    v-model="testssn"
+			    :rules=[myrule]
+			    label="Test SSN"
+			    variant="underlined"
+			    class="pa-4"
+			    clearable>
+			  </rc-pattern-field>
+			  
+			  <rc-pattern-field
+			    ref="fred"
+			    field-pattern="???.??"		
+			    v-model="testmoney"
+			    :rules=[fredrule]
+			    label="Test Money"
+			    variant="underlined"
+			    class="pa-4"
+			    clearable>
+			  </rc-pattern-field>
+			  
+			</v-card-text>
+			<v-card-actions>
+			  <v-btn			  
+			    type="submit"
+			    color="success"
+			    variant="outlined"
+			    elevation="3"
+			    >
+			    Test Form
+			  </v-btn>
+			</v-card-actions>
+		      </v-card>
+		    </v-form>
+		  </v-col>
+		</v-row>
+		<v-row>
+		</v-row>
+		<v-row>
+		  <v-col>
+		    <v-card :elevation="4">
+		      
+		      <rc-table
+			:allitems="dataItems"
+			:filtereditems="filteredItems"
+			
+			:allheaders="allHeaders"	    
+			v-model:visibleheadernames="visibleHeaderNames"
+			v-model:search="search"
+			v-model:selected="selected"
+			
+			:loadfunc="forceLoadData"
+			:rowfiltersfunc="rowFilters"
+			
+			v-model:selectedrowfilterkeys="selectedRowFilterKeys"
+			v-model:selectedcolumnfilters="selectedColumnFilters"
+			
+			export-file-name="silly-file-name"
+			title="RcTable"
+			>
+			<!-- TOOLBAR Buttons -->
+			<template v-slot:toolbar-buttons>
+			  
+			  <v-tooltip location="bottom">
+			    <template v-slot:activator="{ props: tooltip }">			  
+			      <v-btn
+				color="primary"
+				outlined
+				@click="toolbarAction()"
+				dark
+				v-bind="tooltip"
+				elevation="3"
+				>
+	  			<v-icon>mdi-truck-delivery-outline</v-icon>
+			      </v-btn>
+			    </template>
+			    <span>
+			      Toolbar Action.
+			    </span>
+			  </v-tooltip>
+			  
+			</template>
+			<!-- END TOOLBAR Buttons -->
+			<!-- how to do this as a formatter? return div of v-html?-->
+			<template v-slot:item.condition_tags="{ item }">
+			  <v-chip v-for="cval in item.raw.condition_tags" v-if="item.raw.condition_tags.length" color="red">
+			    ~{cval}~
+			  </v-chip>
+			  <span v-else>None</span>
+			</template>
+			
+			
+			<template v-slot:item.actions="{ item }">
+			  <v-tooltip bottom>
+			    <template v-slot:activator="{ props: tooltip }">			  
+			      <v-icon
+				size="small"
+				class="me-2"
+				@click="editDetail(item)"
+				v-bind="tooltip"
+				>
+				mdi-pencil
+				
+			      </v-icon>
+			    </template>
+			    <span>
+			      Edit Detail
+			    </span>
+			  </v-tooltip>
+			</template>
+			
+		      </rc-table>
+		    </v-card>
+		    
+		  </v-col>
+		</v-row>
+	      </section>	  
+	    
+	      <rc-bastard-scroll>
+	      </rc-bastard-scroll>
+	    
+	    </v-container>
+	  </v-main>
+
+	</v-app>
+	
+      </div><!--cloak-->
+
+    </div> 
+
+
+    <!-- UMD downloads 
+	 Resultant objects window.tmb, window._, window.JsonExcel
+	 Note: tmb relies on lodash. In order to use tmb in Vue templates e.g. [[tmb.nub(dog)]] gotta do this prototype hack
+	 Note: The main thing used in LODASH_ is the _.get method for accessing deep into an object based on a string path...
+	       And, _.isFunction and lot of _.is's
+      -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+    <script src="/static/js/tmb.js"></script>
+
+
+    <!-- ECMA module downloads
+	 I kinda like the type="importmap"
+    -->
+    <script type="importmap">
+      {
+	  "imports": {
+	      "vue": "https://unpkg.com/vue@3.2.47/dist/vue.esm-browser.js",
+              "vuetify": "https://unpkg.com/vuetify@3.3.9/dist/vuetify-labs.esm.js",
+	      "vuetifycolors": "https://unpkg.com/vuetify@3.3.9/lib/util/colors.mjs",
+	      "vue-json-excel3": "https://unpkg.com/vue-json-excel3@1.0.0/dist/vue-json-excel.esm.js"
+	  }
+      }
+    </script>
+    
+    <script type="module">
+
+      import { createApp, ref, reactive } from 'vue' 
+      import { createVuetify, useTheme } from 'vuetify'
+      const vuetify = createVuetify();
+
+      //Rc component imports
+      import {RcTable} from '/static/components/RcTable.js'
+      import {RcTableMixins} from '/static/components/RcTableMixins.js'      
+      import {RcConfirmDialog} from '/static/components/RcConfirmDialog.js'
+      //replaced with rc-pattern-field....still a work in progress.
+      import {RcPhoneField,validPhone,formattedPhoneNumber,digitsPhoneNumber} from '/static/components/RcPhoneField.js'
+      import {RcPatternField} from '/static/components/RcPatternField.js'
+      import {RcBastardScroll} from '/static/components/RcBastardScroll.js'
+
+      //Play with composables...not really used in this test page since no side menus.
+      //import {useSideMenuItems} from '/static/components/RcSideMenu.js'
+
+      const app = createApp({
+	  delimiters: ['~{', '}~'],
+	  components: {	      
+	      RcTable,
+	      RcConfirmDialog,
+	      RcPhoneField,
+	      RcPatternField,
+	      RcBastardScroll,
+	  },
+	  
+	  mixins: [RcTableMixins],
+	  
+	  setup(props,ctx) {
+	      const theme = useTheme();
+	      const pageProps = {
+		  appBarTitle:'Rogue Components Test Page',
+		  rail: false,
+	      };
+	      
+	      return {
+		  toggleTheme: () => theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark',
+		  pageProps,
+	      }
+	  },
+	  data() {
+	      return {
+		  phoneform: false,
+		  testphone: '123.456.7890',
+		  testssn: '12345',
+		  testmoney: '099.49',		  
+
+		  //error amd error messages
+		  alert: false,
+		  alertText:  '',
+
+		  //progress dialog...
+		  progressDialog: false,
+		  percentComplete: 0,
+		  progressText: '',
+		  
+
+		  //RcTable goodies...You want them exposed here...Column and Row filters too.
+		  //NOTE: search here is used to trigger the search text filter OUTSIDE the rc-table....this is on purpose.
+		  //rc-table-toolbar ownes the v-text-field. But changes cause the computed filteredItems to re-run.
+		  //filteredItems are what rc-table live on.
+
+		  dataItems: [],
+		  search: '',
+		  selected: [],
+		  selectedRowFilterKeys: [],
+		  selectedColumnFilters: [],
+		  itemsPerPage: 5,
+		  visibleHeaderNames: ['Referring','Conditions','Contact'],
+		  //Note: allHeaders is a method that returns the header definitions....needs to be a method not computed.
+	      }
+	  },	  
+	  computed: {
+
+	      filteredItems() {	    
+		  let ans = this.dataItems;
+		  ans = this.rowFilterReduce(ans,this.selectedRowFilterKeys,this.rowFilters);
+		  ans = this.columnFilterReduce(ans,this.selectedColumnFilters);
+		  ans = ans.filter((i)=>{ return this.searchFilterReduce(null,this.search,i); });
+		  return ans;	    
+	      },
+	      visibleHeaders() {
+		  return this.allHeaders().filter((ah) => {
+		      if (ah.required) return true;
+		      return this.visibleHeaderNames.includes(ah.title);
+		  });
+	      },	
+
+	  },
+	  methods: {
+	      validPhone,
+	      formattedPhoneNumber,
+	      digitsPhoneNumber,
+
+	      myrule(val) {
+		  return this.$refs.bob.validPattern(val);
+	      },
+	      fredrule(val) {
+		  return this.$refs.fred.validPattern(val);
+	      },
+	      
+	      onSubmit() {
+		  console.log('SUBMIT formatted phone:',this.testphone,' digits only:',digitsPhoneNumber(this.testphone));
+		  console.log('SUBMIT digits ssn:',this.$refs.bob.extractPattern(this.testssn));
+		  console.log(RcPatternField.methods.mDamnit());
+		  
+	      },
+
+	      collapseSubMenus() {
+		  console.log('collapseSubMenu');
+	      },
+	      
+	      /* Below are the RcTable filter methods...Normally, 
+		 I would have these methods in a mixin since they are common accross components that use the RcTable component.
+	      */
+	      /*
+	      mapVisibleColumnValues(item) {
+		  let vs = this.visibleHeaders.map((vh) => {
+		      return _.get(item,vh.key);
+		  }).filter((v)=> { return ((v!=undefined)&&(v!=null)&&(v.toString().length>0)) }).map((v)=>{return v.toString().toLowerCase()});
+		  return vs;
+	      },	
+	      searchFilterReduce (value, search, rawitem) {
+		  //console.log('searchFilterReduce:',value,' search:',search,' rawitem:',rawitem);
+		  if ((!value)&&(tmb.nub(search).length>0)) {
+		      let showRow = this.mapVisibleColumnValues(rawitem).join(',').indexOf(search.toLowerCase())>=0;
+		      return showRow;
+		  } else return true;
+	      },
+	      // for every row, -OR- test every selected filter.
+	      rowFilterReduce(items,selectOptions,rowFilters) {
+
+		  let ans = items;
+		  if (selectOptions.length>0) {
+		      ans = ans.filter((i) => {
+	    		  return selectOptions.reduce((showRow,option) => {
+			      //filterObj is an option object from a select so we need to get the actual filterObject
+			      let filterKey = option.value;
+			      let fo = rowFilters(this)[filterKey];
+			      if (fo) {
+				  //console.log('FO:',fo);
+				  if (_.isFunction(fo)) return (showRow || rowFilters(this)[filterKey](i));
+				  else {
+				      console.log('rowFilterReduce filterKey:',filterKey);
+				      return (showRow || rowFilters(this)[filterKey].func(i));
+				  }
+			      } else return showRow;
+	    		  },false);
+	    	      });		
+		  }
+		  return ans;
+	      },
+
+	      // Column filters are a little different...they get pushed out as "filterActions" by RcTable and should
+	      // be self contained instructions on how to filter....then we interprut those instructions here.
+	      //
+	      // See RcColumnFilter for full story on what a FilterAction can include
+	      // Inverted, for every filter, filter all the rows (so I guess that makes it an AND test).
+	      // Could or should turn into a reduce call and fail fast on first 'false'
+	      // e.g. row 0 check col filter 0,1,2,3 until a false is found. If no false show the row. (LOGICAL AND)
+	      columnFilterReduce(items,selectedFilters) {
+		  let ans = items;
+		  
+		  selectedFilters.forEach((filterAction) => {
+		      let head = this.visibleHeaders.find((vh) => (vh.key == filterAction.cname));		
+		      if (head) {
+			  let valDataType = 'string';
+			  if (head.columnfilter.hasOwnProperty('dataType')) valDataType = head.columnfilter.dataType;
+			  
+			  ans = ans.filter((i) => {
+			      let val = _.get(i,filterAction.cname);			
+			      let shouldInclude = true;
+			      let shouldExclude = false;
+			      if (valDataType == 'string') {
+				  //DEFAULT CASE WHEN NOT DEFINED IN columnfilter definition.
+				  
+				  if (head.columnfilter.arrayfield) {
+				      if (!val) val = [];
+				      //For array fields, the value will be an array.
+				      //e.g. ['developer','manager','accountant']
+				      //In this case we only want to see if some value in the includeValues matches any of the elements in the val array
+				      shouldInclude = ((filterAction.includeValues)&&(filterAction.includeValues.length>0))?filterAction.includeValues.some(sv => val.includes(sv)):true;
+				      shouldExclude = ((filterAction.excludeValues)&&(filterAction.excludeValues.length>0))?filterAction.excludeValues.some(sv => val.includes(sv)):false;
+				  } else {
+				      //Assuming val is a straight string
+				      //this.selectedNames.some(sn => sn == val);
+				      shouldInclude = ((filterAction.includeValues)&&(filterAction.includeValues.length>0))?filterAction.includeValues.some(sv => sv == val):true;
+				      shouldExclude = ((filterAction.excludeValues)&&(filterAction.excludeValues.length>0))?filterAction.excludeValues.some(sv => sv == val):false;
+				  }
+				  //console.log('inc:'+shouldInclude+' exc:'+shouldExclude);
+			      } else if (valDataType == 'date') {
+				  let range1 = tmb.thirtyRange(1);
+				  let range2 = tmb.thirtyRange(2);
+				  let range3 = tmb.thirtyRange(3);
+				  if ((filterAction.includeValues)&&(filterAction.includeValues.length>0)) {
+				      shouldInclude = filterAction.includeValues.reduce((showRow,includeValue)=>{
+					  if (includeValue == '1..30 Days') {
+					      return showRow || ((i.s_date >= range1[0]) && (i.s_date <= range1[1]));
+					  } else if (includeValue == '31..60 Days') {
+					      return showRow || ((i.s_date >= range2[0]) && (i.s_date <= range2[1]));
+					  } else if (includeValue == '61..90 Days') {
+					      return showRow || ((i.s_date >= range3[0]) && (i.s_date <= range3[1]));
+					  } else if (includeValue == 'Over 90 Days') {
+					      return showRow || (i.s_date < range3[0]);
+					  } else return showRow || true;
+				      },false);
+				  }
+				  if ((filterAction.excludeValues)&&(filterAction.excludeValues.length>0)) {
+				      shouldExclude=filterAction.excludeValues.reduce((showRow,excludeValue)=>{
+					  if (excludeValue == '1..30 Days') {
+					      //console.log('row match '+(showRow || ((i.ac_invoice_date >= range1[0]) && (i.ac_invoice_date <= range1[1]))));
+					      return showRow || ((i.s_date >= range1[0]) && (i.s_date <= range1[1]));
+					  } else if (excludeValue == '31..60 Days') {
+					      return showRow || ((i.s_date >= range2[0]) && (i.s_date <= range2[1]));
+					  } else if (excludeValue == '61..90 Days') {
+					      return showRow || ((i.s_date >= range3[0]) && (i.s_date <= range3[1]));
+					  } else if (excludeValue == 'Over 90 Days') {
+					      return showRow || (i.s_date < range3[0]);
+					  } else return showRow || false;
+				      },false);
+				  }
+				  
+				  //console.log('shouldInclude ['+shouldInclude+'] shouldExclude ['+shouldExclude+']   ans=>'+((shouldInclude) && (!shouldExclude)));
+			      }
+			      
+			      return ((shouldInclude) && (!shouldExclude));
+			  });
+		      }
+		  });		  
+		  return ans;
+	      },
+	      */
+
+	      editDetail: async function(item) {
+		  console.log('item:',item);
+		  return this.toolbarAction(item);
+	      },
+	      toolbarAction: async function(item) {
+		  let selectedIds = [];
+		  if (!item) selectedIds = this.selected.map(s => s.id);
+		  else selectedIds.push(item.raw.id);
+		  console.log('selectedIds:',selectedIds);
+		  if (!await this.$refs.confirm.open("Confirm",'Run action on ids ['+selectedIds+']')) {
+		      console.log('ACTION CANCELED');
+		  } else {
+		      this.progressDialog=true;
+		      for (let ndx=0;ndx<selectedIds.length;ndx++) {
+			  this.percentComplete = ((ndx+1) / selectedIds.length)*100;
+			  await tmb.sleep(1000);
+		      }
+		      this.progressDialog=false;
+		  }
+	      },
+	      
+	      allHeaders() {
+		  return [
+		      { title: 'Actions', key: 'actions', sortable:false, required:true},
+		      { title: 'id', key: 'id', sortable:true, required:true},
+		      {
+			  title: 'Referring',
+			  key: 'referring_physician',
+			  required: true,
+			  align: 'start',
+			  sortable: true,
+			  //formatter: (v)=>{return 'XX_'+v},
+		      },
+		      { title: 'Conditions',key: 'condition_tags', columnfilter: {arrayfield: true}},
+		      { title: 'Contact', align: 'end', key: 'contact',columnfilter: {}, tooltip: ''},		      
+		  ]
+	      },
+	      
+	      forceLoadData: async function() {
+		  return this.loadData(true);
+	      },
+	      loadData: async function(force) {
+
+		  let yoda1 = tmb.adjustDayOfDateStr(tmb.yoda(),-1 * 30);
+		  let yoda2 = tmb.adjustDayOfDateStr(tmb.yoda(),-2 * 30);
+		  let yoda3 = tmb.adjustDayOfDateStr(tmb.yoda(),-3 * 30);
+		  let yoda4 = tmb.adjustDayOfDateStr(tmb.yoda(),-4 * 30);
+		  
+		  let url = '/referral/api?'; //get returns all of them.
+		  
+		  let queryObj = {format:'json'};
+		  url = url + new URLSearchParams(queryObj).toString();		  
+		  console.log('URL:'+url);		  
+		  this.dataItems = await this.processApiCall(url);
+		  if (this.dataItems === null) {
+		      this.dataItems = [
+			  {id: 1, ref_date: tmb.yoda(), referring_physician: 'Dr. Wellington',condition_tags: ['Nervous','Confused'],contact:'Arthur Dent'},
+			  {id: 2, ref_date: tmb.yoda(), referring_physician: 'Dr. Billy Bob',condition_tags: ['Hedonistic','Irresponsible'],contact:'Zaphod Beeblebrox'},
+			  {id: 3, referring_physician: 'Dr. Billy Bob',condition_tags: ['Mechanical','Depressed'],contact:'Marvin'},
+			  {id: 4, referring_physician: 'Killer Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  
+			  {id: 5, referring_physician: 'Silly Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 6, referring_physician: 'Goofy Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 7, referring_physician: 'Bizzare Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 8, referring_physician: 'Doufus Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+
+		      ];
+		  }
+
+		  //console.log('RETURNED ITEMS:',this.dataItems);
+	      },
+
+      	      processApiCall: async function(url,item, multipart) {
+		  let [err,res] = await tmb.eitherFetch(url,item,multipart);
+		  if (err) {
+		      this.alert = true;
+		      this.alertText = err;
+		  } else {
+		      return res;
+		  }
+		  return null;
+	      },
+
+	      //Here is where we define our row level filters.
+	      //This needs to be here for the ctx(this) usage.
+	      rowFilters: function(ctx) {
+		  return {
+		      A_Checked: {
+			  name: 'Checked',		    
+			  func: function(row) {
+			      return ctx.selected.some(selRow => selRow.id == row.id);
+			  },
+		      },
+		      DVT: {
+			  name: 'Has a Confused condition',
+			  color: 'blue lighten-2',
+			  tooltip: 'Patient has Confusion',
+			  func: function(row) {
+			      return (row.condition_tags.includes('Confused'));
+			  },
+		      },
+		  }
+	      },
+
+	      
+	  },
+	  watch: {
+
+	  },
+	  created() {
+	      this.loadData();
+	  },
+
+      });
+
+      app.use(vuetify);
+
+      app.mount('#app')
+    </script>
+    
+  </body>
+</html>
+
