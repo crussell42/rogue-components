@@ -84,47 +84,59 @@
 		<v-row>
 		</v-row>
 		<v-row>
-		  <v-col cols="6">
+		  <v-col cols="12">
 		    <v-form
 		      v-model="phoneform"
 		      @submit.prevent="onSubmit"
 		      validate-on="submit"
 		      >
 			  
-
-		      <v-card>
+		      
+		      <v-card>			
 			<v-card-text>
-			  <rc-phone-field
-			    v-model="testphone"
-			    :rules=[validPhone]
-			    label="Test Phone"
-			    variant="underlined"
-			    class="pa-4"
-			    clearable>
-			  </rc-phone-field>
-			  
-			  <rc-pattern-field
-			    ref="bob"
-			    field-pattern="???-??-????"
-			    v-model="testssn"
-			    :rules=[myrule]
-			    label="Test SSN"
-			    variant="underlined"
-			    class="pa-4"
-			    clearable>
-			  </rc-pattern-field>
-			  
-			  <rc-pattern-field
-			    ref="fred"
-			    field-pattern="???.??"		
-			    v-model="testmoney"
-			    :rules=[fredrule]
-			    label="Test Money"
-			    variant="underlined"
-			    class="pa-4"
-			    clearable>
-			  </rc-pattern-field>
-			  
+			  <v-row>
+			    <v-col cols="6">
+			      <rc-phone-field
+				v-model="testphone"
+				:rules=[validPhone]
+				label="Test Phone"
+				variant="underlined"
+				class="pa-4"
+				clearable>
+			      </rc-phone-field>
+			      
+			      <rc-pattern-field
+				ref="bob"
+				field-pattern="???-??-????"
+				v-model="testssn"
+				:rules=[myrule]
+				label="Test SSN"
+				variant="underlined"
+				class="pa-4"
+				clearable>
+			      </rc-pattern-field>
+			      
+			      <rc-pattern-field
+				ref="fred"
+				field-pattern="???.??"		
+				v-model="testmoney"
+				:rules=[fredrule]
+				label="Test Money"
+				variant="underlined"
+				class="pa-4"
+				clearable>
+			      </rc-pattern-field>
+			    </v-col>
+			    <v-col cols="6">
+			      <rc-tags-add-field
+				:items="availabletesttags"
+				v-model:selected="testtags"
+				:colorsmap="{goofy:'blue',smelly:'red'}"			    
+				>
+				
+			      </rc-tags-add-field>
+			    </v-col>
+			  </v-row>
 			</v-card-text>
 			<v-card-actions>
 			  <v-btn			  
@@ -138,6 +150,8 @@
 			</v-card-actions>
 		      </v-card>
 		    </v-form>
+
+
 		  </v-col>
 		</v-row>
 		<v-row>
@@ -160,7 +174,7 @@
 			
 			v-model:selectedrowfilterkeys="selectedRowFilterKeys"
 			v-model:selectedcolumnfilters="selectedColumnFilters"
-			
+		
 			export-file-name="silly-file-name"
 			title="RcTable"
 			>
@@ -272,6 +286,7 @@
       //replaced with rc-pattern-field....still a work in progress.
       import {RcPhoneField,validPhone,formattedPhoneNumber,digitsPhoneNumber} from '/static/components/RcPhoneField.js'
       import {RcPatternField} from '/static/components/RcPatternField.js'
+      import {RcTagsAddField} from '/static/components/RcTagsAddField.js'
       import {RcBastardScroll} from '/static/components/RcBastardScroll.js'
 
       //Play with composables...not really used in this test page since no side menus.
@@ -284,6 +299,7 @@
 	      RcConfirmDialog,
 	      RcPhoneField,
 	      RcPatternField,
+	      RcTagsAddField,
 	      RcBastardScroll,
 	  },
 	  
@@ -306,8 +322,10 @@
 		  phoneform: false,
 		  testphone: '123.456.7890',
 		  testssn: '12345',
-		  testmoney: '099.49',		  
-
+		  testmoney: '099.49',
+		  availabletesttags: ['Silly','Goofy','Smelly'],
+		  testtags: [],
+		  
 		  //error amd error messages
 		  alert: false,
 		  alertText:  '',
@@ -365,7 +383,8 @@
 	      onSubmit() {
 		  console.log('SUBMIT formatted phone:',this.testphone,' digits only:',digitsPhoneNumber(this.testphone));
 		  console.log('SUBMIT digits ssn:',this.$refs.bob.extractPattern(this.testssn));
-		  console.log(RcPatternField.methods.mDamnit());
+		  //ugly singleton usage console.log(RcPatternField.methods.mDamnit());
+		  console.log('SUBMIT testtags:',this.testtags);
 		  
 	      },
 

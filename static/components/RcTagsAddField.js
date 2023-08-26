@@ -5,11 +5,11 @@ export const RcTagsAddField = {
 	items: {type: Array, default: function() {return []}},	
 	selected: {type: Array, default: function() {return []}},
 
-	label: {type: String, default: 'Tags'},
-	hint: {type: String, default: 'Type condition name if not listed and hit <Enter>'},
+	label: {type: String, default: 'Test Tags'},
+	hint: {type: String, default: 'Type a tag if not listed and hit <Enter>'},
 
 	lowercase: {type: Boolean, default: false},
-	colorsmap: {type: Object, default: function () {return {dvt:'purple',sales:'green', manager: 'yellow', developer:'orange'}}},
+	colorsmap: {type: Object, default: function () {return {dvt:'purple'}}},
 	name: {type: String, default: 'tagsaddfield'}
     },
     setup(props,context) {
@@ -96,7 +96,8 @@ export const RcTagsAddField = {
 	  	  
           :menu-props="{closeOnContentClick:true}"
           :rules="editRules"
-	  variant="underlined"
+
+	  v-bind="$attrs"
 
 	  :name="name"
 	  >
