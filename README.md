@@ -1,8 +1,8 @@
 # rogue-components
 
-## The 'EUE' style...(pronounced Eeeewwww)
-Originated from ejs server side templating in node with vue as UI. The EUE style may fall outside of the standard acceted celaphane wrapped standards of the day but work and are in fact used in active projects although mostly in internal projects. May include ugly server side templating in ejs, django, etc.
-If you dont fully drink the koolaid of micro services, typescript, obfuscation, chunking, hydration, treeshaking, spas and amorphous programming; these components are for you.  -Or-, if you actually just need to get something done and want to be able to understand the source they may be for you.
+## Reasoning
+I like the look of vuetify and appreciate their work so wanted to add some examples in hopes of increased adoption.
+Wanted to go ahead and try converting some of my 2.6 vue stuff to vue 3ish. 
 
 ## Component general rules
 * VUE3...Currently 3.2.47
@@ -15,7 +15,7 @@ If you dont fully drink the koolaid of micro services, typescript, obfuscation, 
 * UMD Downloads and IIFE (Immediately Invoked Function Expression js library (e.g. it appends itsself to the window object if in a browser)) 
 * ECMA script type="importmap" and script type="module" usage where possible
 * EMACS Written entirely within emacs.
-* ROGUE..Some small animals may have been harmed during the making of these. (mostly fish but dont ask)
+* ROGUE..Some small creatures may have been harmed during the making of these. (mostly fish but dont ask)
 * MIXINS...yes but only because I havn't converted my mixins to composables and I'm not sure I want to.
 
 **DEPENDENCIES:**
@@ -58,9 +58,27 @@ The test programs and components depend on relative urls:
 Thats is. Clean-ish and simple.
 
 ## Live preview
-https://aerospacey.io/demo/rogue-components
+https://aerospacey.io/demo/rogue-components/index.html
 
 ## Screen Grabs
 
 
-![Screenshot at 2023-08-26 10-56-22](https://github.com/crussell42/rogue-components/assets/6598114/cfb81a1d-103f-4845-b672-a5fd16ee8813)
+![Screenshot at 2023-08-26 19-44-09](https://github.com/crussell42/rogue-components/assets/6598114/afe0a97b-769a-4db3-927c-4f08784ecea8)
+
+
+## Observations: Vue 2.6 to Vue 3 and Vuetify2 to Vuetify3
+* In general I have been able to convert my ver 2 stuff to ver 3 mostly by ignoring composition at first then refactoring later.
+* I think having straight named object components has simplified things 
+* Slot changes in vuetify have caused the most greif.
+  * v-data-table v-slot:header.<keyName> is now column.<keyName>
+  * v-data-table v-slot:body.append is gone.
+  * v-bind, v-on merged now v-bind=mergeProps(menu,tooltip) (import mergeProps from vue)
+  * activator now v-slot:activator="{props: menu}
+  * align="right" is now align="end"
+
+## The 'EUE' style...(pronounced Eeeewwww)
+Originated from ejs server side templating in node with vue as UI. The EUE style may fall outside of the standard accepted and sterile standards of the day, but work and are in fact used in active projects although mostly in internal projects. May include ugly server side templating in ejs, django, etc.
+If you dont fully drink the koolaid of micro services, typescript, obfuscation, chunking, hydration, treeshaking, spas and amorphous programming; these components may be for you.  -Or-, if you actually just need to get something done or want an easy to read and understandable source they may be for you.
+
+
+
