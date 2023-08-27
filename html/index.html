@@ -347,7 +347,7 @@
 		  selectedRowFilterKeys: [],
 		  selectedColumnFilters: [],
 		  itemsPerPage: 5,
-		  visibleHeaderNames: ['Referring','Conditions','Contact'],
+		  visibleHeaderNames: ['RefDate','Friends','Referring','Conditions','Contact'],
 		  //Note: allHeaders is a method that returns the header definitions....needs to be a method not computed.
 	      }
 	  },	  
@@ -423,14 +423,23 @@
 	      allHeaders() {
 		  return [
 		      { title: 'Actions', key: 'actions', sortable:false, required:true},
-		      { title: 'id', key: 'id', sortable:true, required:true},
+		      { title: 'id', key: 'id', required:true},
 		      {
 			  title: 'Referring',
 			  key: 'referring_physician',
 			  required: true,
 			  align: 'start',
-			  sortable: true,
-			  //formatter: (v)=>{return 'XX_'+v},
+		      },
+		      {
+			  title: 'RefDate',
+			  key: 'ref_date',			  
+		      },
+		      {
+			  title: 'Friends',
+			  key: 'friends',
+			  formatter: tmb.commaStr,
+			  align: 'end',
+			  totaler: tmb.sumFilteredColumn,
 		      },
 		      { title: 'Conditions',key: 'condition_tags', columnfilter: {arrayfield: true}},
 		      { title: 'Contact', align: 'end', key: 'contact',columnfilter: {}, tooltip: ''},		      
@@ -455,15 +464,15 @@
 		  this.dataItems = await this.processApiCall(url);
 		  if (this.dataItems === null) {
 		      this.dataItems = [
-			  {id: 1, ref_date: tmb.yoda(), referring_physician: 'Dr. Wellington',condition_tags: ['Nervous','Confused'],contact:'Arthur Dent'},
-			  {id: 2, ref_date: tmb.yoda(), referring_physician: 'Dr. Billy Bob',condition_tags: ['Hedonistic','Irresponsible'],contact:'Zaphod Beeblebrox'},
-			  {id: 3, referring_physician: 'Dr. Billy Bob',condition_tags: ['Mechanical','Depressed'],contact:'Marvin'},
-			  {id: 4, referring_physician: 'Killer Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 1, ref_date: yoda1, friends: 42.5,referring_physician: 'Dr. Wellington',condition_tags: ['Nervous','Confused'],contact:'Arthur Dent'},
+			  {id: 2, ref_date: yoda2, friends: 4250,referring_physician: 'Dr. Billy Bob',condition_tags: ['Hedonistic','Irresponsible'],contact:'Zaphod Beeblebrox'},
+			  {id: 3, ref_date: yoda2, friends: 0,   referring_physician: 'Dr. Bad Curry',condition_tags: ['Mechanical','Depressed'],contact:'Marvin'},
+			  {id: 4, ref_date: yoda2, friends: 9999,referring_physician: 'Killer Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
 			  
-			  {id: 5, referring_physician: 'Silly Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
-			  {id: 6, referring_physician: 'Goofy Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
-			  {id: 7, referring_physician: 'Bizzare Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
-			  {id: 8, referring_physician: 'Doufus Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 5, ref_date: yoda3, friends: 7000,referring_physician: 'Silly Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 6, ref_date: yoda2, friends: 77,  referring_physician: 'Goofy Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 7, ref_date: yoda4, friends: 956, referring_physician: 'Bizzare Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 8, ref_date: yoda4, friends: 789, referring_physician: 'Doufus Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
 
 		      ];
 		  }

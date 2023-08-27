@@ -417,7 +417,19 @@ export const RcTable = {
 	    </template>
 
 
-		
+	    <template v-slot:tfoot>	      
+	      <tr>
+		<td/>
+		<td v-for="visHead in visibleHeaders" align="right" class="pr-4">
+		  <b v-if="visHead.hasOwnProperty('totaler')">
+		    <strong>
+		      {{visHead.totaler(filtereditems,visHead.key)}}
+		    </strong>
+		  </b>
+		</td>
+	      </tr>	      
+	    </template>
+
 	  </v-data-table>
 
 	  

@@ -157,12 +157,19 @@ var tmb = (function() {
 	if (v != null) return Number(v).toLocaleString('en-US', {style:'percent'});
     }
 
-    tmb.sumFilteredColumn = function(items,columnName) {
+    tmb.sumFilteredMoneyColumn = function(items,columnName) {
 	const tot = items.reduce((acc,itm) => {acc += (1 * _.get(itm,columnName));return acc},0);
 	return tmb.moneyStr(tot);
 	//const prettyTot = Number(tot).toLocaleString('en-US',{style: 'currency',currency: 'USD'});
 	//return prettyTot;
     },
+    tmb.sumFilteredColumn = function(items,columnName) {
+	const tot = items.reduce((acc,itm) => {acc += (1 * _.get(itm,columnName));return acc},0);
+	return tmb.commaStr(tot);
+	//const prettyTot = Number(tot).toLocaleString('en-US',{style: 'currency',currency: 'USD'});
+	//return prettyTot;
+    },
+
     tmb.sumFilteredIntColumn = function(items,columnName) {
 	const tot = items.reduce((acc,itm) => {acc += (1 * _.get(itm,columnName));return acc},0);
 	return tmb.commaIntStr(tot);
