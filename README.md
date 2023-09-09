@@ -19,8 +19,9 @@ Wanted to go ahead and try converting some of my 2.6 vue stuff to vue 3ish.
 * MIXINS...yes but only because I havn't converted my mixins to composables and I'm not sure I want to.
 
 **DEPENDENCIES:**
-  1. lodash@4.17.15 Sorry (not sorry).
-  2. vue-json-excel3@1.0.0 for export csv/pdf/excel functionality
+  1. my browser util code static/js/tmb.js
+  2. lodash@4.17.15 Sorry (not sorry).
+  3. vue-json-excel3@1.0.0 for export csv/pdf/excel functionality
 
 **Components**
 * **RcTable.js**...a wrapper for v-data-table that adds a bunch of functionality. In particular:
@@ -40,15 +41,16 @@ Wanted to go ahead and try converting some of my 2.6 vue stuff to vue 3ish.
 * **RcTagsAddField.js**..Lets you select tags and add a tag if it does not alread exist.
 * **RcPhoneField.js**..A sensible phone number input field...pattern based
 * **RcPatternField.js**..General purpose version of a phone field...somewhat helpful
+* **RcNamedDaterange.js**..Date range picker with some named ranges (for instance 'This Quarter')
 
 ## Install
 $ git clone https://github.com/crussell42/rogue-components.git
 
 ## Directory layout
 * rogue-components/
-    * html/index.html the test page
+    * html/index.html components test page
     * static/components...where the js components live.
-    * static/js...where my ugly tool code lives
+    * static/js...where my ugly tmb tool code lives
 
 So just run a nginx or apache or what ever and serve the html and static dirs.
 The test programs and components depend on relative urls:
@@ -81,4 +83,26 @@ Originated from ejs server side templating in node with vue as UI. The EUE style
 If you dont fully drink the koolaid of micro services, typescript, obfuscation, chunking, hydration, treeshaking, spas and amorphous programming; these components may be for you.  -Or-, if you actually just need to get something done or want an easy to read and understandable source they may be for you.
 
 
+## Sample nginx configuration to run the component test page.
+The html dir and static dir must be served. Use nginx alias to achieve this.
+
+`
+server {
+	listen 80;
+	listen [::]:80;
+
+	server_name roxy 192.168.1.12;
+
+	root /home/chris/rogue-components/html;
+	index index.html;
+
+	location /static/ {
+	        alias /home/chris/rogue-components/static/;	
+	}
+	location / {
+		try_files $uri $uri/ =404;
+	}
+	
+}
+`
 
