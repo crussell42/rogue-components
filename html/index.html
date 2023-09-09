@@ -138,6 +138,20 @@
 				
 			      </rc-tags-add-field>
 			    </v-col>
+			    <!--
+			    <v-col cols="6">
+			      ~{dateRange}~|~{dateRangeText}~|~{selectedDateRangename}~
+			    </v-col>
+			    -->
+			    <v-col cols="6">
+			      <rc-named-daterange
+				v-model:daterange = "dateRange"
+				v-model:daterangetext = "dateRangeText"
+				v-model:selecteddaterangename = "selectedDateRangename"
+				>				
+			      </rc-named-daterange>
+			    </v-col>
+
 			  </v-row>
 			</v-card-text>
 			<v-card-actions>
@@ -290,6 +304,7 @@
       import {RcPatternField} from '/static/components/RcPatternField.js'
       import {RcTagsAddField} from '/static/components/RcTagsAddField.js'
       import {RcBastardScroll} from '/static/components/RcBastardScroll.js'
+      import {RcNamedDaterange} from '/static/components/RcNamedDaterange.js'
 
       //Play with composables...not really used in this test page since no side menus.
       //import {useSideMenuItems} from '/static/components/RcSideMenu.js'
@@ -302,6 +317,7 @@
 	      RcPhoneField,
 	      RcPatternField,
 	      RcTagsAddField,
+	      RcNamedDaterange,
 	      RcBastardScroll,
 	  },
 	  
@@ -351,6 +367,11 @@
 		  itemsPerPage: 5,
 		  visibleHeaderNames: ['RefDate','Friends','Referring','Conditions','Contact'],
 		  //Note: allHeaders is a method that returns the header definitions....needs to be a method not computed.
+
+		  dateRange: [tmb.yoda(),tmb.yoda()],
+		  dateRangeText: '',
+		  selectedDateRangename: 'Today',
+
 	      }
 	  },	  
 	  computed: {
@@ -385,7 +406,9 @@
 	      onSubmit: async function() {
 		  let msg = 'SUBMIT formatted phone:'+this.testphone+'<br/>digits only:'+digitsPhoneNumber(this.testphone)+'<br/>'+
 		      'digits ssn:'+this.$refs.bob.extractPattern(this.testssn)+'</br>'+
-		      'testtags:'+this.testtags;
+		      'testtags:'+this.testtags+'</br>'+
+		      'dateRangeText:'+this.dateRangeText;
+;
 		  if (!await this.$refs.confirm.open("Confirm",msg)) {
 		      console.log('ACTION CANCELED');
 		  } 
@@ -421,7 +444,10 @@
 		      this.progressDialog=false;
 		  }
 	      },
-	      
+
+	      //Normal vuetify headers + a columnfilter definition, required flag, formatter, and totaler.
+	      //See RcColumnFilter for discussion of available properties for a column filter.
+	      //The defaut column filter is based on the unique values of a column...e.g. columnfilter:{}
 	      allHeaders() {
 		  return [
 		      { title: 'Actions', key: 'actions', sortable:false, required:true},
@@ -434,7 +460,20 @@
 		      },
 		      {
 			  title: 'RefDate',
-			  key: 'ref_date',			  
+			  key: 'ref_date',
+			  columnfilter: {
+			      dataType: 'date',
+			      showexclude: true,
+			      ranges: [
+				  // ops: how to treat range, range is an array of 1 or 2 'yyyy-mm-dd' strings
+				  // ops available: 'inclusive-range','gt','lt','gte','lte'
+				  // See RcTableMixins for handling of these and tmb for the thirtyRange helper.
+				  {name: '1..30 Days',ops:'inclusive-range',  range: tmb.thirtyRange(1)},
+				  {name: '31..60 Days',ops:'inclusive-range', range: tmb.thirtyRange(2)},
+				  {name: '61..90 Days',ops:'inclusive-range', range: tmb.thirtyRange(3)},
+				  {name: 'Over 90 Days',ops: 'lt',            range: [tmb.adjustDayOfDateStr(tmb.yoda(),-90)]},
+			      ],
+			  },
 		      },
 		      {
 			  title: 'Friends',
@@ -467,7 +506,7 @@
 		  if (this.dataItems === null) {
 		      this.dataItems = [
 			  {id: 1, ref_date: yoda1, friends: 42.5,referring_physician: 'Dr. Wellington',condition_tags: ['Nervous','Confused'],contact:'Arthur Dent'},
-			  {id: 2, ref_date: yoda2, friends: 4250,referring_physician: 'Dr. Billy Bob',condition_tags: ['Hedonistic','Irresponsible'],contact:'Zaphod Beeblebrox'},
+			  {id: 2, ref_date: '2020-03-01', friends: 4250,referring_physician: 'Dr. Billy Bob',condition_tags: ['Hedonistic','Irresponsible'],contact:'Zaphod Beeblebrox'},
 			  {id: 3, ref_date: yoda2, friends: 0,   referring_physician: 'Dr. Bad Curry',condition_tags: ['Mechanical','Depressed'],contact:'Marvin'},
 			  {id: 4, ref_date: yoda2, friends: 9999,referring_physician: 'Killer Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
 			  

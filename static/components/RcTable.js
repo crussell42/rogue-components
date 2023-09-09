@@ -138,7 +138,7 @@ export const RcTable = {
 
 	selectedRowFilterKeysLocal: {
 	    //This computed (from prop selectedrowfilters) directly affects filtereditems.
-	    //If a row filter is selected from the ux dropdown in osa-table-toolbar then the set is called.
+	    //If a row filter is selected from the ux dropdown in rc-table-toolbar then the set is called.
 	    //When set is called, an event is emitted and in the parent computed filteredItems uses the
 	    //filter function....why there and not here since they were passed in???
 	    get: function() {
@@ -152,9 +152,7 @@ export const RcTable = {
 	
     },
     methods: {
-	wank() {
-	    console.log('WANKER');
-	},
+
 	//In vuetify2 this would have 
 	//Captured the @current-items event from the table.
 	//This in turn is used to allow the RcSelecctMenu to be able to select items on "This Page".
@@ -166,7 +164,7 @@ export const RcTable = {
 	//},
 	optionsUpdate: function(evt) {
 	    //This called each time pagination changes.
-	    console.log('optionsUpdate:',evt);
+	    //console.log('optionsUpdate:',evt);
 	    this.tableOptions = evt;	    
 	},
 	//return null, 'asc', 'desc' for a column key
@@ -188,7 +186,7 @@ export const RcTable = {
 	    if (this.columnSortedBy(keyname) == 'desc') return true;
 	    return false;
 	},
-	wankerTooltip: function(head) {
+	sortTooltip: function(head) {
 	    //return head.tooltip;
 	    
 	    if ((head.tooltip)&&(head.tooltip.length>0)) {
@@ -204,14 +202,7 @@ export const RcTable = {
 		    }
 		}
 		let nextSortOrder = (curSortOrder==='asc')?'sort descending':(curSortOrder==='desc')?'unsort':'sort ascending';
-		//INFINITE LOOP???????let foundOrder = this.columnSortedBy(bhead.key); nextTick????
-		//console.log('ZING:',curSortOrder);
-		//let dog = 'wtf'; //this.tableOptions.sortBy[0].order;
-		//console.log('dog:',dog);
-		//if (isAscSort(head.key)) return 'click to sort descending';
-		//if (isDescSort(head.key)) return 'click to unsort';
 		return nextSortOrder;
-
 	    }	   
 	},
 	/* Vuetify 3 does not support :item-class property on v-data-table yet so hide for now
@@ -357,7 +348,7 @@ export const RcTable = {
 		    <strong>{{ column.title }}</strong>
 		  </v-chip>
 		</template>
-		<div v-html="wankerTooltip(bhead)"></div>
+		<div v-html="sortTooltip(bhead)"></div>
 	      </v-tooltip>
 
 	      <v-chip

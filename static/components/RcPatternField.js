@@ -100,6 +100,10 @@ export const RcPatternField = {
 	const pcursor = ref(0);
 	const pkey = ref(null);
 
+	const kqueue = ref([]);
+	const snackbar = ref(false);
+	const snackbartext = ref('');
+	const snacktime = ref(500);
 	//METHODS TO EXPORT.
 
 	//Given a pattern check if an offset falls on a dead (non typable) spot ??deadspots?? if patternChar is ?
@@ -182,11 +186,17 @@ export const RcPatternField = {
 	    validPattern,
 	    extractPattern,
 	    formatPattern,
+
+	    snackbar,
+	    snackbartext,
+	    snacktime,
+	    kqueue,
 	}
     },
 
     data: function() {
 	return {
+	    lastCursorPos:-2,
 	}
     },
 
@@ -312,6 +322,11 @@ export const RcPatternField = {
 	// If I have time I may create a fifo queue of key,cursorPos tuples ro work from rather than
 	// this.pkey and this.pfield.selectionStart
 	modelUpdated(newVal) {
+
+	    let s = newVal.substring(0,this.pfield.selectionStart);
+	    let e = newVal.substring(this.pfield.selectionStart);
+	    let prettyNewVal = s+'|'+e;
+	    this.snack(5000,'['+this.modelValueLocal+']('+this.modelValueLocal.length+') => ['+prettyNewVal+']('+newVal.length+') cursor:'+this.pfield.selectionStart);
 	    //console.log('J:',jumpOffsets());
 	    //console.log('\nmodelUpdated selectStart:'+this.pfield.selectionStart+' local['+this.modelValueLocal+'] val['+newVal+']');
 	    if ((newVal==null)||(newVal.length==0)) {
@@ -360,12 +375,91 @@ export const RcPatternField = {
 	},
 
 
-	
-	//every time key is pressed, save the key for use above
+	//This method is persona nongrati now....damn google!
+	//https://bugs.chromium.org/p/chromium/issues/detail?id=118639#c259
+	//
+	//every time key is pressed, save the key for use above	
 	keyEvent(evt) {
-	    this.pkey = evt.key;
-	    //Could build queue.
-	    
+	    this.pkey = evt.key; //JSON.stringify(evt);
+	    this.kqueue.push(evt.key);
+	    this.snack(1000,'key['+evt.key+'] code['+evt.code+'] keyCode['+evt.keyCode+'] ['+evt.detail?.key+']');
+	},
+
+	XmodelUpdated(newVal) {
+
+	    let s = newVal.substring(0,this.pfield.selectionStart);
+	    let e = newVal.substring(this.pfield.selectionStart);
+	    let prettyNewVal = s+'|'+e;
+	    //this.snack(5000,'['+this.modelValueLocal+']('+this.modelValueLocal.length+') => ['+prettyNewVal+']('+newVal.length+') cursor:'+this.pfield.selectionStart);
+	    //console.log('J:',jumpOffsets());
+	    //console.log('\nmodelUpdated selectStart:'+this.pfield.selectionStart+' local['+this.modelValueLocal+'] val['+newVal+']');
+	    if (this.pfield.selectionStart != this.lastCursorPos) console.log('cursor '+this.lastCursorPos+' => '+this.pfield.selectionStart);
+	    if (newVal.length>this.modelValueLocal.length) {
+		//INSERT
+		console.log('insert');
+	    } else if (newVal.length<this.modelValueLocal.length) {
+		//DELETE....
+		console.log('delete');
+		
+	    }
+	    this.lastCursorPos = this.pfield.selectionStart;
+	    /*
+	    if ((newVal==null)||(newVal.length==0)) {
+		return this.jumpSplat(RIGHT,0,this.fieldPattern);
+	    }
+	    if (this.pfield.selectionStart > this.fieldPattern.length) {
+		return this.jumpSplat(RIGHT,0);
+	    }
+
+	    if (deleteKeys.includes(this.pkey)) {
+		// DELETE KEYS
+		// When a delete key is hit, the cursor remains where it was in the input field
+		// (or put another way nothing was inserted so cursor did not move) and so
+		// our 'deleteNdx is just the cursor position.
+		// For a 'Delete' leave the cursor where it was.
+		// For a 'Backspace' move it left (delete left)
+		//   if 'Delete' hit in dead space jump right
+		//   if 'Backspace' hit in dead space jump left
+		//console.log(this.pkey+' at '+deleteNdx);
+		
+		let deleteNdx = this.pfield.selectionStart;		
+		let deleteVal;
+		if (!this.isSpotDead(deleteNdx)) deleteVal = tmb.replaceAt(this.modelValueLocal,deleteNdx,'?');
+		this.jumpSplat((this.pkey=='Delete'),deleteNdx,deleteVal);
+
+	    } else {
+		// CHARACTER KEYS
+		// 
+		let inputCursor = this.pfield.selectionStart - 1;
+		if (inputCursor<0) inputCursor=0;
+
+		let addedChar = newVal[this.pfield.selectionStart==0?this.pfield.selectionStart:this.pfield.selectionStart-1];
+		//console.log('  addedChar=>',tmb.nub(addedChar));
+		    
+		let replaceNdx = this.endAdjust(inputCursor);
+		let newCursorPosition=digitKeys.includes(addedChar)?this.nextGoodSpot(replaceNdx):this.nextGoodSpot(inputCursor);
+		    
+		//if they inserted a valid char move to current cursor position (set to one past where they typed char).
+		//invalid chars, we are actually moving cursor back one.
+		let replaceVal;
+		if (digitKeys.includes(addedChar)) replaceVal = tmb.replaceAt(this.modelValueLocal,replaceNdx,addedChar);
+		else newCursorPosition = inputCursor
+		//console.log('      newCursorPosition:',newCursorPosition);
+		this.jumpSplat(RIGHT,newCursorPosition,replaceVal); 
+	    }
+	    */
+	},
+	
+	snack: async function(howLong,msg) {
+	    console.log(msg);
+	    //while (this.snackbar) await tmb.sleep(500);
+	    //this.snacktime=howLong;
+	    //this.snackbar=true;
+	    //this.snackbartext = msg;
+	    //DEL [123-45-6789](11) => [123-45-67|9](10) cursor:9
+	    //BSP [123-45-6789](11) => [123-45-67|9](10) cursor:9
+	    //INS [123-45-67?9](11) => [123-45-678|?9](12) cursor:10
+
 	},
     },
 
@@ -381,6 +475,10 @@ export const RcPatternField = {
 	@keydown="keyEvent"	
 	>
       </v-text-field>
+
+      <v-snackbar v-model="snackbar" :timeout="snacktime">
+	{{snackbartext}}
+      </v-snackbar>
        
     `,
 }

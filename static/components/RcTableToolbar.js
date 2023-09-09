@@ -316,7 +316,7 @@ export const RcTableToolbar = {
     <v-toolbar
       color="white"
       flat
-      dense
+      density="compact"
       rounded
       >
       

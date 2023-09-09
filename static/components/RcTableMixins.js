@@ -53,6 +53,7 @@ export const RcTableMixins = {
 	    let ans = items;
 	    
 	    selectedFilters.forEach((filterAction) => {
+		//console.log('filterAction:',filterAction);
 		let head = this.visibleHeaders.find((vh) => (vh.key == filterAction.cname));		
 		if (head) {
 		    let valDataType = 'string';
@@ -80,34 +81,39 @@ export const RcTableMixins = {
 			    }
 			    //console.log('inc:'+shouldInclude+' exc:'+shouldExclude);
 			} else if (valDataType == 'date') {
-			    let range1 = tmb.thirtyRange(1);
-			    let range2 = tmb.thirtyRange(2);
-			    let range3 = tmb.thirtyRange(3);
+			    //head has the full column filter in it.
 			    if ((filterAction.includeValues)&&(filterAction.includeValues.length>0)) {
 				shouldInclude = filterAction.includeValues.reduce((showRow,includeValue)=>{
-				    if (includeValue == '1..30 Days') {
-					return showRow || ((i.s_date >= range1[0]) && (i.s_date <= range1[1]));
-				    } else if (includeValue == '31..60 Days') {
-					return showRow || ((i.s_date >= range2[0]) && (i.s_date <= range2[1]));
-				    } else if (includeValue == '61..90 Days') {
-					return showRow || ((i.s_date >= range3[0]) && (i.s_date <= range3[1]));
-				    } else if (includeValue == 'Over 90 Days') {
-					return showRow || (i.s_date < range3[0]);
-				    } else return showRow || true;
+				    let farr = head.columnfilter.ranges.filter((r) => {
+					return r.name == includeValue
+				    });
+				    if ((farr)&&(farr.length>0)) {
+					return showRow || this.dateRangeOp(val,farr[0].ops,farr[0].range);
+				    } else return false;
+				    
 				},false);
 			    }
 			    if ((filterAction.excludeValues)&&(filterAction.excludeValues.length>0)) {
 				shouldExclude=filterAction.excludeValues.reduce((showRow,excludeValue)=>{
+				    let excludeRangeDefs = head.columnfilter.ranges.filter((rd) => {
+					return rd.name == excludeValue
+				    });
+				    if ((excludeRangeDefs)&&(excludeRangeDefs.length>0)) {
+					let excludeRangeDef = excludeRangeDefs[0];
+					return showRow || this.dateRangeOp(val,excludeRangeDef.ops,excludeRangeDef.range);
+				    } else return false;
+
+				    /*
 				    if (excludeValue == '1..30 Days') {
-					//console.log('row match '+(showRow || ((i.ac_invoice_date >= range1[0]) && (i.ac_invoice_date <= range1[1]))));
-					return showRow || ((i.s_date >= range1[0]) && (i.s_date <= range1[1]));
+					return showRow || ((val >= range1[0]) && (val <= range1[1]));
 				    } else if (excludeValue == '31..60 Days') {
-					return showRow || ((i.s_date >= range2[0]) && (i.s_date <= range2[1]));
+					return showRow || ((val >= range2[0]) && (val <= range2[1]));
 				    } else if (excludeValue == '61..90 Days') {
-					return showRow || ((i.s_date >= range3[0]) && (i.s_date <= range3[1]));
+					return showRow || ((val >= range3[0]) && (val <= range3[1]));
 				    } else if (excludeValue == 'Over 90 Days') {
-					return showRow || (i.s_date < range3[0]);
+					return showRow || (val < range3[0]);
 				    } else return showRow || false;
+				    */
 				},false);
 			    }
 			    
@@ -120,5 +126,23 @@ export const RcTableMixins = {
 	    });		  
 	    return ans;
 	},
+
+	//Should go ahead and create a reverse polish notation (infix,prefix) processor using eval but this is just a example
+	dateRangeOp(val,op,range) {
+	    //console.log('val['+val+'] op['+op+'] range:',range);
+	    if (op == 'inclusive-range') {
+		if ((val>=range[0])&&(val<=range[1])) return true;
+	    } else if (op == 'lt') {
+		return val<range[0];
+	    } else if (op == 'lte') {
+		return val<=range[0];
+	    } else if (op == 'gt') {
+		return val>range[0];
+	    } else if (op == 'gte') {
+		return val>=range[0];
+	    } else return false;
+	},
+
+	
     },
 }

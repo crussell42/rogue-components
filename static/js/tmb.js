@@ -210,12 +210,15 @@ var tmb = (function() {
 		let cow = '';
 		let dv = null;
 		if (!d) {
-			dv = new Date();
-			cow = tmb.df(dv);
-			return (cow);
+		    dv = new Date();
+		    cow = tmb.df(dv);
+		    return (cow);
 		} else {
-			dv = new Date(d);
-			cow = tmb.df(dv);
+		    if (_.isString(d)) {
+			dv = tmb.dateFromYoda(d);
+		    } else dv = new Date(d);
+
+		    cow = tmb.df(dv);
 		}
 		return cow;
 	}
@@ -344,7 +347,6 @@ var tmb = (function() {
 	}
 	return [startStr,endStr];
     }
-
 
     
     ////////////////OBJECT/ARRAY FUNCTIONS////////////////////////
