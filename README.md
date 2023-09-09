@@ -86,7 +86,8 @@ If you dont fully drink the koolaid of micro services, typescript, obfuscation, 
 ## Sample nginx configuration to run the component test page.
 The html dir and static dir must be served. Use nginx alias to achieve this.
 
-`
+```
+
 server {
 	listen 80;
 	listen [::]:80;
@@ -104,5 +105,6 @@ server {
 	}
 	
 }
-`
+
+```
 
