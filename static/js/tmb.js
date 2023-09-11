@@ -89,6 +89,10 @@ var tmb = (function() {
 	return str.trim();
     }
 
+    tmb.isDigitsOnly = function(s) {
+	return /^[0-9]*$/.test(s);
+    }
+    
     //case insensitive test of (a==b, b.includes(a), a.includes(b))
     tmb.looseMatch = function(a,b) {
 	let ca = tmb.nub(a).toUpperCase();
@@ -157,6 +161,7 @@ var tmb = (function() {
 	if (v != null) return Number(v).toLocaleString('en-US', {style:'percent'});
     }
 
+    ///////////COLUMN TOTALING FUNCTIONS/////////////////////////////
     tmb.sumFilteredMoneyColumn = function(items,columnName) {
 	const tot = items.reduce((acc,itm) => {acc += (1 * _.get(itm,columnName));return acc},0);
 	return tmb.moneyStr(tot);
@@ -179,9 +184,21 @@ var tmb = (function() {
 
     
     ////////////DATE FUNCTIONS///////////////
+    // These date functions all try to deal with "Yoda" dates.
+    // YODA DATE: A string representatin of a date YYYY-MM-DD
+    //
+    tmb.isYoda = function(str) {
+	if (_.isString(str)) {
+	    let parts = str.split('-');
+	    if (parts.length != 3) return false;
+	    if ((tmb.isDigitsOnly(parts[0]))&&(tmb.isDigitsOnly(parts[1]))&&(tmb.isDigitsOnly(parts[2]))) return true;
+		else return false;
+	} else return false;
+    }
+
     // df(Date) returns a yyyy-mm-dd string from a Date value.
     // NO ERROR CHECKING SO MAKE SURE Date IS VALID
-    //date format 2022-11-01
+    // date format 2022-11-01
     tmb.df = function(dv) {
 	let month = '' + (dv.getMonth() + 1);
 	let day = '' + dv.getDate();
@@ -190,6 +207,7 @@ var tmb = (function() {
 	if (day.length < 2) day = '0' + day;
 	return [year, month, day].join('-');
     }
+
     //Date and time format 2022-11-01 13:59:59
     tmb.datf = function(dv) {
 	let ds = tmb.df(dv);
@@ -201,138 +219,142 @@ var tmb = (function() {
 	if (s.length<2) s = '0'+s;	
 	return ds+' '+h+':'+m+':'+s;
     }
+    //Ignore this.
+    tmb.wccEpoch = function () {
+	return '2020-03-01';
+    }
 
-	tmb.wccEpoch = function () {
-		return '2020-03-01';
+    // Given a Date object or a yoda date string, return a yoda date string. Today if no Date passed in.
+    tmb.yoda = function (d) {
+	let cow = '';
+	let dv = null;
+	if (!d) {
+	    dv = new Date();
+	    cow = tmb.df(dv);
+	    return (cow);
+	} else {
+	    
+	    if (_.isString(d)) { //assume yoda
+		dv = tmb.dateFromYoda(d);
+	    } else dv = new Date(d);
+	    
+	    cow = tmb.df(dv);
 	}
-	// Given a Date object, return a yyyy-mm-dd string. Today if no Date passed in.
-	tmb.yoda = function (d) {
-		let cow = '';
-		let dv = null;
-		if (!d) {
-		    dv = new Date();
-		    cow = tmb.df(dv);
-		    return (cow);
-		} else {
-		    if (_.isString(d)) {
-			dv = tmb.dateFromYoda(d);
-		    } else dv = new Date(d);
+	return cow;
+    }
+    tmb.yodaWithTime = function (d) {
+	let cow = '';
+	let dv = null;
+	if (!d) {
+	    dv = new Date();
+	    cow = tmb.datf(dv);
+	    return (cow);
+	} else {
+	    dv = new Date(d);
+	    cow = tmb.datf(dv);
+	}
+	return cow;	
+    }
 
-		    cow = tmb.df(dv);
-		}
-		return cow;
-	}
-	tmb.yodaWithTime = function (d) {
-		//return 43;
+    // Given a string yyyy-mm-dd, return a Date object...
+    // NO ERROR CHECKING SO CAREFUL.
+    tmb.dateFromYoda = function (str) {
+	if (!str) str = tmb.yoda();
+	if (!tmb.isYoda(str)) return '0000-00-00';
 
-		let cow = '';
-		let dv = null;
-		if (!d) {
-			dv = new Date();
-			cow = tmb.datf(dv);
-			return (cow);
-		} else {
-			dv = new Date(d);
-			cow = tmb.datf(dv);
-		}
-		return cow;
+	let parts = str.split('-');
+	//if (parts.length != 3) return '0000-00-00';
+	let d = new Date(parts[0], parts[1] - 1, parts[2]);
+	return d;
+    }
 
-	}
+    tmb.adjustDayOfDateStr = function (dstr, numDays) {
+	let d = tmb.dateFromYoda(dstr);
+	d = d.setDate(d.getDate() + numDays);
+	return tmb.yoda(d);
+    }
 
-	// Given a string yyyy-mm-dd, return a Date object...
-	// NO ERROR CHECKING SO CAREFUL.
-	tmb.dateFromYoda = function (str) {
-		if (!str) str = tmb.yoda();
-		let parts = str.split('-');
-		if (parts.length != 3) return '0000-00-00';
-		let d = new Date(parts[0], parts[1] - 1, parts[2]);
-		return d;
-	}
+    tmb.adjustToLastDayOfMonth = function (yodaStr) {
+	let d = tmb.dateFromYoda(yodaStr);
+	let ldom = tmb.getDaysInMonth(d.getMonth() + 1, d.getFullYear());
+	d.setDate(ldom);
+	return tmb.df(d);
+    }
+    tmb.adjustToLastDayOfYear = function (yodaStr) {
+	let d = tmb.dateFromYoda(yodaStr);
+	d.setMonth(11);
+	d.setDate(31);
+	return tmb.df(d);
+    }
+    tmb.adjustToFirstDayOfWeek = function(yodaStr) {
+	//Assume monday first day of week.
+	let d = tmb.dateFromYoda(yodaStr);
+	let dow = d.getDay(); //day of week..0=sunday, 6=saturday.
+	let diff = d.getDate() - dow + (dow === 0 ? -6 : 1); //1..31 - dow + (dow === 0 ?-6:1)
+	d.setDate(diff);
+	return tmb.df(d);
+    }
+    
+    tmb.adjustToFirstDayOfMonth = function (yodaStr) {
+	let d = tmb.dateFromYoda(yodaStr);
+	d.setDate(1);
+	return tmb.df(d);
+    }
+    tmb.adjustToFirstDayOfQuarter = function (yodaStr) {
+	let d = tmb.dateFromYoda(yodaStr);
+	
+	//let qtdStartDate = new Date(endDate);
+	let maxQtrMonth = (Math.floor(d.getMonth() / 3)) * 3;
+	d.setMonth(maxQtrMonth, 1);
+	return tmb.df(d);
+    }
+    tmb.adjustToFirstDayOfYear = function (yodaStr) {
+	let d = tmb.dateFromYoda(yodaStr);
+	d.setMonth(0);
+	d.setDate(1);
+	return tmb.df(d);
+    }
+    
+    tmb.thisMonthDateRange = function() {
+	let endDateStr = tmb.yoda();
+	let startDateStr = tmb.adjustToFirstDayOfMonth(endDateStr);
+	return [startDateStr,endDateStr];
+    }
+    
+    
+    tmb.getDaysInMonth = function (month, year) {
+	// Here January is 1 based
+	//Day 0 is the last day in the previous month
+	//THIS IS A HACK.
+	return new Date(year, month, 0).getDate();
+    }
+    
+    tmb.percentOfMonth = function (dateStr) {
+	let d = tmb.dateFromYoda(dateStr);
+	let dim = tmb.getDaysInMonth(d.getMonth() + 1, d.getFullYear());
+	let ans = d.getDate() / dim;
+	return ans;
+    }
+    tmb.percentOfMonthRemaining = function (dateStr) {
+	let d = tmb.dateFromYoda(dateStr);
+	return tmb.percentOfMonthIndexRemaining(d.getFullYear(), d.getMonth(), d.getDate());
+	//let dim = tmb.getDaysInMonth(d.getMonth()+1,d.getFullYear());
+	//let remainingDays = (dim - d.getDate())+1;
+	//let ans = remainingDays/dim;
+	//return ans;
+    }
+    //pass in month index 0..11
+    tmb.percentOfMonthIndexRemaining = function (year, monthIndex, day) {
+	let dim = tmb.getDaysInMonth(monthIndex + 1, year);
+	let remainingDays = (dim - day) + 1;
+	let ans = remainingDays / dim;
+	return ans;
+    }
 
-	tmb.adjustDayOfDateStr = function (dstr, numDays) {
-		let d = tmb.dateFromYoda(dstr);
-		d = d.setDate(d.getDate() + numDays);
-		return tmb.yoda(d);
-	}
-
-	tmb.adjustToLastDayOfMonth = function (yodaStr) {
-		let d = tmb.dateFromYoda(yodaStr);
-		let ldom = tmb.getDaysInMonth(d.getMonth() + 1, d.getFullYear());
-		d.setDate(ldom);
-		return tmb.df(d);
-	}
-	tmb.adjustToLastDayOfYear = function (yodaStr) {
-		let d = tmb.dateFromYoda(yodaStr);
-		d.setMonth(11);
-		d.setDate(31);
-		return tmb.df(d);
-	}
-        tmb.adjustToFirstDayOfWeek = function(yodaStr) {
-	    //Assume monday first day of week.
-	    let d = tmb.dateFromYoda(yodaStr);
-	    let dow = d.getDay(); //day of week..0=sunday, 6=saturday.
-	    let diff = d.getDate() - dow + (dow === 0 ? -6 : 1); //1..31 - dow + (dow === 0 ?-6:1)
-	    d.setDate(diff);
-	    return tmb.df(d);
-	}
-
-	tmb.adjustToFirstDayOfMonth = function (yodaStr) {
-		let d = tmb.dateFromYoda(yodaStr);
-		d.setDate(1);
-		return tmb.df(d);
-	}
-	tmb.adjustToFirstDayOfQuarter = function (yodaStr) {
-		let d = tmb.dateFromYoda(yodaStr);
-
-		//let qtdStartDate = new Date(endDate);
-		let maxQtrMonth = (Math.floor(d.getMonth() / 3)) * 3;
-		d.setMonth(maxQtrMonth, 1);
-		return tmb.df(d);
-	}
-	tmb.adjustToFirstDayOfYear = function (yodaStr) {
-		let d = tmb.dateFromYoda(yodaStr);
-		d.setMonth(0);
-		d.setDate(1);
-		return tmb.df(d);
-	}
-
-	tmb.thisMonthDateRange = function() {
-		let endDateStr = tmb.yoda();
-		let startDateStr = tmb.adjustToFirstDayOfMonth(endDateStr);
-		return [startDateStr,endDateStr];
-	}
-
-
-	tmb.getDaysInMonth = function (month, year) {
-		// Here January is 1 based
-		//Day 0 is the last day in the previous month
-		//THIS IS A HACK.
-		return new Date(year, month, 0).getDate();
-	}
-
-	tmb.percentOfMonth = function (dateStr) {
-		let d = tmb.dateFromYoda(dateStr);
-		let dim = tmb.getDaysInMonth(d.getMonth() + 1, d.getFullYear());
-		let ans = d.getDate() / dim;
-		return ans;
-	}
-	tmb.percentOfMonthRemaining = function (dateStr) {
-		let d = tmb.dateFromYoda(dateStr);
-		return tmb.percentOfMonthIndexRemaining(d.getFullYear(), d.getMonth(), d.getDate());
-		//let dim = tmb.getDaysInMonth(d.getMonth()+1,d.getFullYear());
-		//let remainingDays = (dim - d.getDate())+1;
-		//let ans = remainingDays/dim;
-		//return ans;
-	}
-	//pass in month index 0..11
-	tmb.percentOfMonthIndexRemaining = function (year, monthIndex, day) {
-		let dim = tmb.getDaysInMonth(monthIndex + 1, year);
-		let remainingDays = (dim - day) + 1;
-		let ans = remainingDays / dim;
-		return ans;
-	}
-
-
+    //////////// DATE RANGE HANDY FUNCTIONS /////////////////////////////
+    // return a 30 day range from today (yoda style) inclusive back or forward in time.
+    // e.g. thirtyRange(1) would return [today,today+30days] 
+    
     tmb.thirtyRange = function(num) {
 	let startStr = null;
 	let endStr = null;
@@ -347,7 +369,51 @@ var tmb = (function() {
 	}
 	return [startStr,endStr];
     }
+    ///////////////////////////NAMED DATE RANGES/////////////////////// 
+    // Date Range Names...these are always handy when doing metrics and very commonly used..
+    
+    
+    tmb.commonDateRangeNames = ['Today','This Week','This Month','This Quarter','This Year','Last 7 days','Last 30 days','Custom'];
 
+    
+    tmb.dateRangeFromName = function(dateRangeName) {
+	//Always fall back to today.
+	//if (!dateRangeName) return;
+	//console.log('dateRangeFromName:'+dateRangeName+'  current daterange:'+this.daterange);
+	
+	let startDate = new Date();
+	let endDate = new Date();
+
+	if (!tmb.commonDateRangeNames.includes(dateRangeName)) return [startDate,endDate];
+	
+	if (dateRangeName.indexOf('This Week')>=0) {
+	    startDate = tmb.dateFromYoda(tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate)));
+	} else if (dateRangeName.indexOf('This Month')>=0) {
+	    startDate.setDate(1); //set date to first day of month.
+	    //console.log('This Month:',startDate,endDate);
+	    //console.log('This Month YODA:',tmb.yoda(startDate),tmb.yoda(endDate));
+	} else if (dateRangeName.indexOf('This Quarter')>=0) {
+	    
+	    startDate = new Date(endDate);
+	    let maxQtrMonth = (Math.floor(endDate.getMonth()/3)) * 3;
+	    startDate.setMonth(maxQtrMonth,1);
+	    
+	} else if (dateRangeName.indexOf('This Year')>=0) {
+	    startDate.setDate(1);
+	    startDate.setMonth(0);		
+	} else if (dateRangeName.indexOf('Epoch')>=0) {
+	    startDate = tmb.dateFromYoda('2020-03-01');
+	} else if (dateRangeName.indexOf('Last 7 days')>=0) {
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-6));		
+	} else if (dateRangeName.indexOf('Last 30 days')>=0) {
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-29));		
+	}
+	
+	return [startDate,endDate];
+    }
+
+
+    
     
     ////////////////OBJECT/ARRAY FUNCTIONS////////////////////////
 
