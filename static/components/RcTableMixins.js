@@ -1,10 +1,26 @@
 export const RcTableMixins = {
 
+    computed: {
+	filteredItems() {	    
+	    let ans = this.dataItems;
+	    ans = this.rowFilterReduce(ans,this.selectedRowFilterKeys,this.rowFilters);
+	    ans = this.columnFilterReduce(ans,this.selectedColumnFilters);
+	    ans = ans.filter((i)=>{ return this.searchFilterReduce(null,this.search,i); });
+	    return ans;	    
+	},
+	visibleHeaders() {
+	    return this.allHeaders().filter((ah) => {
+		if (ah.required) return true;
+		return this.visibleHeaderNames.includes(ah.title);
+	    });
+	},	
+    },
     methods: {
 	/* Below are the RcTable filter methods...Normally, 
 	   I would have these methods in a mixin since they are common accross components that use the RcTable component.
+	   Override these methods in your methods to change order or how items are filtered. 
 	*/
-	
+
 	mapVisibleColumnValues(item) {
 	    let vs = this.visibleHeaders.map((vh) => {
 		return _.get(item,vh.key);

@@ -376,20 +376,6 @@
 	  },	  
 	  computed: {
 
-	      filteredItems() {	    
-		  let ans = this.dataItems;
-		  ans = this.rowFilterReduce(ans,this.selectedRowFilterKeys,this.rowFilters);
-		  ans = this.columnFilterReduce(ans,this.selectedColumnFilters);
-		  ans = ans.filter((i)=>{ return this.searchFilterReduce(null,this.search,i); });
-		  return ans;	    
-	      },
-	      visibleHeaders() {
-		  return this.allHeaders().filter((ah) => {
-		      if (ah.required) return true;
-		      return this.visibleHeaderNames.includes(ah.title);
-		  });
-	      },	
-
 	  },
 	  methods: {
 	      validPhone,
