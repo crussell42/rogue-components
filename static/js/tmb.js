@@ -30,7 +30,9 @@ var tmb = (function() {
 
     tmb.eitherFetch = async function(nurl,data,multipart,method) {
 	try {
-	    let options = {redirect: 'follow'};
+	    let options = {
+		redirect: 'follow'
+	    };
 
 	    if (data) {
 		//console.log('CONVERTING TO POST');

@@ -8,7 +8,7 @@
     <title>Rogue Components Test Page</title>
 
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/vuetify@3.3.9/dist/vuetify-labs.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/vuetify@3.5.2/dist/vuetify-labs.min.css" rel="stylesheet">
 
     <style>
 
@@ -219,7 +219,7 @@
 			<!-- END TOOLBAR Buttons -->
 			<!-- how to do this as a formatter? return div of v-html?-->
 			<template v-slot:item.condition_tags="{ item }">
-			  <v-chip v-for="cval in item.raw.condition_tags" v-if="item.raw.condition_tags.length" color="red">
+			  <v-chip v-for="cval in item.condition_tags" v-if="item.condition_tags.length" color="red">
 			    ~{cval}~
 			  </v-chip>
 			  <span v-else>None</span>
@@ -281,9 +281,9 @@
     <script type="importmap">
       {
 	  "imports": {
-	      "vue": "https://unpkg.com/vue@3.2.47/dist/vue.esm-browser.js",
-              "vuetify": "https://unpkg.com/vuetify@3.3.9/dist/vuetify-labs.esm.js",
-	      "vuetifycolors": "https://unpkg.com/vuetify@3.3.9/lib/util/colors.mjs",
+	      "vue": "https://unpkg.com/vue@3.4.15/dist/vue.esm-browser.js",
+              "vuetify": "https://unpkg.com/vuetify@3.5.2/dist/vuetify-labs.esm.js",
+	      "vuetifycolors": "https://unpkg.com/vuetify@3.5.2/lib/util/colors.mjs",
 	      "vue-json-excel3": "https://unpkg.com/vue-json-excel3@1.0.0/dist/vue-json-excel.esm.js"
 	  }
       }
@@ -488,8 +488,8 @@
 		  let queryObj = {format:'json'};
 		  url = url + new URLSearchParams(queryObj).toString();		  
 		  console.log('URL:'+url);		  
-		  this.dataItems = await this.processApiCall(url);
-		  if (this.dataItems === null) {
+		  //this.dataItems = await this.processApiCall(url);
+		  //if (this.dataItems === null) {
 		      this.dataItems = [
 			  {id: 1, ref_date: yoda1, friends: 42.5,referring_physician: 'Dr. Wellington',condition_tags: ['Nervous','Confused'],contact:'Arthur Dent'},
 			  {id: 2, ref_date: '2020-03-01', friends: 4250,referring_physician: 'Dr. Billy Bob',condition_tags: ['Hedonistic','Irresponsible'],contact:'Zaphod Beeblebrox'},
@@ -502,9 +502,9 @@
 			  {id: 8, ref_date: yoda4, friends: 789, referring_physician: 'Doufus Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
 
 		      ];
-		  }
+//		  }
 
-		  //console.log('RETURNED ITEMS:',this.dataItems);
+		  console.log('RETURNED ITEMS:',this.dataItems);
 	      },
 
       	      processApiCall: async function(url,item, multipart) {
@@ -530,7 +530,7 @@
 		      },
 		      DVT: {
 			  name: 'Has a Confused condition',
-			  color: 'blue lighten-2',
+			  color: 'bg-blue lighten-2',
 			  tooltip: 'Patient has Confusion',
 			  func: function(row) {
 			      return (row.condition_tags.includes('Confused'));

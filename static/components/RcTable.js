@@ -34,13 +34,16 @@ export const RcTable = {
 	selectedrowfilterkeys: {type:Object, default(rawProps) {return []}}, //v-model: 2 way
 	selectedcolumnfilters: {type:Object, default(rawProps) {return []}}, //.sync array of filterAction objects.
 
+	colorizerows: {type:Boolean, default: false},
     },
     setup(props,ctx) {
 	//const dataItems = ref(props.items);
 
+	const colorizeSetup = ref(props.colorizerows);
+
 	return {
 	    //dataItems,
-	    
+	    colorizeSetup,
 	}
     },
     data() {
@@ -49,12 +52,14 @@ export const RcTable = {
 	    itemsPerPage: 5,
 	    expanded: [],
 	    localPage: 1,
-	    colorizerows: true,
+
 
 	    //vuetify 2 this used to capture currently visible items on the page (a subset of filteredItems actually being displayed)
 	    //currentlyVisibleItems: [],
 	    //Now, tableOptions is updated with pagination changes and we have a computed currentlyVisibleItems()
 	    tableOptions: null,
+
+	    //colorizerows: true,
 	}
     },
     computed: {
@@ -80,7 +85,18 @@ export const RcTable = {
 	//So here is a special header list that does not include data-table-expanded and data-table-select headers...
 	/* Dont think this is necsssary for VUE3...see PASSTHROUGH slots in template*/
 	nonSpecialVisibleHeaders() {
-	    return this.visibleHeaders.filter((vh) => {return ((vh.key != 'data-table-expand')&&(vh.key != 'data-table-select'))});
+	    return this.visibleHeaders.filter(
+		(vh) => {
+		    return ((vh.key != 'data-table-expand')&&
+			    (vh.key != 'data-table-select')
+			   )
+		});
+	},
+	nonSpecialVisibleHeadersWithFormatter() {
+	    return this.nonSpecialVisibleHeaders.filter((hx) => { return hx.hasOwnProperty('formatter');});
+	},
+	nonSpecialVisibleHeadersWithoutFormatter() {
+	    return this.nonSpecialVisibleHeaders.filter((hx) => { return ! hx.hasOwnProperty('formatter');});
 	},
 	
 	visibleHeaders() {
@@ -92,8 +108,9 @@ export const RcTable = {
 	    //Note we do this because we are already in a string template and so can not use the v-slot:[`evalstring`] form
 	    */
 	    vhs.forEach((vh)=>{
-		//2->3 changed to column vh.header_slot_name='header.'+vh.key;
-		vh.header_slot_name='column.'+vh.key;
+		//2->3 changed to column vh.header_slot_name='header.'+vh.key
+		//??changed back on upgrade to 3.5.2 from 3.3.9????? vh.header_slot_name='column.'+vh.key;
+		vh.header_slot_name='header.'+vh.key;
 		vh.item_slot_name='item.'+vh.key;
 		//console.log(vh.header_slot_name);
 	    });
@@ -149,7 +166,19 @@ export const RcTable = {
 	    }
 	},
 
-	
+	colorizeLocal: {
+	    get: function() {
+		return this.colorizerows;
+	    },
+	    set: function(value) {
+
+		this.$emit('update:colorizerows',value);
+		//Force rowColor to fire???
+		let val=this.selectedrowfilterkeys;
+		console.log('colorizeLocal selectedrowfilterkeys: ',val);
+	    }
+	    
+	},
     },
     methods: {
 
@@ -205,11 +234,13 @@ export const RcTable = {
 		return nextSortOrder;
 	    }	   
 	},
-	/* Vuetify 3 does not support :item-class property on v-data-table yet so hide for now
+	/* Vuetify 3 does not support :item-class property on v-data-table yet so hide for now */
 	rowColor: function(row) {
-	    console.log('rowColor:',row);
-	    if ((this.hasOwnProperty('colorizerows'))&&(this.colorizerows==false)) return [];
-	    classes = [];
+	    //console.log('colorizerows:',this.colorizerows,' rowColor:',row);
+	    //if ((this.hasOwnProperty('colorizerows'))&&(this.colorizerows==false)) return [];
+	    
+	    let classes = [];
+	    if (this.colorizeSetup==false) return {class: ''};
 	    
 	    let filterKeys = Object.keys(this.rowfiltersfunc(this)).sort();
 	    //let filterKeys = Object.keys(this.rowFilters(this)).filter((fkn)=> {return (fkn != '_ctx')});
@@ -221,23 +252,40 @@ export const RcTable = {
 		    let fo = this.rowfiltersfunc(this)[fk];
 		    if (fo) {
 			if (_.isFunction(fo)) {
-			    //    if (fk=='ClosedWithBalance') {
+			    //if (fk=='ClosedWithBalance') {
 			    //	if (fo(row)) classes.push('error');
-			    //    }
+			    //}
 			} else {
 			    if (fo.color) {
-				if (fo.func(row)) {
-				    classes.push(fo.color);
-				    break;
+				
+				if (_.isFunction(fo.func)) {
+				    //console.log('fo:',fo);
+				    //console.log('   revenue.ejs row:',row);
+				    //let colorTheRow = fo.func(row);
+				    //console.log('      colorTheRow:',colorTheRow);
+				    if (fo.func(row.item)) {
+					classes.push(fo.color);
+					//classes.push(' bg--lighten-2');
+					break;
+				    }
+				} else {
+				    console.log('func is not a function');
 				}
 			    }
 			}
-		    }
+		    } else console.log('No fo found for ',fk);
 		}
 	    }
-	    return classes.join(' ');	    
+	    if (classes.length>0) {
+		//console.log('ROW CLASSES:',classes);
+	    }
+	    
+	    //works return {class: "dogpoop"}; //text-blue-darken-1"};
+	    return {class: classes.join('')};
+	    //return {};
+	    //return {class: 'bg-blue'};
 	},
-	*/
+	
 	
     },
     watch: {
@@ -268,7 +316,7 @@ export const RcTable = {
 	      :rowfiltersfunc="rowfiltersfunc"
 
 	      v-model:rowfiltersselected="selectedRowFilterKeysLocal"
-	      v-model:colorize="colorizerows" 
+	      v-model:colorize="colorizeSetup" 
 	      
 	      v-model:page="localPage"
 	      v-model:items-per-page.sync="itemsPerPage"
@@ -309,12 +357,17 @@ export const RcTable = {
 	    return-object
 
 	    @update:options="optionsUpdate($event)"
+        
+
+            :row-props="rowColor"
 	    >
 	    <!--
 		Vuetify 3 things that dont work now.
 		:item-class="rowColor"	    
 		@current-items="curItems"
 		See 	    @update:options="curItems($event)"
+
+                Note cell-props works like row-props
 	    -->
 	    
 
@@ -322,6 +375,8 @@ export const RcTable = {
 	    <!--
 	    <template v-for="bhead in visibleHeaders.filter((h) => (h.hasOwnProperty('columnfilter')) )" v-slot:[bhead.header_slot_name]="{ column }">
 	    -->
+
+
 	    <template v-for="bhead in visibleHeaders" v-slot:[bhead.header_slot_name]="{ column }">
 
 	      <rc-column-filter v-if="column.hasOwnProperty('columnfilter')"
@@ -364,7 +419,6 @@ export const RcTable = {
 	    </template>
 
 
-
 	    <!-- Expand Item -->
 	    <template v-slot:expanded-row="{ columns, item }">
 	      <td :colspan="columns.length">
@@ -384,21 +438,37 @@ export const RcTable = {
 		  </slot>
 		</template>
 		These allow the formatter on the column to be used....e.g. formatter=tmb.percentStr
-	     -->
-	     <template v-for="chead in visibleHeaders.filter((hx) => hx.hasOwnProperty('formatter'))" v-slot:[chead.item_slot_name]="scope">
-	       <slot :name="chead.item_slot_name" v-bind="scope">
-		 {{chead.formatter(scope.item.raw[chead.key],chead)}}
-	       </slot>	      
-	     </template>
-	     <template v-for="dhead in nonSpecialVisibleHeaders.filter((hx) => !hx.hasOwnProperty('formatter'))" v-slot:[dhead.item_slot_name]="scope">
-	       <slot :name="dhead.item_slot_name" v-bind="scope">
-		 {{scope.item.raw[dhead.key]}}
-	       </slot>	      
-	     </template>
-		
 
-	    <!-- Add Special item selection menu component to replace default selection header actions-->	    
-	    <template v-slot:column.data-table-select="{ props: props }">              
+		Updating to 3.5.2 vuetify and vue 3.4.15 creates some real fungus.
+		item.raw went away so no longer scope.item.raw[chead.key]
+		try to do v-else with slot :name="chead.item_slot_name and it breaks??????
+		Only solution I found was to just use <slot> no name within the template v-for loop...
+
+		Note that we are creating overrieable slots. From the Parent Component, specify these slots
+		to override.
+	     -->
+
+	    <template v-for="dhead in nonSpecialVisibleHeadersWithoutFormatter" v-slot:[dhead.item_slot_name]="scope">
+	      <slot :name="dhead.item_slot_name" v-bind="scope">
+		{{scope.item[dhead.key]}}
+	      </slot>
+	    </template>
+
+	    <template v-for="chead in nonSpecialVisibleHeadersWithFormatter" v-slot:[chead.item_slot_name]="scope">
+	      <slot :name="chead.item_slot_name" v-bind="scope">
+		{{chead.formatter(scope.item[chead.key],chead)}}		 
+	      </slot>	       	       
+	    </template>
+
+		  
+
+
+
+
+	    <!-- Add Special item selection menu component to replace default selection header actions
+                 Vuetify 3.3.9 to 3.5.2 column. changed back to header.
+             -->	    
+	    <template v-slot:header.data-table-select="{ props: props }">              
 	      <rc-select-menu			
 		:items="filtereditems"
 		v-model:selected="selectedLocal"

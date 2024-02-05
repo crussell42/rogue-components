@@ -226,7 +226,11 @@ export const RcTableToolbar = {
 	//cank(w) {
 	//    console.log('Cank:',w);
 	//},
-	
+	fixColorName(cn) {
+	    return cn?.replace('bg-','');
+	},
+
+								
 	updateToolbarSearchText() {
 	    console.log('input');
 	    this.$emit('input',this.toolbarSearchText);
@@ -448,11 +452,10 @@ export const RcTableToolbar = {
 		    </v-btn>
 		  </v-list-item-action>
 		  
-		  <v-list-item-title>Row Filters</v-list-item-title>                        
+		  <v-col><v-list-item-title>Row Filters</v-list-item-title></v-col>
 
-		  <!-- Vuetify 3 does not support :item-class on v-data-table so hide for now
-		  <v-switch v-show="colorizeswitch!=null" v-model="colorizeswitch" label="Colorize Rows" color="primary" density="compact"/>
-		  -->
+		  <v-col><v-switch v-show="colorizeswitch!=null" v-model="colorizeswitch" label="Colorize Rows" color="primary" density="compact"/></v-col>
+
 		</v-list-item>
 	      </v-list>
 	      
@@ -466,7 +469,6 @@ export const RcTableToolbar = {
 			  label="Only Show"
 			  multiple
 			  min-width="600"
-
 			  >
 
 		  <!-- THIS WORKS AS EXPECTED....only diff is the v-slot:prepend="{isActive}" part -->
@@ -480,38 +482,17 @@ export const RcTableToolbar = {
 		      <template v-slot:title>
 			{{item.title}}
 		      </template>
-		      <template v-slot:append>
-			<v-avatar size="20" v-show="item.value.color" :color="item.value.color" small></v-avatar>
-		      </template>
+	              <template v-slot:append>
+			<!--vuetify 3.3.9->3.5.2 changed from item.value to item.raw -->
+			<v-avatar size="20" v-show="item.raw.color" :color="fixColorName(item.raw.color)" small></v-avatar>
+                      </template>
+
 		    </v-list-item>
-		  </template>
-
-		  
-		  <!-- CANT MAKE THIS WORK RIGHT (THIS ONE IS CLOSE BUT DONT WORK)
-		  <template v-slot:item="{item, props}">
-                    <v-list-item v-bind="props" @click="lank(item)">
-
-		      <template v-slot:prepend>
-			<v-list-item-action start>
-			  <v-checkbox-btn color="red" @click="cank(selectedrowfilternames)"></v-checkbox-btn>
-  			</v-list-item-action>
-		      </template>
-
-		      <template v-slot:title>
-			<v-checkbox-btn color="red" @click="cank(selectedrowfilternames)"></v-checkbox-btn>
-			{{item.title}}
-		      </template>
-
-		      <template v-slot:append>
-			<v-avatar size="20" v-show="item.value.color" :color="item.value.color" small></v-avatar>
-		      </template>
-		      		      
-                    </v-list-item>
-                  </template>
-		  -->
+		  </template>		  
 		</v-select>
 		
 	      </v-container>
+
 
 	      <v-card-actions>
 	      </v-card-actions>

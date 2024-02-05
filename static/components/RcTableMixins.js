@@ -48,7 +48,7 @@ export const RcTableMixins = {
 			    //console.log('FO:',fo);
 			    if (_.isFunction(fo)) return (showRow || rowFilters(this)[filterKey](i));
 			    else {
-				console.log('rowFilterReduce filterKey:',filterKey);
+				//console.log('rowFilterReduce filterKey:',filterKey);
 				return (showRow || rowFilters(this)[filterKey].func(i));
 			    }
 			} else return showRow;
@@ -59,7 +59,7 @@ export const RcTableMixins = {
 	},
 	
 	// Column filters are a little different...they get pushed out as "filterActions" by RcTable and should
-	// be self contained instructions on how to filter....then we interprut those instructions here.
+	// be self contained instructions on how to filter....then we interpret those instructions here.
 	//
 	// See RcColumnFilter for full story on what a FilterAction can include
 	// Inverted, for every filter, filter all the rows (so I guess that makes it an AND test).
