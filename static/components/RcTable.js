@@ -388,6 +388,7 @@ export const RcTable = {
 		:include="column.columnfilter.include"
 		>
 	      </rc-column-filter>
+
 	      <v-tooltip v-if="bhead.sortable ||(bhead.sortable == undefined)" location="top">
 		<template v-slot:activator="{ props: tooltip }">			  
 		  <v-chip

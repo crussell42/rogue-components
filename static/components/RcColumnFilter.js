@@ -194,10 +194,34 @@ export const RcColumnFilter = {
 	    //console.log('uniqueItems for columnfilter:',ans);
 	    return ans;
 	},
+
+	// Should return a 1 element array or null
+	scopedColFilter() {
+	    return this.selectedcolumnfilters.filter((scf)=>{return scf.cname === this.header.key});
+	},
+	columnFilterIncludes() {
+	    if ((this.scopedColFilter)&&(this.scopedColFilter.length>0)) return this.scopedColFilter.includeValues;
+	    return [];		
+	},
+	columnFilterExcludes() {
+	    if ((this.scopedColFilter)&&(this.scopedColFilter.length>0)) return this.scopedColFilter.excludeValues;
+	    return [];
+	},
+
     },
     methods: {
 	mergeProps,
-    
+
+
+	hasSomeFilterValues() {
+	    return (this.columnFilterIncludes?.length>0);
+
+	    //return ( ((this.scopedColFilter) && (this.scopedColFilter.length>0)) &&
+	    //	     (this.columnFilterIncludes?.length>0) || (this.columnFilterExcludes?.length>0)
+	    //	   );
+	},
+
+	
 	mySort(a,b) {
 	    let aa = tmb.nub(''+a);
 	    let bb = tmb.nub(''+b);
@@ -297,7 +321,34 @@ export const RcColumnFilter = {
 		  </template>
 		</v-chip>
 	      </template>
-	      {{tooltip}}
+
+	      {{tooltip}}	
+
+	      <div v-for="selFil in scopedColFilter">
+		
+
+		<v-col>
+		  <div v-if="selFil.includeValues?.length>0">
+		    <b>Include:</b> 
+                    <ul>
+		      <li v-for="incVal in selFil.includeValues">
+			{{incVal}}
+		      </li>
+		    </ul>
+		  </div>
+		  
+		  <div v-if="selFil.excludeValues?.length>0">
+		    <b>Exclude:</b>		      
+                    <ul>
+		      <li v-for="excVal in selFil.excludeValues">
+			{{excVal}}
+		      </li>
+		    </ul>
+		  </div>
+		</v-col>
+		
+	      </div>
+
 	    </v-tooltip>
 	  </template>
 	  

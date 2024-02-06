@@ -126,6 +126,21 @@ export const RcTableToolbar = {
 	    return ((this.selectedrowfilternames) && (this.selectedrowfilternames.length>0));
 	},
 
+	formattedSelectedRowFilters() {
+	    let ans = 'None';
+	    if ((this.selectedrowfilternames)&&(this.selectedrowfilternames.length>0)) {
+		ans = '';
+		this.selectedrowfilternames.forEach((rf) => {
+		    ans = ans+'</br>'+rf.title+' ';
+		    if (rf.color) {
+			//ans = ans + '<v-avatar size="20" :color="'+this.fixColorName(rf.color)+'" small></v-avatar>';
+			ans = ans + '<v-avatar size="20" color="red" small></v-avatar>';
+		    }
+		});
+	    }
+	    return ans;
+	},
+	
 	dataToExport() {
 	    if (this.exportHiddenColumns) {
 		//Export Hidden columns.
@@ -421,9 +436,17 @@ export const RcTableToolbar = {
 		    
 		  </v-btn>
 		</template>
+		
 		<span>
-		  Filter items in/out of the list
+		  Filter items in/out of the list.<br/>
+		  <span v-if="(selectedrowfilternames.length>0)">Currently Selected:</span>
+                  <ul>
+		    <li v-for="selFil in selectedrowfilternames">
+		      {{selFil.title}} <v-avatar v-if="selFil.color" size="20" :color="fixColorName(selFil.color)" small></v-avatar>
+		    </li>
+		  </ul>
 		</span>
+		
 	      </v-tooltip>
 	    </template>
 	    
