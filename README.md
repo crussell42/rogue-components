@@ -65,9 +65,7 @@ https://aerospacey.io/demo/rogue-components/index.html
 
 ## Screen Grabs
 
-
-![Screenshot at 2023-08-26 19-44-09](https://github.com/crussell42/rogue-components/assets/6598114/afe0a97b-769a-4db3-927c-4f08784ecea8)
-
+![Screenshot at 2024-02-07 15-29-36](https://github.com/crussell42/rogue-components/assets/6598114/3bbca52c-a893-42ff-bc3d-c1832434e778)
 
 ## Observations: Vue 2.6 to Vue 3 and Vuetify2 to Vuetify3
 * In general I have been able to convert my ver 2 stuff to ver 3 mostly by ignoring composition at first then refactoring later.
