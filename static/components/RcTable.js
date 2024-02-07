@@ -3,12 +3,14 @@ import {ref,reactive} from 'vue'
 import {RcTableToolbar} from './RcTableToolbar.js'
 import {RcSelectMenu} from './RcSelectMenu.js'
 import {RcColumnFilter} from './RcColumnFilter.js'
+import {RcPagination} from './RcPagination.js'
 
 export const RcTable = {
     components: {
 	RcTableToolbar,
 	RcSelectMenu,
 	RcColumnFilter,
+	RcPagination,
     },
     props:  {
 	allitems: null,
@@ -35,23 +37,26 @@ export const RcTable = {
 	selectedcolumnfilters: {type:Object, default(rawProps) {return []}}, //.sync array of filterAction objects.
 
 	colorizerows: {type:Boolean, default: false},
+
+	itemsPerPage: {type: Number, default: 10},
+	page: {type: Number, default: 1},
     },
     setup(props,ctx) {
 	//const dataItems = ref(props.items);
 
 	const colorizeSetup = ref(props.colorizerows);
-
+	const localItemsPerPage = ref(props.itemsPerPage);
+	const localPage = ref(props.page);
 	return {
-	    //dataItems,
+	    localItemsPerPage,
+	    localPage,
 	    colorizeSetup,
 	}
     },
-    data() {
-	
+    data() {	
 	return {
-	    itemsPerPage: 5,
+
 	    expanded: [],
-	    localPage: 1,
 
 
 	    //vuetify 2 this used to capture currently visible items on the page (a subset of filteredItems actually being displayed)
@@ -70,8 +75,8 @@ export const RcTable = {
 	    this.filtereditems;
 	    this.tableOptions;
 	    if (this.tableOptions) {
-		let offset = (this.tableOptions.page-1)>=0?((this.tableOptions.page-1)*this.tableOptions.itemsPerPage):0;
-		let endOffset = offset+this.tableOptions.itemsPerPage;
+		let offset = (this.tableOptions.page-1)>=0?((this.tableOptions.page-1)*this.tableOptions.localItemsPerPage):0;
+		let endOffset = offset+this.tableOptions.localItemsPerPage;
 		let sof = this.filtereditems.slice(offset,endOffset);
 		//console.log('SOF:',sof);
 		return sof;
@@ -293,7 +298,11 @@ export const RcTable = {
 	//    let varr = v.map((i)=>i.id);
 	//    let parr = p.map((i)=>i.id);
 	//    console.log(parr,' => ',varr);
+        //},
+	//localPage: function(ov,v) {
+	//    console.log('rctable watch ov:',ov,' v:',v);
 	//},
+  
     },
     template: `
 
@@ -319,7 +328,7 @@ export const RcTable = {
 	      v-model:colorize="colorizeSetup" 
 	      
 	      v-model:page="localPage"
-	      v-model:items-per-page.sync="itemsPerPage"
+	      v-model:items-per-page="localItemsPerPage"
 	      >
 	      
 	      <template v-slot:toolbar-buttons>
@@ -344,7 +353,9 @@ export const RcTable = {
 	    
 	    :item-value="uniquekey"
 	    
-	    v-model:items-per-page="itemsPerPage"
+	    v-model:items-per-page="localItemsPerPage"
+	    v-model:page="localPage"
+
 	    v-model:expanded="expanded"
 	    
 	    class="elevation-1"
@@ -480,16 +491,34 @@ export const RcTable = {
 
 
 	    <template v-slot:tfoot>	      
+
 	      <tr>
 		<td/>
 		<td v-for="visHead in visibleHeaders" align="right" class="pr-4">
 		  <b v-if="visHead.hasOwnProperty('totaler')">
+		    <v-divider></v-divider>
 		    <strong>
 		      {{visHead.totaler(filtereditems,visHead.key)}}
 		    </strong>
 		  </b>
 		</td>
 	      </tr>	      
+	    </template>
+
+	    <template v-slot:bottom>
+              <!--
+	      <span>
+		<v-spacer></v-spacer>
+		<div>
+		  <rc-pagination
+		    :filtereditems="filtereditems"
+		    v-model:page="localPage"
+		    v-model:items-per-page="localItemsPerPage">
+		    
+		  </rc-pagination>
+		</div>
+	      </span>
+              -->
 	    </template>
 
 	  </v-data-table>

@@ -62,6 +62,7 @@ export const RcSelectMenu = {
     template: `
     <v-menu
       open-on-click
+      density="compact"
       >
       <template v-slot:activator="{ props: menu}">
 	<v-btn stacked density="compact" variant="flat" v-bind="menu" style="min-width:0">
@@ -75,12 +76,12 @@ export const RcSelectMenu = {
 	</v-btn>
       </template>
       
-      <v-list>
+      <v-list density="compact">
 	
 	&nbsp;<strong>Select</strong>
 	
-	<v-list-item link @click="selectNone">
-	  <v-list-item-title>None (Clear)</v-list-item-title>
+	<v-list-item link @click="selectNone" density="compact">
+	  <v-list-item-title density="compact">None (Clear)</v-list-item-title>
 	</v-list-item>
 
 	<!--vuetify3 no longer has @current-items event
@@ -89,11 +90,11 @@ export const RcSelectMenu = {
 	</v-list-item>
 	-->
 	
-	<v-list-item link @click="selectAll">
-	  <v-list-item-title>All Items ({{items.length}})</v-list-item-title>
+	<v-list-item link @click="selectAll" density="compact">
+	  <v-list-item-title density="compact">All Items ({{items.length}})</v-list-item-title>
 	</v-list-item>
-	<v-list-item link @click="selectInvert">
-	  <v-list-item-title>Invert Selected ({{items.length-selectedLocal.length}})</v-list-item-title>
+	<v-list-item link @click="selectInvert" density="compact">
+	  <v-list-item-title density="compact">Invert Selected ({{items.length-selectedLocal.length}})</v-list-item-title>
 	</v-list-item>
       </v-list>
     </v-menu>

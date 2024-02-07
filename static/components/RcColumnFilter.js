@@ -387,7 +387,7 @@ export const RcColumnFilter = {
 	    <v-list>
 	      <v-list-item>
 		<v-list-item-action>
-		  <v-select v-model="selectedNames" :items="uniqueNames" :label="includeLabel" multiple>	
+		  <v-select v-model="selectedNames" :items="uniqueNames" :label="includeLabel" density="compact" multiple>	
 		  </v-select>
 		</v-list-item-action>
 	      </v-list-item>			  
@@ -396,7 +396,7 @@ export const RcColumnFilter = {
 	    <v-list v-show="showExcludeLocal">
 	      <v-list-item>
 		<v-list-item-action>
-		  <v-select v-model="removedNames" :items="uniqueNames" :label="excludeLabel" multiple>	
+		  <v-select v-model="removedNames" :items="uniqueNames" :label="excludeLabel" density="compact" multiple>	
 		  </v-select>
 		</v-list-item-action>
 	      </v-list-item>			  
