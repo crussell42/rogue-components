@@ -2,11 +2,11 @@
 
 ## Reasoning
 I like the look of vuetify and appreciate their work so wanted to add some examples in hopes of increased adoption.
-Wanted to go ahead and try converting some of my 2.6 vue stuff to vue 3ish. 
+Wanted to go ahead and try converting my old 2.7 vue stuff to Vue 3.4.15 and Vuetify 3.2.47. 
 
 ## Component general rules
-* VUE3...Currently 3.2.47
-* VUETIFY3...Currently 3.3.9 (In particular the Labs v-data-table).
+* VUE3...Currently 3.4.15
+* VUETIFY3...Currently 3.5.2 (In particular the Labs v-data-table)
 * NO Typescript...Ok well sorta in default props...nothing intentional and only rely on vues client side ability.
 * NO Build...(Its already built just not chunked, dehydrated and stirred)
 * NO SFC...cause they require compile.
@@ -34,7 +34,8 @@ Wanted to go ahead and try converting some of my 2.6 vue stuff to vue 3ish.
   * Sensible multi select (select none, select all, invert selection)
   * Sensible sort with tooltips for all headers.
   * Totals lines
-* **RcTableToolbar.js**..used in RcTable. Holds row level filters, text search filter, reload button, select column button, export button, and custom buttons for actions based on selected items.
+* **RcTableToolbar.js**..used in RcTable. Holds row level filters, text search filter, oagination, reload button, select column button, export button, and custom buttons for actions based on selected items.
+* **RcPagination.js**..used in RcTableToolbar. A much more succinct pagination area than the default on v-data-table.
 * **RcSelectMenu.js**..used in RcTable. allows select all, none, invert and has a badge which shows count of selected items
 * **RcColumnFilter.js**..used in RcTable a dialog that lets you select filter criteria based on content of field (include or exclude)
 * **RcBastardScroll.js**..a little "scroll back to top" floating icon on bottom right that will scroll page to top. Only shows up if currently scrolled down.
@@ -57,7 +58,7 @@ The test programs and components depend on relative urls:
 /static/components/*.js
 /static/js/tmb.js
 
-Thats is. Clean-ish and simple.
+Thats it, Clean-ish and simple.
 
 ## Live preview
 https://aerospacey.io/demo/rogue-components/index.html
@@ -70,18 +71,64 @@ https://aerospacey.io/demo/rogue-components/index.html
 
 ## Observations: Vue 2.6 to Vue 3 and Vuetify2 to Vuetify3
 * In general I have been able to convert my ver 2 stuff to ver 3 mostly by ignoring composition at first then refactoring later.
-* I think having straight named object components has simplified things 
+* I think having straight named object components has simplified things. Example DogComponent.js:
+  ```
+  
+  import {ref, reactive, mergeProps} from 'vue'
+  export const DogComponent = {
+      components: {
+      },
+      props: {
+          name: {type:String, default:'Stinker'},
+          age: {type: Number, default: 6},
+      },
+      setup(props,context) {
+          const localName = ref(props.name);
+          return {
+              localName,
+          }
+      },
+      data: function() {
+          return {
+              
+          }
+      },
+      computed: {
+          localName: {
+              get: function() {
+                  return this.name;
+              },
+              set: function(val) {
+                  this.$emit('update:name',val);
+              }
+          } 
+      },
+      methods: {
+          mergeProps,
+          bark() {
+              console.log('Ruff');
+          },
+      },
+      template: `
+          <div>Hello {{localName}} who is {{age}}</div>
+      `
+  }
+  ```
 * Slot changes in vuetify have caused the most greif.
   * v-data-table v-slot:header.<keyName> is now column.<keyName>
   * v-data-table v-slot:body.append is gone.
   * v-bind, v-on merged now v-bind=mergeProps(menu,tooltip) (import mergeProps from vue)
   * activator now v-slot:activator="{props: menu}
-  * align="right" is now align="end"
+  * align="right" is now align="end",
+  * density="compact" rather than small or x-small.
+  * Changed default color scheme to something funky purple and green
 
 ## The 'EUE' style...(pronounced Eeeewwww)
 Originated from ejs server side templating in node with vue as UI. The EUE style may fall outside of the standard accepted and sterile standards of the day, but work and are in fact used in active projects although mostly in internal projects. May include ugly server side templating in ejs, django, etc.
 If you dont fully drink the koolaid of micro services, typescript, obfuscation, chunking, hydration, treeshaking, spas and amorphous programming; these components may be for you.  -Or-, if you actually just need to get something done or want an easy to read and understandable source they may be for you.
-
+## DELIMITERS AND DJANGO
+If you see a delimiters statement on a vue instance in here it is because django forces {{}} and make it really hard 
+to change. So when I'm doing django,vue app I change the delimiters on Vue cause its easier.
 
 ## Sample nginx configuration to run the component test page.
 The html dir and static dir must be served. Use nginx alias to achieve this.
