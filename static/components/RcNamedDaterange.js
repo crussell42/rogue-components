@@ -1,6 +1,8 @@
 import {ref,reactive, computed, mergeProps} from 'vue'
 
-export const RcNamedDaterange = {
+
+//export const RcNamedDaterange = {
+export default {
 
     props: {			
 
@@ -42,7 +44,7 @@ export const RcNamedDaterange = {
 		let ans = '';
 		if (this.daterangeLocal.length==0) ans = ''; //return '[ .. ]';
 		else if (this.daterangeLocal.length==1) ans = ''+tmb.yoda(this.daterangeLocal[0])+' ..';
-		else ans = ''+this.daterangeLocal.map((d)=> { return tmb.yoda(d)}).join(' .. ')+'';
+		else ans = ''+this.daterangeLocal.map((d)=> { return tmb.yoda(d)}).join('..')+'';
 
 		//console.log('COMPILED daterangetextLocal:',ans);
 		return ans;		

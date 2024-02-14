@@ -362,353 +362,333 @@ export const RcTableToolbar = {
       rounded
       >
       
-      <!--
-      <v-tooltip bottom>
-	<template v-slot:activator="{ on: onToolTip,attrs }">
-	  <v-btn
-	    v-if="processfunc"
-	    color="primary"
-	    variant="outlined"
-	    @click="processfunc"
-	    dark
-	    v-bind="attrs"
-	    v-on="{...onToolTip}"
-	    elevation="3"
-	    >
-	    <v-icon>mdi-cog-transfer-outline</v-icon>
-	  </v-btn>
-	</template>
-	<span>
-	  {{processtext}}
-	</span>
-      </v-tooltip>
-      -->
+
       <slot name="toolbar-buttons">
 	
       </slot>
+
       
-      <v-toolbar-title>
+      <v-toolbar-title class="text-subtitle-2">
 	{{title}}
       </v-toolbar-title>
       
-      <v-spacer></v-spacer>
+	<v-text-field
+	  v-model="localSearch"
+	  clearable
+	  label="Search"
+	  variant="solo"
+	  single-line
+	  hide-details
+	  density="compact"
+	  color="primary"
+	  class="shrink"
+	  >
+	  <template v-slot:prepend>
+	    <v-icon
+              color="primary"
+              icon="mdi-magnify"
+	      />
+	  </template>
+	</v-text-field>
 
 
-      <v-text-field
-	v-model="localSearch"
-	clearable
-	label="Search"
-	variant="solo"
-	single-line
-	hide-details
-	density="compact"
-	color="primary"
-	>
-	<template v-slot:prepend>
-	  <v-icon
-            color="primary"
-            icon="mdi-magnify"
-	    />
-	</template>
-      </v-text-field>
 
+      <div class="pl-6">
+	<rc-pagination
+	  :filtereditems="exportData"
+	  v-model:page="localPage"
+	  v-model:items-per-page="localItemsPerPage">
+	</rc-pagination>
+      </div>
 
-      <v-spacer></v-spacer>
-      
-      <rc-pagination
-	:filtereditems="exportData"
-	v-model:page="localPage"
-	v-model:items-per-page="localItemsPerPage">
-      </rc-pagination>
-      
-      <v-spacer></v-spacer>
-
-      <v-menu
-        v-if="rowfiltersfunc!=null"
-	v-model="filtermenu"
-	:close-on-content-click="false"
-	offset-y
-	>
-	<template v-slot:activator="{ props: menu }">		  
-	  <v-tooltip location="bottom">
-	    <template v-slot:activator="{ props: tooltip }">
-	      
-	      <!-- FILTERS BUTTON-->
-	      <v-btn
-		variant="outlined"
-		color="primary"
-		elevation="3"
-		v-bind="mergeProps(menu,tooltip)"
-		>
-		<v-badge dot overlap v-model="rowFilterActive" color="success">
-		  <!--
-		      <v-btn fab size="x-small" color="primary" variant="outlined">
-			<v-icon>mdi-filter-outline</v-icon>
-		      </v-btn>
-		      -->
-		      <v-btn color="primary" icon="mdi-filter" variant="outlined" size="x-small"></v-btn>
-		</v-badge>
+      <div class="pl-6">
+	<v-menu
+          v-if="rowfiltersfunc!=null"
+	  v-model="filtermenu"
+	  :close-on-content-click="false"
+	  offset-y
+	  >
+	  <template v-slot:activator="{ props: menu }">		  
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">
 		
-	      </v-btn>
-	    </template>
-	    
-	    <span>
-	      Filter items in/out of the list.<br/>
-	      <span v-if="(selectedrowfilternames.length>0)">Currently Selected:</span>
-              <ul>
-		<li v-for="selFil in selectedrowfilternames">
-		  {{selFil.title}} <v-avatar v-if="selFil.color" size="20" :color="fixColorName(selFil.color)" small></v-avatar>
-		</li>
-	      </ul>
-	    </span>
-	    
-	  </v-tooltip>
-	</template>
-	
-	<v-card width="500">
-	  <!-- Content of filter menu dropdown -->
-	  <v-list density="compact">		    
-	    <v-list-item>
-	      <v-list-item-action>
+		<!-- FILTERS BUTTON-->
 		<v-btn
-		  color="primary"
-		  density="compact"
 		  variant="outlined"
-		  elevation="3"		      
-		  @click="filtermenu = false; selectedrowfilternames = [];"
+		  color="primary"
+		  elevation="3"
+		  v-bind="mergeProps(menu,tooltip)"
 		  >
-		  Clear
+		  <v-badge dot overlap v-model="rowFilterActive" color="success">
+		    <!--
+			<v-btn fab size="x-small" color="primary" variant="outlined">
+			  <v-icon>mdi-filter-outline</v-icon>
+			</v-btn>
+			-->
+			<v-btn color="primary" icon="mdi-filter" variant="outlined" size="x-small"></v-btn>
+		  </v-badge>
+		  
 		</v-btn>
+	      </template>
+	      
+	      <span>
+		Filter items in/out of the list.<br/>
+		<span v-if="(selectedrowfilternames.length>0)">Currently Selected:</span>
+		<ul>
+		  <li v-for="selFil in selectedrowfilternames">
+		    {{selFil.title}} <v-avatar v-if="selFil.color" size="20" :color="fixColorName(selFil.color)" small></v-avatar>
+		  </li>
+		</ul>
+	      </span>
+	      
+	    </v-tooltip>
+	  </template>
+	  
+	  <v-card width="500">
+	    <!-- Content of filter menu dropdown -->
+	    <v-list density="compact">		    
+	      <v-list-item>
+		<v-list-item-action>
+		  <v-btn
+		    color="primary"
+		    density="compact"
+		    variant="outlined"
+		    elevation="3"		      
+		    @click="filtermenu = false; selectedrowfilternames = [];"
+		    >
+		    Clear
+		  </v-btn>
+		  <v-btn
+		    color="secondary"
+		    density="compact"		  		  
+		    variant="outlined"
+		    elevation="3"
+		    @click="filtermenu = false;"
+		    >
+		    Apply
+		  </v-btn>
+		</v-list-item-action>
+		
+		<v-col>
+		  <v-list-item-title density="compact">Row Filters</v-list-item-title>
+		  
+		  <v-switch v-show="colorizeswitch!=null"
+			    v-model="colorizeswitch"
+			    label="Colorize Rows"
+			    color="primary"
+			    density="compact"
+			    >
+		  </v-switch>
+		  
+		</v-col>
+		
+	      </v-list-item>
+	    </v-list>
+	    
+	    <v-divider density="compact"></v-divider>
+	    
+	    
+	    <v-container>
+	      <v-select v-model="selectedrowfilternames"
+			:items="availableRowFilterOptions"
+			return-object
+			label="Only Show"
+			multiple
+			min-width="600"
+			density="compact"
+			>
+		
+		<!-- THIS WORKS AS EXPECTED....only diff is the v-slot:prepend="{isActive}" part -->
+		<template v-slot:item="{item, props}">
+		  <v-list-item v-bind="props">		      
+		    <template v-slot:prepend="{ isActive }">
+		      <v-list-item-action start>
+			<v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
+		      </v-list-item-action>
+		    </template>
+		    <template v-slot:title>
+		      {{item.title}}
+		    </template>
+	            <template v-slot:append>
+		      <!--vuetify 3.3.9->3.5.2 changed from item.value to item.raw -->
+		      <v-avatar size="20" v-show="item.raw.color" :color="fixColorName(item.raw.color)" small></v-avatar>
+                    </template>
+		    
+		  </v-list-item>
+		</template>		  
+	      </v-select>
+	      
+	    </v-container>
+	    
+	    
+	    <v-card-actions>
+	    </v-card-actions>
+	    
+	  </v-card>
+	</v-menu>
+      
+      
+	<v-tooltip location="bottom">
+	  <template v-slot:activator="{ props: tooltip }">
+	    <v-btn
+              v-if="loadfunc!=null"			
+	      color="primary"
+	      variant="outlined"
+	      dark
+	      elevation="3"
+	      v-bind="tooltip"
+	      @click="loadfunc"
+	      >
+	      <v-icon>mdi-refresh</v-icon>
+	    </v-btn>
+	  </template>
+	  <span>
+	    {{reloadtext}}
+	  </span>
+	</v-tooltip>
+	
+	
+	<v-menu
+	  v-model="columnmenu"
+	  :close-on-content-click="false"
+	  offset-y
+	  >
+	  <template v-slot:activator="{ props: menu }">
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">
+		<v-btn			
+		  color="primary"
+		  variant="outlined"
+		  dark
+		  v-bind="mergeProps(menu,tooltip)"
+		  elevation="3"
+		  >
+	  	  <v-icon>mdi-ballot-outline</v-icon>
+		</v-btn>
+	      </template>
+	      <span>
+		Select columns to display
+	      </span>
+	    </v-tooltip>
+	  </template>
+	  <v-card class="mx-auto" max-width="300">
+	    
+	    <v-list density="compact">
+	      <v-list-subheader>Optional Columns</v-list-subheader>
+	      <v-list-item v-for="hname in allSelectableHeaderNames()" :key="hname" color="primary" density="compact">
+		<!--<v-list-item-title v-text="hname"></v-list-item-title>-->
+		<v-checkbox hide-details class="mx-auto" v-model="childVisibleHeaders" :value="hname" :label="hname" multiple density="compact" color="primary">	
+		</v-checkbox>
+		
+	      </v-list-item>		    
+	    </v-list>
+	  </v-card>
+	</v-menu>
+	
+      
+	<v-menu
+          v-if="exportData"
+	  v-model="exportmenu"
+	  :close-on-content-click="false"
+	  offset-y
+	  >
+	  <template v-slot:activator="{ props: menu }">
+	    <v-tooltip location="bottom">
+ 	      <template v-slot:activator="{ props: tooltip }">
 		<v-btn
-		  color="secondary"
-		  density="compact"		  		  
+		  dark
+		  color="primary"
 		  variant="outlined"
 		  elevation="3"
-		  @click="filtermenu = false;"
+		  v-bind="mergeProps(menu,tooltip)"
 		  >
-		  Apply
+		  <v-icon>mdi-file-export-outline</v-icon>		    
 		</v-btn>
-	      </v-list-item-action>
-
-	      <v-col>
-		<v-list-item-title density="compact">Row Filters</v-list-item-title>
-
-		<v-switch v-show="colorizeswitch!=null"
-			  v-model="colorizeswitch"
-			  label="Colorize Rows"
-			  color="primary"
-			  density="compact"
-			  >
-		</v-switch>
-
-	      </v-col>
-
-	    </v-list-item>
-	  </v-list>
-	  
-	  <v-divider density="compact"></v-divider>
-	  
-	  
-	  <v-container>
-	    <v-select v-model="selectedrowfilternames"
-		      :items="availableRowFilterOptions"
-		      return-object
-		      label="Only Show"
-		      multiple
-		      min-width="600"
-		      density="compact"
-		      >
+	      </template>
+	      <span>
+		Export table to Excel or CSV
+	      </span>
+	    </v-tooltip>
+	  </template>
+	  <v-card>
+	    <v-card-text>
 	      
-	      <!-- THIS WORKS AS EXPECTED....only diff is the v-slot:prepend="{isActive}" part -->
-	      <template v-slot:item="{item, props}">
-		<v-list-item v-bind="props">		      
-		  <template v-slot:prepend="{ isActive }">
-		    <v-list-item-action start>
-		      <v-checkbox-btn :model-value="isActive"></v-checkbox-btn>
-		    </v-list-item-action>
-		  </template>
-		  <template v-slot:title>
-		    {{item.title}}
-		  </template>
-	          <template v-slot:append>
-		    <!--vuetify 3.3.9->3.5.2 changed from item.value to item.raw -->
-		    <v-avatar size="20" v-show="item.raw.color" :color="fixColorName(item.raw.color)" small></v-avatar>
-                  </template>
-		  
-		</v-list-item>
-	      </template>		  
-	    </v-select>
-	    
-	  </v-container>
-	  
-	  
-	  <v-card-actions>
-	  </v-card-actions>
-	  
-	</v-card>
-      </v-menu>
-      
-      
-      <v-tooltip location="bottom">
-	<template v-slot:activator="{ props: tooltip }">
-	  <v-btn
-            v-if="loadfunc!=null"			
-	    color="primary"
-	    variant="outlined"
-	    dark
-	    elevation="3"
-	    v-bind="tooltip"
-	    @click="loadfunc"
-	    >
-	    <v-icon>mdi-refresh</v-icon>
-	  </v-btn>
-	</template>
-	<span>
-	  {{reloadtext}}
-	</span>
-      </v-tooltip>
-      
-      
-      <v-menu
-	v-model="columnmenu"
-	:close-on-content-click="false"
-	offset-y
-	>
-	<template v-slot:activator="{ props: menu }">
-	  
-	  <v-tooltip location="bottom">
-	    <template v-slot:activator="{ props: tooltip }">
-	      <v-btn			
-		color="primary"
-		variant="outlined"
-		dark
-		v-bind="mergeProps(menu,tooltip)"
-		elevation="3"
+	      <v-radio-group v-model="childExportRadioGroup">
+		<v-radio
+		  label="Export CSV"
+		  value="csv"
+		  >
+		</v-radio>
+		<v-radio
+		  label="Export Excel"
+		  value="xls"
+		  >			
+		</v-radio>
+		<v-radio
+		  label="Export HL7"
+		  value="hl7"
+		  @click="exportHiddenColumns=true"
+		  >			
+		</v-radio>
+		
+	      </v-radio-group>
+	      
+	      <v-switch
+		v-model="exportHiddenColumns"
+		label="Export All Columns"
 		>
-	  	<v-icon>mdi-ballot-outline</v-icon>
+	      </v-switch>
+	      
+	      <v-text-field
+		v-model="childExportFileName"
+		label="Export File Name"
+		dense
+		>
+	      </v-text-field>
+	    </v-card-text>
+	    <v-card-actions>
+	      <v-btn color="primary"
+		     variant="outlined"
+		     size="small"
+		     elevation="3"
+		     @click="exportmenu = false;"
+		     >
+		Cancel
 	      </v-btn>
-	    </template>
-	    <span>
-	      Select columns to display
-	    </span>
-	  </v-tooltip>
-	</template>
-	<v-card class="mx-auto" max-width="300">
-	  
-	  <v-list density="compact">
-	    <v-list-subheader>Optional Columns</v-list-subheader>
-	    <v-list-item v-for="hname in allSelectableHeaderNames()" :key="hname" color="primary" density="compact">
-	      <!--<v-list-item-title v-text="hname"></v-list-item-title>-->
-	      <v-checkbox hide-details class="mx-auto" v-model="childVisibleHeaders" :value="hname" :label="hname" multiple density="compact" color="primary">	
-	      </v-checkbox>
-	      
-	    </v-list-item>		    
-	  </v-list>
-	</v-card>
-      </v-menu>
-      
-      
-      <v-menu
-        v-if="exportData"
-	v-model="exportmenu"
-	:close-on-content-click="false"
-	offset-y
-	>
-	<template v-slot:activator="{ props: menu }">
-	  <v-tooltip location="bottom">
- 	    <template v-slot:activator="{ props: tooltip }">
-	      <v-btn
-		dark
-		color="primary"
-		variant="outlined"
-		elevation="3"
-		v-bind="mergeProps(menu,tooltip)"
-		>
-		<v-icon>mdi-file-export-outline</v-icon>		    
-	      </v-btn>
-	    </template>
-	    <span>
-	      Export table to Excel or CSV
-	    </span>
-	  </v-tooltip>
-	</template>
-	<v-card>
-	  <v-card-text>
-	    
-	    <v-radio-group v-model="childExportRadioGroup">
-	      <v-radio
-		label="Export CSV"
-		value="csv"
-		>
-	      </v-radio>
-	      <v-radio
-		label="Export Excel"
-		value="xls"
-		>			
-	      </v-radio>
-	      <v-radio
-		label="Export HL7"
-		value="hl7"
-		@click="exportHiddenColumns=true"
-		>			
-	      </v-radio>
-	      
-	    </v-radio-group>
-	    
-	    <v-switch
-	      v-model="exportHiddenColumns"
-	      label="Export All Columns"
-	      >
-	    </v-switch>
-	    
-	    <v-text-field
-	      v-model="childExportFileName"
-	      label="Export File Name"
-	      dense
-	      >
-	    </v-text-field>
-	  </v-card-text>
-	  <v-card-actions>
-	    <v-btn color="primary"
-		   variant="outlined"
-		   size="small"
-		   elevation="3"
-		   @click="exportmenu = false;"
-		   >
-	      Cancel
-	    </v-btn>
-	    <v-btn v-if="childExportRadioGroup == 'hl7'"
-		   color="primary"
-		   variant="outlined"
-		   size="small"
-		   elevation="3"
-		   @click="exportmenu = false;exportHL7()"
-		   >
-	      Export
-	    </v-btn>
-	    <json-excel v-else
-			:data="dataToExport"
-			
-                        :fields="exportHeaderNames"
-			
-			:type="childExportRadioGroup"
-			:name="fullExportFileName"
-			class="v-btn">
-	      <v-btn
-		color="primary"
-		variant="outlined"
-		size="small"
-		elevation="3"
-		@click="exportmenu = false;"
-		>
+	      <v-btn v-if="childExportRadioGroup == 'hl7'"
+		     color="primary"
+		     variant="outlined"
+		     size="small"
+		     elevation="3"
+		     @click="exportmenu = false;exportHL7()"
+		     >
 		Export
 	      </v-btn>
-	    </json-excel>
+	      <json-excel v-else
+			  :data="dataToExport"
+			  
+                          :fields="exportHeaderNames"
+			  
+			  :type="childExportRadioGroup"
+			  :name="fullExportFileName"
+			  class="v-btn">
+		<v-btn
+		  color="primary"
+		  variant="outlined"
+		  size="small"
+		  elevation="3"
+		  @click="exportmenu = false;"
+		  >
+		  Export
+		</v-btn>
+	      </json-excel>
+	      
+	    </v-card-actions>
 	    
-	  </v-card-actions>
-	  
-	</v-card>
-      </v-menu>
+	  </v-card>
+	</v-menu>
+      </div>
       
       
     </v-toolbar>

@@ -335,9 +335,7 @@ export const RcTable = {
 		<slot name="toolbar-buttons">
 
 		  
-		</slot>		
-		<v-spacer></v-spacer>
-		
+		</slot>				
 	      </template>
 
 	      
