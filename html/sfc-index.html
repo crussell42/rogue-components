@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+
+    <title>SFC Rogue Components Test Page</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/vuetify@3.5.2/dist/vuetify-labs.min.css" rel="stylesheet">
+
+    <style>
+
+      [v-cloak] { display: none; }
+      .hard-left {
+	  position:absolute;
+	  top: -20px;
+	  right: -30px;
+      }
+      
+    </style>
+
+  </head>
+  
+  <body>
+
+    <div id="app">
+
+      <div v-cloak>
+
+	<v-app>
+	  <v-app-bar
+	    :elevation="2"
+	    class="white">
+	    <v-app-bar-nav-icon @click.stop="collapseSubMenus();pageProps.rail = !pageProps.rail"></v-app-bar-nav-icon>
+	    
+	    <v-app-bar-title>
+	      ~{pageProps.appBarTitle}~ 
+	    </v-app-bar-title>
+	    <v-spacer></v-spacer>
+	    <v-btn icon="mdi-github" href="https://github.com/crussell42/rogue-components">
+	    </v-btn>
+	    <v-btn icon="mdi-theme-light-dark" @click="toggleTheme">
+	    </v-btn>
+	  </v-app-bar>
+
+	  <v-main>
+	    <v-container>
+	      
+	      <rc-confirm-dialog ref="confirm">
+	      </rc-confirm-dialog>	    
+	      
+	      <v-dialog
+		v-model="progressDialog"
+		hide-overlay
+		persistent
+		width="400"
+		transition="dialog-top-transition"
+		>
+		<v-card
+		  dark
+		  color="deep-purple accent-1"
+		  >
+		  <v-toolbar
+		    color="deep-purple"
+		    dark
+		    >
+		    Processing selected items
+		  </v-toolbar>
+		  <v-card-text>
+		    ~{progressText}~
+		    <v-progress-linear
+		      striped
+		      v-model="percentComplete"
+		      height="20"
+		      color="light-blue"
+		      ></v-progress-linear>
+		  </v-card-text>
+		</v-card>
+	      </v-dialog>
+	      
+	      
+	      <section>
+		
+		<v-row>
+		</v-row>
+		
+		<v-row>
+		  <v-col cols="12">
+		    <v-form
+		      v-model="phoneform"
+		      @submit.prevent="onSubmit"
+		      validate-on="submit"
+		      >
+			  
+		      
+		      <v-card>			
+			<v-card-text>
+			  <v-row>
+			    <v-col cols="6">
+			      <rc-phone-field
+				v-model="testphone"
+				:rules=[validPhone]
+				label="Test Phone"
+				variant="underlined"
+				class="pa-4"
+				clearable>
+			      </rc-phone-field>
+			      
+			      <rc-pattern-field
+				ref="bob"
+				field-pattern="???-??-????"
+				v-model="testssn"
+				:rules=[myrule]
+				label="Test SSN"
+				variant="underlined"
+				class="pa-4"
+				clearable>
+			      </rc-pattern-field>
+			      
+			      <rc-pattern-field
+				ref="fred"
+				field-pattern="???.??"		
+				v-model="testmoney"
+				:rules=[fredrule]
+				label="Test Money"
+				variant="underlined"
+				class="pa-4"
+				clearable>
+			      </rc-pattern-field>
+			    </v-col>
+			    <v-col cols="6">
+			      <!-- rc-tags-add-field -->
+			      <rc-tags-add-field
+				:items="availabletesttags"
+				v-model:selected="testtags"
+				:colorsmap="{goofy:'blue',smelly:'red'}"			    
+				>				
+			      </rc-tags-add-field>
+
+
+			    </v-col>
+			    <!--
+			    <v-col cols="6">
+			      ~{dateRange}~|~{dateRangeText}~|~{selectedDateRangename}~
+			    </v-col>
+			    -->
+			    <v-col cols="6">
+
+			      <!-- rc-named-daterange -->
+			      <rc-named-daterange
+				v-model:daterange = "dateRange"
+				v-model:daterangetext = "dateRangeText"
+				v-model:selecteddaterangename = "selectedDateRangename"
+				>				
+			      </rc-named-daterange>
+
+
+			    </v-col>
+
+			  </v-row>
+			</v-card-text>
+			<v-card-actions>
+			  <v-btn			  
+			    type="submit"
+			    color="success"
+			    variant="outlined"
+			    elevation="3"
+			    >
+			    Test Form
+			  </v-btn>
+			</v-card-actions>
+		      </v-card>
+		    </v-form>
+
+
+		  </v-col>
+		</v-row>
+		<v-row>
+		</v-row>
+		<v-row>
+		  <v-col>
+
+		    <v-card :elevation="4">
+
+		      <rc-table
+			:allitems="dataItems"
+			:filtereditems="filteredItems"
+			
+			:allheaders="allHeaders"	    
+			v-model:visibleheadernames="visibleHeaderNames"
+			v-model:search="search"
+			v-model:selected="selected"
+			
+			:loadfunc="forceLoadData"
+			:rowfiltersfunc="rowFilters"
+			
+			v-model:selectedrowfilterkeys="selectedRowFilterKeys"
+			v-model:selectedcolumnfilters="selectedColumnFilters"
+		
+			export-file-name="silly-file-name"
+			title="RcTable"
+			>
+			<!-- TOOLBAR Buttons -->
+			<template v-slot:toolbar-buttons>
+			  
+			  <v-tooltip location="bottom">
+			    <template v-slot:activator="{ props: tooltip }">			  
+			      <v-btn
+				color="primary"
+				outlined
+				@click="toolbarAction()"
+				dark
+				v-bind="tooltip"
+				elevation="3"
+				>
+	  			<v-icon>mdi-truck-delivery-outline</v-icon>
+			      </v-btn>
+			    </template>
+			    <span>
+			      Toolbar Action.
+			    </span>
+			  </v-tooltip>
+			  
+			</template>
+			<!-- END TOOLBAR Buttons -->
+			<!-- how to do this as a formatter? return div of v-html?-->
+			<template v-slot:item.condition_tags="{ item }">
+			  <v-chip v-for="cval in item.condition_tags" v-if="item.condition_tags.length" color="red">
+			    ~{cval}~
+			  </v-chip>
+			  <span v-else>None</span>
+			</template>
+			
+			
+			<template v-slot:item.actions="{ item }">
+			  <v-tooltip bottom>
+			    <template v-slot:activator="{ props: tooltip }">			  
+			      <v-icon
+				size="small"
+				class="me-2"
+				@click="editDetail(item)"
+				v-bind="tooltip"
+				>
+				mdi-pencil
+				
+			      </v-icon>
+			    </template>
+			    <span>
+			      Edit Detail
+			    </span>
+			  </v-tooltip>
+			</template>
+			
+		      </rc-table>
+  
+
+		    </v-card>
+		    
+		  </v-col>
+		</v-row>
+	      </section>	  
+
+	      <!-- rc-bastard-scroll -->
+	      <rc-bastard-scroll>
+	      </rc-bastard-scroll>
+	      
+	    </v-container>
+	  </v-main>
+
+	</v-app>
+	
+      </div><!--cloak-->
+
+    </div> 
+
+
+    <!-- UMD downloads 
+	 Resultant objects window.tmb, window._, window.JsonExcel
+	 Note: tmb relies on lodash. In order to use tmb in Vue templates e.g. [[tmb.nub(dog)]] gotta do this prototype hack
+	 Note: The main thing used in LODASH_ is the _.get method for accessing deep into an object based on a string path...
+	       And, _.isFunction and lot of _.is's
+      -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+    <script src="/static/js/tmb.js"></script>
+
+
+    <!-- ECMA module downloads
+	 I kinda like the type="importmap"
+    -->
+    <script type="importmap">
+      {
+	  "imports": {
+	      "vue": "https://unpkg.com/vue@3.4.15/dist/vue.esm-browser.js",
+              "vuetify": "https://unpkg.com/vuetify@3.5.2/dist/vuetify-labs.esm.js",
+	      "vuetifycolors": "https://unpkg.com/vuetify@3.5.2/lib/util/colors.mjs",
+	      "vue-json-excel3": "https://unpkg.com/vue-json-excel3@1.0.0/dist/vue-json-excel.esm.js"
+	      
+	  }
+      }
+    </script>
+    
+    <script type="module">
+      import * as Vue from 'vue'
+      import { createApp, ref, reactive, defineAsyncComponent } from 'vue' 
+      import { createVuetify, useTheme } from 'vuetify'
+      const vuetify = createVuetify();
+
+      // Rc component imports Loading uncompiled SFC .vue files requires some help.
+      // For this example, we will load, compile them here.
+      // (These are not compiled and so would need to be compiled after importing from server)
+      import { loadModule } from 'https://cdn.jsdelivr.net/npm/vue3-sfc-loader/dist/vue3-sfc-loader.esm.js'
+
+      //const loadModule = window['vue3-sfc-loader'];
+      const loaderOptions = {
+	  moduleCache: { vue: Vue },
+	  async getFile(url) {        
+              const res = await fetch(url);
+              if ( !res.ok )
+		  throw Object.assign(new Error(res.statusText + ' ' + url), { res });
+              return {
+		  getContentData: asBinary => asBinary ? res.arrayBuffer() : res.text(),
+              }
+	  },
+	  addStyle(textContent) {
+              const style = Object.assign(document.createElement('style'), { textContent });
+              const ref = document.head.getElementsByTagName('style')[0] || null;
+              document.head.insertBefore(style, ref);
+	  },
+      };
+      
+      //Most imports go away in lieu of the components definitions below for client load of components.
+
+      import {RcTableMixins} from '/static/sfc-components/RcTableMixins.js'      
+
+      //NOTE: JsonExcel must be defined here as an GLOBAL component because there
+      //seems to be a problem importing it from a child sfc vue component.
+      //something about can only import from source module....Yes I tried esm modules all the way
+      //to the child component and importing directly from cdn but this seems to be the only
+      //way to get it to work.
+
+      import JsonExcel from 'vue-json-excel3'
+      
+      const app = createApp({
+	  delimiters: ['~{', '}~'],
+	  components: {
+	      'rc-table': defineAsyncComponent( () => loadModule('/static/sfc-components/RcTable.vue', loaderOptions) ),
+	      'rc-confirm-dialog': defineAsyncComponent( () => loadModule('/static/sfc-components/RcConfirmDialog.vue', loaderOptions) ),
+	      'rc-phone-field': defineAsyncComponent( () => loadModule('/static/sfc-components/RcPhoneField.vue', loaderOptions) ),
+	      'rc-pattern-field': defineAsyncComponent( () => loadModule('/static/sfc-components/RcPatternField.vue', loaderOptions) ),
+	      'rc-tags-add-field': defineAsyncComponent( () => loadModule('/static/sfc-components/RcTagsAddField.vue', loaderOptions) ),
+	      'rc-named-daterange': defineAsyncComponent( () => loadModule('/static/sfc-components/RcNamedDaterange.vue', loaderOptions) ),
+	      'rc-bastard-scroll': defineAsyncComponent( () => loadModule('/static/sfc-components/RcBastardScroll.vue', loaderOptions) ),
+
+	  },
+	  
+	  mixins: [RcTableMixins],
+	  
+	  setup(props,ctx) {
+	      //const theme = useTheme();
+	      const pageProps = {
+		  appBarTitle:'SFC Rogue Components Test Page',
+		  rail: false,
+	      };
+	      
+	      return {
+		  toggleTheme: () => theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark',
+		  pageProps,
+	      }
+	  },
+	  data() {
+	      return {
+		  phoneform: false,
+		  testphone: '123.456.7890',
+		  testssn: '12345',
+		  testmoney: '099.49',
+		  availabletesttags: ['Silly','Goofy','Smelly'],
+		  testtags: [],
+		  
+		  //error amd error messages
+		  alert: false,
+		  alertText:  '',
+
+		  //progress dialog...
+		  progressDialog: false,
+		  percentComplete: 0,
+		  progressText: '',
+
+		  childExportRadioGroup: 'csv',
+		  wanker: 'WANKER',
+		  
+		  //RcTable goodies...You want them exposed here...Column and Row filters too.
+		  //NOTE: search here is used to trigger the search text filter OUTSIDE the rc-table....this is on purpose.
+		  //rc-table-toolbar ownes the v-text-field. But changes cause the computed filteredItems to re-run.
+		  //filteredItems are what rc-table live on.
+
+		  dataItems: [],
+		  search: '',
+		  selected: [],
+		  selectedRowFilterKeys: [],
+		  selectedColumnFilters: [],
+		  itemsPerPage: 5,
+		  visibleHeaderNames: ['RefDate','Friends','Referring','Conditions','Contact'],
+		  //Note: allHeaders is a method that returns the header definitions....needs to be a method not computed.
+
+		  dateRange: [tmb.yoda(),tmb.yoda()],
+		  dateRangeText: '',
+		  selectedDateRangename: 'Today',
+
+	      }
+	  },	  
+	  computed: {
+
+	  },
+	  methods: {
+	      //Client side SFC components (rc-phone-field in this case) bring up the import issue.
+	      //How to deal with that on client side if we are dynamically importing????
+	      //For now import the .js
+	      //validPhone,
+	      //formattedPhoneNumber,
+	      //digitsPhoneNumber,
+	      validPhone() {return true},
+	      formattedPhoneNUmber() {return '123-456-7890'},
+	      digitsPhoneNumber() {return '1234567890'},
+
+	      myrule(val) {
+		  return this.$refs.bob.validPattern(val);
+	      },
+	      fredrule(val) {
+		  return this.$refs.fred.validPattern(val);
+	      },
+	      
+	      onSubmit: async function() {
+		  let msg = 'SUBMIT formatted phone:'+this.testphone+'<br/>digits only:'+digitsPhoneNumber(this.testphone)+'<br/>'+
+		      'digits ssn:'+this.$refs.bob.extractPattern(this.testssn)+'</br>'+
+		      'testtags:'+this.testtags+'</br>'+
+		      'dateRangeText:'+this.dateRangeText;
+;
+		  if (!await this.$refs.confirm.open("Confirm",msg)) {
+		      console.log('ACTION CANCELED');
+		  } 
+		  //console.log('SUBMIT formatted phone:',this.testphone,' digits only:',digitsPhoneNumber(this.testphone));
+		  //console.log('SUBMIT digits ssn:',this.$refs.bob.extractPattern(this.testssn));
+		  ////ugly singleton usage console.log(RcPatternField.methods.mDamnit());
+		  //console.log('SUBMIT testtags:',this.testtags);
+		  
+	      },
+
+	      collapseSubMenus() {
+		  console.log('collapseSubMenu');
+	      },
+	      
+
+	      editDetail: async function(item) {
+		  console.log('item:',item);
+		  return this.toolbarAction(item);
+	      },
+	      toolbarAction: async function(item) {
+		  let selectedIds = [];
+		  if (!item) selectedIds = this.selected.map(s => s.id);
+		  else selectedIds.push(item.raw.id);
+		  console.log('selectedIds:',selectedIds);
+		  if (!await this.$refs.confirm.open("Confirm",'Run action on ids ['+selectedIds+']')) {
+		      console.log('ACTION CANCELED');
+		  } else {
+		      this.progressDialog=true;
+		      for (let ndx=0;ndx<selectedIds.length;ndx++) {
+			  this.percentComplete = ((ndx+1) / selectedIds.length)*100;
+			  await tmb.sleep(1000);
+		      }
+		      this.progressDialog=false;
+		  }
+	      },
+
+	      //Normal vuetify headers + a columnfilter definition, required flag, formatter, and totaler.
+	      //See RcColumnFilter for discussion of available properties for a column filter.
+	      //The defaut column filter is based on the unique values of a column...e.g. columnfilter:{}
+	      allHeaders() {
+		  return [
+		      { title: 'Actions', key: 'actions', sortable:false, required:true},
+		      { title: 'id', key: 'id', required:true},
+		      {
+			  title: 'Referring',
+			  key: 'referring_physician',
+			  required: true,
+			  align: 'start',
+		      },
+		      {
+			  title: 'RefDate',
+			  key: 'ref_date',
+			  columnfilter: {
+			      dataType: 'date',
+			      showexclude: true,
+			      ranges: [
+				  // ops: how to treat range, range is an array of 1 or 2 'yyyy-mm-dd' strings
+				  // ops available: 'inclusive-range','gt','lt','gte','lte'
+				  // See RcTableMixins for handling of these and tmb for the thirtyRange helper.
+				  {name: '1..30 Days',ops:'inclusive-range',  range: tmb.thirtyRange(1)},
+				  {name: '31..60 Days',ops:'inclusive-range', range: tmb.thirtyRange(2)},
+				  {name: '61..90 Days',ops:'inclusive-range', range: tmb.thirtyRange(3)},
+				  {name: 'Over 90 Days',ops: 'lt',            range: [tmb.adjustDayOfDateStr(tmb.yoda(),-90)]},
+			      ],
+			  },
+		      },
+		      {
+			  title: 'Friends',
+			  key: 'friends',
+			  formatter: tmb.commaStr,
+			  align: 'end',
+			  totaler: tmb.sumFilteredColumn,
+		      },
+		      { title: 'Conditions',key: 'condition_tags', columnfilter: {arrayfield: true}},
+		      { title: 'Contact', align: 'end', key: 'contact',columnfilter: {}, tooltip: ''},		      
+		  ]
+	      },
+	      
+	      forceLoadData: async function() {
+		  return this.loadData(true);
+	      },
+	      loadData: async function(force) {
+
+		  let yoda1 = tmb.adjustDayOfDateStr(tmb.yoda(),-1 * 30);
+		  let yoda2 = tmb.adjustDayOfDateStr(tmb.yoda(),-2 * 30);
+		  let yoda3 = tmb.adjustDayOfDateStr(tmb.yoda(),-3 * 30);
+		  let yoda4 = tmb.adjustDayOfDateStr(tmb.yoda(),-4 * 30);
+		  
+		  let url = '/referral/api?'; //get returns all of them.
+		  
+		  let queryObj = {format:'json'};
+		  url = url + new URLSearchParams(queryObj).toString();		  
+		  console.log('URL:'+url);		  
+		  //this.dataItems = await this.processApiCall(url);
+		  //if (this.dataItems === null) {
+		      this.dataItems = [
+			  {id: 1, ref_date: yoda1, friends: 42.5,referring_physician: 'Dr. Wellington',condition_tags: ['Nervous','Confused'],contact:'Arthur Dent'},
+			  {id: 2, ref_date: '2020-03-01', friends: 4250,referring_physician: 'Dr. Billy Bob',condition_tags: ['Hedonistic','Irresponsible'],contact:'Zaphod Beeblebrox'},
+			  {id: 3, ref_date: yoda2, friends: 0,   referring_physician: 'Dr. Bad Curry',condition_tags: ['Mechanical','Depressed'],contact:'Marvin'},
+			  {id: 4, ref_date: yoda2, friends: 9999,referring_physician: 'Killer Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  
+			  {id: 5, ref_date: yoda3, friends: 7000,referring_physician: 'Silly Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 6, ref_date: yoda2, friends: 77,  referring_physician: 'Goofy Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 7, ref_date: yoda4, friends: 956, referring_physician: 'Bizzare Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+			  {id: 8, ref_date: yoda4, friends: 789, referring_physician: 'Doufus Monkey',condition_tags: ['Intelligent','Resourceful'],contact:'Ford Prefect'},
+
+		      ];
+//		  }
+
+		  console.log('RETURNED ITEMS:',this.dataItems);
+	      },
+
+      	      processApiCall: async function(url,item, multipart) {
+		  let [err,res] = await tmb.eitherFetch(url,item,multipart);
+		  if (err) {
+		      this.alert = true;
+		      this.alertText = err;
+		  } else {
+		      return res;
+		  }
+		  return null;
+	      },
+
+	      //Here is where we define our row level filters.
+	      //This needs to be here for the ctx(this) usage.
+	      rowFilters: function(ctx) {
+		  return {
+		      A_Checked: {
+			  name: 'Checked',		    
+			  func: function(row) {
+			      return ctx.selected.some(selRow => selRow.id == row.id);
+			  },
+		      },
+		      DVT: {
+			  name: 'Has a Confused condition',
+			  color: 'bg-blue lighten-2',
+			  tooltip: 'Patient has Confusion',
+			  func: function(row) {
+			      return (row.condition_tags.includes('Confused'));
+			  },
+		      },
+		  }
+	      },
+
+	      
+	  },
+	  watch: {
+
+	  },
+	  created() {
+	      this.loadData();
+	  },
+
+      });
+
+      //Had to make it global for use in RcTableToolbar...
+      app.component('JsonExcel',JsonExcel);
+      app.use(vuetify);
+
+      app.mount('#app')
+    </script>
+    
+  </body>
+</html>
+

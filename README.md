@@ -1,15 +1,30 @@
 # rogue-components
 
+## What is this?
+
+**Rogue Components** are a test bed/base templates for VUE3/VUETIFY3 components.
+In here I test client side vs server side component compilation and delivery to browsers.
+These base components represent a functional real world base that most admin sites need.
+The idea is to draw conclusions on the correct combination of client and server side tooling.
+
+**Rogue Templates** expand on these base components by wrapping them in different combinations of
+server side templating and JS client side UX's as well as authorization, sessions, etc.
+Multiple langiuages and server side experiments.
+
+
 ## Reasoning
-I like the look of vuetify and appreciate their work so wanted to add some examples in hopes of increased adoption.
-Wanted to go ahead and try converting my old 2.7 vue stuff to Vue 3.4.15 and Vuetify 3.2.47. 
+I think vue has the best balanced reactive model. Sensible defaults and behavior.
+I also like the look of vuetify and appreciate their work so wanted to add some examples in hopes of increased adoption.
+I also wanted to converting my old 2.7 vue stuff to Vue 3.4.15 and Vuetify 3.2.47 (or greater). 
 
 ## Component general rules
+* This is all straight HTML to the Browser. Any and All compilation takes place in the browser.
+* To serve this just use nginx or apache and make a web root point to ./static (components and js) and ./html (HTML) 
 * VUE3...Currently 3.4.15
 * VUETIFY3...Currently 3.5.2 (In particular the Labs v-data-table)
 * NO Typescript...Ok well sorta in default props...nothing intentional and only rely on vues client side ability.
-* NO Build...(Its already built just not chunked, dehydrated and stirred)
-* NO SFC...cause they require compile.
+* NO Build...(Its already built(ish) just not chunked, dehydrated, and stirred)
+* NO SFC and SFC versions of the same components...
 * FULL MPA...cause I can
 * CDN where possible.
 * UMD Downloads and IIFE (Immediately Invoked Function Expression js library (e.g. it appends itsself to the window object if in a browser)) 
@@ -19,21 +34,23 @@ Wanted to go ahead and try converting my old 2.7 vue stuff to Vue 3.4.15 and Vue
 * MIXINS...yes but only because I havn't converted my mixins to composables and I'm not sure I want to.
 
 **DEPENDENCIES:**
-  1. my browser util code static/js/tmb.js
+  1. my browser util code static/js/tmb.js (mostly harmless)
   2. lodash@4.17.15 Sorry (not sorry).
-  3. vue-json-excel3@1.0.0 for export csv/pdf/excel functionality
+  3. vue-json-excel3@1.0.0 for export of csv/pdf/excel functionality (cause I didnt want to mess with it)
 
 **Components**
+
 * **RcTable.js**...a wrapper for v-data-table that adds a bunch of functionality. In particular:
   * Adds a RcTableToolbar that can have custom functions act on selected rows.
-  * Allows custom row level filters, column level filters, and the search bar
-  * Allows export/download of table data to csv, pdf, excel
-  * Add remove optional columns
-  * Filters for array based fields as well as string and some date stuff
-  * Format values in columns
+  * Allows custom row level filters, column level filters, and the search bar.
+  * Allows export/download of table data to csv, pdf, excel.
+  * Add remove optional columns.
+  * Filters for array based fields as well as string and some date stuff.
+  * Format values in columns.
   * Sensible multi select (select none, select all, invert selection)
   * Sensible sort with tooltips for all headers.
   * Totals lines
+  
 * **RcTableToolbar.js**..used in RcTable. Holds row level filters, text search filter, oagination, reload button, select column button, export button, and custom buttons for actions based on selected items.
 * **RcPagination.js**..used in RcTableToolbar. A much more succinct pagination area than the default on v-data-table.
 * **RcSelectMenu.js**..used in RcTable. allows select all, none, invert and has a badge which shows count of selected items
@@ -50,7 +67,9 @@ $ git clone https://github.com/crussell42/rogue-components.git
 ## Directory layout
 * rogue-components/
     * html/index.html components test page
-    * static/components...where the js components live.
+    * html/sfc-index.html sfc components test page
+    * static/components...where the .js components live.
+    * static/sfc-components...where the .vue components live.	
     * static/js...where my ugly tmb tool code lives
 
 So just run a nginx or apache or what ever and serve the html and static dirs.
@@ -60,8 +79,11 @@ The test programs and components depend on relative urls:
 
 Thats it, Clean-ish and simple.
 
-## Live preview
+## Live preview (.js components)
 https://aerospacey.io/demo/rogue-components/index.html
+
+## Live preview (.vue components)
+https://aerospacey.io/demo/rogue-components/sfc-index.html
 
 ## Screen Grabs
 
