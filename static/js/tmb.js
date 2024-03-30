@@ -375,7 +375,7 @@ var tmb = (function() {
     // Date Range Names...these are always handy when doing metrics and very commonly used..
     
     
-    tmb.commonDateRangeNames = ['Today','This Week','This Month','This Quarter','This Year','Last 7 days','Last 30 days','Custom'];
+    tmb.commonDateRangeNames = ['Today','This Week','Last Week','This Month','This Quarter','This Year','Last 7 days','Last 30 days','Custom'];
 
     
     tmb.dateRangeFromName = function(dateRangeName) {
@@ -390,6 +390,10 @@ var tmb = (function() {
 	
 	if (dateRangeName.indexOf('This Week')>=0) {
 	    startDate = tmb.dateFromYoda(tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate)));
+	} else if (dateRangeName.indexOf('Last Week')>=0) {
+	    let newStartDateStr = tmb.adjustDayOfDateStr(tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate)),-7);
+	    startDate = tmb.dateFromYoda(newStartDateStr);
+	    endDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(newStartDateStr,6));
 	} else if (dateRangeName.indexOf('This Month')>=0) {
 	    startDate.setDate(1); //set date to first day of month.
 	    //console.log('This Month:',startDate,endDate);

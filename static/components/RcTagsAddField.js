@@ -13,7 +13,7 @@ export const RcTagsAddField = {
 	name: {type: String, default: 'tagsaddfield'}
     },
     setup(props,context) {
-	const availabletags = ref(props.items);
+	const availabletags = reactive(props.items);
 	return {
 	    availabletags
 	}
@@ -31,23 +31,38 @@ export const RcTagsAddField = {
 	}
     },
     computed: {
-        availableTagNames() {
-	    let all = [...new Set([...this.selectedLocal, ...this.availabletags])];
-	    let combined = all.flat();
-	    return combined;
-	},
 
+	itemsLocal: {
+	    get: function() {		
+		let all = [...new Set([...this.selectedLocal, ...this.items])];
+		let combined = all.flat().sort();
+		return combined;		
+	    },
+	    set: function(value) {
+		//console.log('RcTagsAddField.itemsLocal set:',value);
+		this.$emit('update:items',value);
+	    },
+	},
 	//I dig this pattern better than my old method per event emitter
 	//prop value gets pulled in and emitted when changed.
 	// Use it in v-model of templates v-combobox.
 	//   So when the v-combobox mutates this, it emits the appropriate update event.
 	//   And you dont get the Warning about mutating property.
+
+	//selectedLocal gets set if person choses an existing tag or adds a new tag to the list.
+	//This then cascade updates itemsLocal so that any other components using the same items
+	//gets the new (same or newly added item) list.
 	selectedLocal: {
 	    get: function() {
 		return this.selected;
 	    },
 	    set: function(value) {
-		this.$emit('update:selected',value);		
+		//console.log('RcTagsAddField.selectedLocal set:',value.sort());
+		this.$emit('update:selected',value.sort());
+
+		let all = [...new Set([...value, ...this.items])];
+		let combined = all.flat().sort();
+		this.itemsLocal = combined;
 	    }
 	},
     },
@@ -86,7 +101,7 @@ export const RcTagsAddField = {
     template: `
         <v-combobox
 	  v-model="selectedLocal"
-	  :items="availableTagNames"
+	  :items="itemsLocal"
 
           :filter="filter"		      
 	  :hint="hint"
