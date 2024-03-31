@@ -221,6 +221,29 @@ var tmb = (function() {
 	if (s.length<2) s = '0'+s;	
 	return ds+' '+h+':'+m+':'+s;
     }
+    // mdf(Date) returns a mm-dd string from a Date value.
+    // NO ERROR CHECKING SO MAKE SURE Date IS VALID
+    // date format 2022-11-01
+    tmb.mdf = function(dv) {
+	if (_.isString(dv)) return dv;
+	let month = '' + (dv.getMonth() + 1);
+	let day = '' + dv.getDate();
+	//let year = dv.getFullYear();
+	if (month.length < 2) month = '0' + month;
+	if (day.length < 2) day = '0' + day;
+	return [month, day].join('-');
+    }
+
+    tmb.durationSeconds = function(t1,t2) {
+	return Math.round(Math.abs(t1.getTime() - t2.getTime())/1000);
+    }
+    tmb.durationMinutes = function(t1,t2) {
+	return Math.round(tmb.durationSeconds(t1,t2)/60);
+    }
+    tmb.formatMinutesAsDuration = function(m) {
+	return ''+Math.floor(m/60)+':'+(m % 60);
+    }
+
     //Ignore this.
     tmb.wccEpoch = function () {
 	return '2020-03-01';

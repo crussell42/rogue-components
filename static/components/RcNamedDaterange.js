@@ -41,10 +41,17 @@ export default {
 	//dates are treated differently in vue so you can not count on proper computed behavior here.
 	daterangetextLocal: {
 	    get: function() {
+		
 		let ans = '';
 		if (this.daterangeLocal.length==0) ans = ''; //return '[ .. ]';
-		else if (this.daterangeLocal.length==1) ans = ''+tmb.yoda(this.daterangeLocal[0])+' ..';
-		else ans = ''+this.daterangeLocal.map((d)=> { return tmb.yoda(d)}).join('..')+'';
+		else if (this.daterangeLocal.length==1) ans = ''+tmb.mdf(this.daterangeLocal[0])+' ..';
+		else {
+		    //console.log('hack:',this.daterangeLocal[0].constructor.name);
+		    //normally tmb.yoda not mdf
+		    //Need a pattern.
+		    ans = ''+this.daterangeLocal.map((d)=> { return tmb.mdf(d)}).join('..')+'';
+		    
+		}
 
 		//console.log('COMPILED daterangetextLocal:',ans);
 		return ans;		
