@@ -240,7 +240,11 @@ var tmb = (function() {
 	return Math.round(tmb.durationSeconds(t1,t2)/60);
     }
     tmb.formatMinutesAsDuration = function(m) {
-	return ''+Math.floor(m/60)+':'+(m % 60);
+	let hours = ''+Math.floor(m/60);
+	if (hours.length<2) hours = '0'+hours;
+	let mins = ''+(m % 60);
+	if (mins.length<2) mins = '0'+mins;
+	return hours+':'+mins;
     }
 
     //Ignore this.
