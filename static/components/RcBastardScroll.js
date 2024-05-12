@@ -23,6 +23,7 @@ export const RcBastardScroll = {
 	onScroll (e) {
 	    if (typeof window === 'undefined') return;
 	    const top = window.pageYOffset ||   e.target.scrollTop || 0;
+	    //console.log('WTF DUDE ',top);
 	    this.showScrollFab = top > 20
 	},
 	toTop () {
@@ -34,6 +35,7 @@ export const RcBastardScroll = {
 	    //console.log('BastardScroll:',$vuetify.poop);
 	},
     },
+    //Note absolute position vs fixed. absolute is relative to closest neighbor. fixed is relative to viewport
     template: `
     <v-fab-transition>          
       <slot>
@@ -42,7 +44,7 @@ export const RcBastardScroll = {
 	    v-scroll="onScroll"
             v-show="showScrollFab"
             fab
-            position="absolute"
+            position="fixed"
             location="bottom right"
             :color="color"
             @click="toTop"

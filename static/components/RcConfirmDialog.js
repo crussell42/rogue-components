@@ -14,6 +14,7 @@ export const RcConfirmDialog = {
 		width: 400,
 		zIndex: 200,
 		noconfirm: false,
+		oktext: 'Ok',
             },
 	}
     },
@@ -72,7 +73,7 @@ export const RcConfirmDialog = {
                       outlined
                       @click.native="agree"
                     >
-                     OK
+                     {{options.oktext}}
                     </v-btn>
                  </v-card-actions>
                </v-card>
