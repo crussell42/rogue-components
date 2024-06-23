@@ -1,4 +1,44 @@
-import {ref,reactive} from 'vue'
+import {ref,reactive,computed} from 'vue'
+
+//CIRCULAR import {RcSideMenuItem} from './RcSideMenuItem.js'
+//NOTE: Since RcSideMenuItem is recursive, we have to register it globally.
+//See comment //CIRCULAR for how it SHOULD work. When done like that though, the menus are not reactive for some reason...fuck sake.
+//CIRCULAR import {RcSideMenuItem} from './RcSideMenuItem.js'
+/*
+  The way to use this in a components setup method is like this:
+    setup(props,ctx) {
+	//get the function to collapse all submenus within RcSideMenu component.
+	const {opened,sideMenuItems,collapseSubMenus} = useSideMenuItems(
+	    [
+		{label:'Home', icon:'mdi-home', to: '/dashboard'},
+		{label: 'Metrics', icon: 'mdi-chart-line', subItems: [
+		    {label: 'Revenue', icon: 'mdi-finance', to: '/revenue'},
+		    {label: 'Batch Revenue', icon: 'mdi-finance', to: '/batchrevenue'},	
+		],},
+
+		{label: 'Workers', icon: 'mdi-transit-transfer', subItems: [
+		    {label: 'List', icon: 'mdi-list-status', to: '/referrallist'},
+		],},
+		{label:'Settings', icon:'mdi-cogs', active: false, subItems: [
+		    {label:'Company', icon:'mdi-office-building-cog-outline', requiredRoles:[]},
+		    {label:'User', icon:'mdi-account-cog-outline', to:'/usersettings'},
+		],},
+	    ]
+	);
+
+	Then, you can set the state of the side menu by changing the opened array:
+	e.g. opened.push('a-1') would force the 2nd menu item open.
+*/
+
+export function useSideMenuItems(override) {
+    if (override) sideMenuItems.value = override;
+    return {
+	opened,
+	sideMenuItems,
+	collapseSubMenus
+    }
+}
+
 
 //ordered list
 export const sideMenuItems = ref([
@@ -12,15 +52,10 @@ export const sideMenuItems = ref([
     
 ]);
 
-//const ass = ref(false);
 const opened = ref([]);
 
-export function collapseSubMenus() {
+function collapseSubMenus() {
 
-    //ass.value=!ass.value;
-
-    //console.log('before:'+opened.value);
-    //opened.value = opened.value.slice(-1);
     opened.value = [];
     //NOTE setting or removing an app is NOT what is causing the menu to collapse...it appears to JUST be reallocation of variable.
     //maybe they use a watcher......??????
@@ -36,89 +71,129 @@ export function collapseSubMenus() {
     });
     */
 }
-export function useSideMenuItems(override) {
-    if (override) sideMenuItems.value = override;
-    return {
-	sideMenuItems,
-	collapseSubMenus
-    }
-}
+
+
 
 export const RcSideMenu = {
+
+    components: {
+	//RcSideMenuItem,
+    },
+    //emits: ['update:rail'],
+
     props:  {
 	items: {type: Object, default(rawProps) {return null}},
+	rail: {type: Boolean, default: false},
 	user: {type: Object, default(rawProps) {return null}}
     },
     setup(props,ctx) {
 	if (props.items) {
 	    console.log('OVERRIDING SIDE MENU');
 	}
-	const {sideMenuItems} = useSideMenuItems();
 
+	
+	const userCtxName = (varName) => {return 'osf_user_'+props.user.id+'_'+varName};
+	const {sideMenuItems} = useSideMenuItems();
+//	const localRail = computed({
+//	    get: ()=> props.rail,
+//	    set: (val)=> {
+//		console.log('EMITTING:',val);
+//		ctx.emit('update:rail', val);
+//	    },
+//	});
+
+
+
+	
 	return {
 	    sideMenuItems,
 	    collapseSubMenus,
 	    opened,
-	    //ass
+//	    localRail,
+	    userCtxName,
 	}
     },
     data() { return {
-	//opened: [],
+	opened: [],
     }},
     computed: {
+
+	localRail: {
+	    get: function() { return this.rail},
+	    set: function(val) {
+		//console.log('EMITTING:',val);
+		this.$emit('update:rail', val);
+	    },	    
+	},
+	
 	menuItems() {
-	    const keyItems = (objArr,depth) => {
+	    //For the n depth expanding/contracting menu to work, each group must have unique id.
+	    //Kind hackey but it works...In theory, we could just use the label or label.label.label...
+	    let outterCount = 0; //HACK 
+	    const keyItems = (objArr,depth,count) => {
 		const depthPrefixes = ['a','b','c','d','e'];
+
 		objArr.forEach((obj,ndx) => {
-		    obj.key = depthPrefixes[depth]+'-'+ndx;
-		    if (obj.subItems && obj.subItems.length>0) keyItems(obj.subItems,depth+1);
+		    outterCount+=1;
+		    obj.key = depthPrefixes[depth]+'-'+outterCount;
+		    if (obj.subItems && obj.subItems.length>0) keyItems(obj.subItems,depth+1,outterCount);
 		});
 	    }
-	    keyItems(this.sideMenuItems,0);
-	    //console.log(this.sideMenuItems);
+	    keyItems(this.sideMenuItems,0,outterCount);
 	    return this.sideMenuItems;
 	},
     },
     methods: {
 	userAllowed(menuItem) {
-	    //if (!menuItem.requiredRoles) return true;
-	    //console.log('menuItem:',menuItem);
 	    if ((menuItem.requiredRoles)&&(menuItem.requiredRoles.length>0)) {
 		if (menuItem.requiredRoles.includes('admin')) {
-		    //console.log('MENU ITEM '+menuItem.label+' REQUIRES ROLE ',menuItem.requiredRoles);
 		    return false;
 		}
 	    } else return true;
 	},
-	//collapseSubMenus() {
-	//    this.menuItems.forEach((itm)=> {
-	//	if ((itm.subItems) && (itm.subItems.length>0)) itm.active=!itm.active;
-	//    });
-	//},
-	//barf(item) {
-	//    console.log('barf:'+item.active);
-	//},
-	//openedUpdated(v) {
-	//    console.log('opened updated:',v);
-	//}
+	wussGet(varName) {
+	    if (window.sessionStorage) {
+		let wussName = this.userCtxName(varName);
+		let wussValStr = window.sessionStorage.getItem(wussName);
+		let wussVal = JSON.parse(wussValStr);
+		//console.log('wussGet [',wussName,'] == [',wussVal,']');
+		return(wussVal);
+	    }
+	    return null;
+	},
+	wussSet(varName,val) {
+	    if (window.sessionStorage) {
+		let wussName = this.userCtxName(varName);
+		let wussVal = JSON.stringify(val);
+		window.sessionStorage.setItem(wussName,wussVal);
+		//console.log('wussSet [',wussName,'] => [',wussVal,']');
+	    }
+	},
+    },
+    mounted() {
+	let openedWussVal = this.wussGet('menuState');
+	if (openedWussVal) this.opened = openedWussVal;
+
+	let railWussVal = this.wussGet('railState');
+	if (railWussVal!=null) this.localRail = railWussVal;
+
+	//this.rail = false;
+	//this.opened.push('b-3');
+	//this.opened.push('a-2');
+	//this.pageProps.rail = false;
     },
     watch: {
 	opened: {
 	    handler(v,p) {
-		console.log('opened: '+p+' => '+v);
+		this.wussSet('menuState',this.opened);
 	    },
 	    deep: true
+	},
+	localRail: function(v,ov) {
+	    //console.log('rail state:',ov,' => ',v);
+	    this.wussSet('railState',v);
 	}
 
-	//ass(v,p) {
-	//    console.log('ass: '+p+' => '+v);
-	//},
-	//sideMenuItems: {
-	//    handler(v,p) {
-	//	console.log('v:',v,'p:',p);
-	//    },
-	//    deep: true
-	//}
     },
     // 
     //  @update:opened="newOpened => opened = newOpened.slice(-1)"
@@ -126,38 +201,19 @@ export const RcSideMenu = {
     //
     template: `
 
+
 <v-list
   density="compact" 
   nav
-  :opened="opened"
-
+  open-strategy="single"
+  v-model:opened="opened"
+  
   >
   <template v-for="(itm,ndx) in menuItems">
-    <v-list-group v-if="(itm.subItems && (itm.subItems.length>0) && userAllowed(itm))" :value="itm.key" color="red">
-      <template v-slot:activator="{on:click,props}">
-	<v-list-item
-	  v-bind="props"
-	  :prepend-icon="itm.icon"
-	  :title="itm.label"
-	  
-	  >
-	</v-list-item>
-      </template>
-      <v-list-item v-for="(subItm,subNdx) in itm.subItems" 
-		   v-show="userAllowed(subItm)"
-		   :prepend-icon="subItm.icon"
-		   :title="subItm.label"
-                   :value="subItm.key"
-		   :href="(subItm.to && subItm.to.length>0)?subItm.to:null"
-		   @click="collapseSubMenus()"></v-list-item>
-    </v-list-group>
+
+    <rc-side-menu-item :item="itm">
+    </rc-side-menu-item>
     
-    <v-list-item v-else v-show="userAllowed(itm)" 
-		 :prepend-icon="itm.icon"
-		 :title="itm.label"
-		 :value="itm.key"
-		 :href="(itm.to && itm.to.length>0)?itm.to:null"
-		 ></v-list-item>
   </template>
 </v-list>
 
