@@ -132,7 +132,7 @@ export const RcSideMenu = {
 	    let outterCount = 0; //HACK 
 	    const keyItems = (objArr,depth,count) => {
 		const depthPrefixes = ['a','b','c','d','e'];
-
+		
 		objArr.forEach((obj,ndx) => {
 		    outterCount+=1;
 		    obj.key = depthPrefixes[depth]+'-'+outterCount;
@@ -144,13 +144,6 @@ export const RcSideMenu = {
 	},
     },
     methods: {
-	userAllowed(menuItem) {
-	    if ((menuItem.requiredRoles)&&(menuItem.requiredRoles.length>0)) {
-		if (menuItem.requiredRoles.includes('admin')) {
-		    return false;
-		}
-	    } else return true;
-	},
 	wussGet(varName) {
 	    if (window.sessionStorage) {
 		let wussName = this.userCtxName(varName);
@@ -181,6 +174,7 @@ export const RcSideMenu = {
 	//this.opened.push('b-3');
 	//this.opened.push('a-2');
 	//this.pageProps.rail = false;
+	
     },
     watch: {
 	opened: {
@@ -211,7 +205,7 @@ export const RcSideMenu = {
   >
   <template v-for="(itm,ndx) in menuItems">
 
-    <rc-side-menu-item :item="itm">
+    <rc-side-menu-item :item="itm" :user="user">
     </rc-side-menu-item>
     
   </template>

@@ -625,13 +625,14 @@ export const RcTableToolbar = {
 		  value="xls"
 		  >			
 		</v-radio>
+                <!--NO
 		<v-radio
 		  label="Export HL7"
 		  value="hl7"
 		  @click="exportHiddenColumns=true"
 		  >			
 		</v-radio>
-		
+		-->
 	      </v-radio-group>
 	      
 	      <v-switch

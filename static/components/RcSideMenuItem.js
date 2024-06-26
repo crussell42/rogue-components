@@ -11,11 +11,13 @@ export const RcSideMenuItem = {
     },
     props:  {
 	item: {type: Object, default(rawProps) {return null}},
+	user: {type: Object, default(rawProps) {return null}},
     },
     setup(props,ctx) {
 	const cow = ref(props.item);
 	return {
 	    cow,
+	    
 	}
     },
     data() { return {
@@ -24,11 +26,16 @@ export const RcSideMenuItem = {
     computed: {
     },
     methods: {
-	userAllowed(menuItem) {
+	userAllowed: function(menuItem) {
 	    if ((menuItem.requiredRoles)&&(menuItem.requiredRoles.length>0)) {
-		if (menuItem.requiredRoles.includes('admin')) {
-		    return false;
+		let found = false;
+		if (this.user) {
+		    if (this.user.isadmin) return true;
+		    if ((this.user.roles)&&(this.user.roles.length>0)) {
+			found = menuItem.requiredRoles.some(r => this.user.roles.includes(r));
+		    }
 		}
+		return found;
 	    } else return true;
 	},
     },
@@ -50,7 +57,7 @@ export const RcSideMenuItem = {
     </v-list-item>
   </template>
 
-  <rc-side-menu-item v-for="subItem in cow.subItems" :item="subItem"/>
+  <rc-side-menu-item v-for="subItem in cow.subItems" :item="subItem" :user="user"/>
 
 </v-list-group>
 
