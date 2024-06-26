@@ -27,7 +27,7 @@ var tmb = (function() {
 //(function(namespace,undefined) {}())
 (function(tmb,undefined) {
 
-
+    // Always return an either [err,data] err is a string.
     tmb.eitherFetch = async function(nurl,data,multipart,method) {
 	try {
 	    let options = {
@@ -63,23 +63,22 @@ var tmb = (function() {
 	    //console.log('OPTIONS:',options);
 	    const res = await fetch(nurl,options,300000);
 	    //console.log('RES',res);
-
+	    let resObj = null;
 	    if (!res.ok) {
-		let errStr = 'HTTP ERROR ['+nurl+']['+res.status+'] ['+res.statusText+']';
-		console.log(errStr);
-		return [errStr,null];
+		throw'HTTP ERROR: ['+nurl+']['+res.status+'] ['+res.statusText+']';
 	    } else {
-		let resObj = await res.json();
-		if (resObj.error) {
-		    console.log('RESPONSE ERROR:',resObj.error.message);
-		    return [resObj.error,null];
+		try {
+		    resObj = await res.json();
+		} catch (jperr) {
+		    throw 'RESPONSE JSON ERROR: '+jperr;
 		}
-		return [null,resObj];
+		if (resObj.error) {
+		    throw 'RESPONSE CONTAINED ERROR: '+(resObj.error.message?resObj.error.message:(resObj.error?resObj.error:'unknown'));
+		}
 	    }
+	    return [null,resObj]
 	} catch (ferr) {
-	    //So if I put redirect: 'follow' then get a 301 then it hits here.
-	    
-	    console.log('eitherFetch ERROR ',ferr);
+	    console.log('tmb.eitherFetch:',ferr);
 	    return [ferr,null];
 	}
     }
@@ -241,7 +240,11 @@ var tmb = (function() {
 	return Math.round(tmb.durationSeconds(t1,t2)/60);
     }
     tmb.formatMinutesAsDuration = function(m) {
-	return ''+Math.floor(m/60)+':'+(m % 60);
+	let hours = ''+Math.floor(m/60);
+	if (hours.length<2) hours = '0'+hours;
+	let mins = ''+(m % 60);
+	if (mins.length<2) mins = '0'+mins;
+	return hours+':'+mins;
     }
 
     //Ignore this.
