@@ -57,6 +57,9 @@ export const RcSelectMenu = {
     },
     
     watch: {
+	//selectedLocal(val,oldval) {
+	//    console.log('SELECT-MENU:',val);
+	//},
     },
 
     template: `

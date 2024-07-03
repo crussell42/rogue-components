@@ -10,10 +10,13 @@ export const RcTagsAddField = {
 
 	lowercase: {type: Boolean, default: false},
 	colorsmap: {type: Object, default: function () {return {dvt:'purple'}}},
-	name: {type: String, default: 'tagsaddfield'}
+	name: {type: String, default: 'tagsaddfield'},
+
+
     },
     setup(props,context) {
 	const availabletags = reactive(props.items);
+
 	return {
 	    availabletags
 	}
@@ -112,9 +115,11 @@ export const RcTagsAddField = {
           :menu-props="{closeOnContentClick:true}"
           :rules="editRules"
 
-	  v-bind="$attrs"
+	  v-bind="$attrs"	  
 
 	  :name="name"
+
+
 	  >
 	  <!--new version does not destructure data to attrs, item, parent,selected-->
 	  <template v-slot:selection="data">

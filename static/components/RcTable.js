@@ -302,7 +302,9 @@ export const RcTable = {
 	//localPage: function(ov,v) {
 	//    console.log('rctable watch ov:',ov,' v:',v);
 	//},
-  
+	//selectedLocal: function(v,ov) {
+	//    console.log('RcTable selectedLocal:',v);
+	//},
     },
     template: `
 
@@ -343,7 +345,7 @@ export const RcTable = {
 	    
 	  </v-card-title>
 
-	  <!-- note absence of :search="search". We want the text search filter to run in method searchFilterReduce -->
+	  <!-- note absence of :search="search". We want the text search filter to run in method searchFilterReduce (RcTableMixins) -->
 	  <v-data-table
 
 	    :items="filtereditems"
@@ -466,7 +468,7 @@ export const RcTable = {
 
 	    <template v-for="chead in nonSpecialVisibleHeadersWithFormatter" v-slot:[chead.item_slot_name]="scope">
 	      <slot :name="chead.item_slot_name" v-bind="scope">
-		{{chead.formatter(scope.item[chead.key],chead)}}		 
+		{{chead.formatter(scope.item[chead.key],chead,scope.item)}}		 
 	      </slot>	       	       
 	    </template>
 

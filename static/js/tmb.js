@@ -70,6 +70,7 @@ var tmb = (function() {
 		try {
 		    resObj = await res.json();
 		} catch (jperr) {
+		    console.log('TEXT:',res.text);
 		    throw 'RESPONSE JSON ERROR: '+jperr;
 		}
 		if (resObj.error) {
@@ -296,10 +297,16 @@ var tmb = (function() {
 	return d;
     }
 
-    tmb.adjustDayOfDateStr = function (dstr, numDays) {
-	let d = tmb.dateFromYoda(dstr);
+    tmb.adjustDayOfDate = function(d,numDays) {
 	d = d.setDate(d.getDate() + numDays);
-	return tmb.yoda(d);
+	return d;	
+    }
+    
+    tmb.adjustDayOfDateStr = function (dstr, numDays) {
+	let d = tmb.dateFromYoda(dstr);	
+	//d = d.setDate(d.getDate() + numDays);
+	//return tmb.yoda(d);
+	return tmb.yoda(tmb.adjustDayOfDate(d,numDays));
     }
 
     tmb.adjustToLastDayOfMonth = function (yodaStr) {
