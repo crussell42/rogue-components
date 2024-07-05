@@ -357,6 +357,8 @@ export const RcTable = {
 	    v-model:page="localPage"
 
 	    v-model:expanded="expanded"
+
+	    v-bind="$attrs"
 	    
 	    class="elevation-1"
 	    
@@ -459,16 +461,17 @@ export const RcTable = {
 		Note that we are creating overrieable slots. From the Parent Component, specify these slots
 		to override.
 	     -->
-
+		  
 	    <template v-for="dhead in nonSpecialVisibleHeadersWithoutFormatter" v-slot:[dhead.item_slot_name]="scope">
 	      <slot :name="dhead.item_slot_name" v-bind="scope">
-		{{scope.item[dhead.key]}}
+		<!-- fake columns in cases where :value property is set on header, just use the scope.value -->
+		{{scope.value?scope.value:scope.item[dhead.key]}}
 	      </slot>
 	    </template>
 
 	    <template v-for="chead in nonSpecialVisibleHeadersWithFormatter" v-slot:[chead.item_slot_name]="scope">
 	      <slot :name="chead.item_slot_name" v-bind="scope">
-		{{chead.formatter(scope.item[chead.key],chead,scope.item)}}		 
+		{{scope.value?chead.formatter(scope.value,chead,scope.item):chead.formatter(scope.item[chead.key],chead,scope.item)}}		 
 	      </slot>	       	       
 	    </template>
 
