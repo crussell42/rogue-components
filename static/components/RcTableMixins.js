@@ -66,6 +66,7 @@ export const RcTableMixins = {
 	// Could or should turn into a reduce call and fail fast on first 'false'
 	// e.g. row 0 check col filter 0,1,2,3 until a false is found. If no false show the row. (LOGICAL AND)
 	columnFilterReduce(items,selectedFilters) {
+	    //console.log('columnFilterReduce:',selectedFilters);
 	    let ans = items;
 	    
 	    selectedFilters.forEach((filterAction) => {
@@ -79,24 +80,9 @@ export const RcTableMixins = {
 			let val = _.get(i,filterAction.cname);			
 			let shouldInclude = true;
 			let shouldExclude = false;
-			if (valDataType == 'string') {
-			    //DEFAULT CASE WHEN NOT DEFINED IN columnfilter definition.
-			    
-			    if (head.columnfilter.arrayfield) {
-				if (!val) val = [];
-				//For array fields, the value will be an array.
-				//e.g. ['developer','manager','accountant']
-				//In this case we only want to see if some value in the includeValues matches any of the elements in the val array
-				shouldInclude = ((filterAction.includeValues)&&(filterAction.includeValues.length>0))?filterAction.includeValues.some(sv => val.includes(sv)):true;
-				shouldExclude = ((filterAction.excludeValues)&&(filterAction.excludeValues.length>0))?filterAction.excludeValues.some(sv => val.includes(sv)):false;
-			    } else {
-				//Assuming val is a straight string
-				//this.selectedNames.some(sn => sn == val);
-				shouldInclude = ((filterAction.includeValues)&&(filterAction.includeValues.length>0))?filterAction.includeValues.some(sv => sv == val):true;
-				shouldExclude = ((filterAction.excludeValues)&&(filterAction.excludeValues.length>0))?filterAction.excludeValues.some(sv => sv == val):false;
-			    }
-			    //console.log('inc:'+shouldInclude+' exc:'+shouldExclude);
-			} else if (valDataType == 'date') {
+
+
+			if (valDataType == 'date') {
 			    //head has the full column filter in it.
 			    if ((filterAction.includeValues)&&(filterAction.includeValues.length>0)) {
 				shouldInclude = filterAction.includeValues.reduce((showRow,includeValue)=>{
@@ -134,8 +120,26 @@ export const RcTableMixins = {
 			    }
 			    
 			    //console.log('shouldInclude ['+shouldInclude+'] shouldExclude ['+shouldExclude+']   ans=>'+((shouldInclude) && (!shouldExclude)));
+			} else {			
+			    //if ((valDataType == 'string')||(valDataType=='objref')) {
+			    //DEFAULT CASE WHEN NOT DEFINED IN columnfilter definition.
+			    
+			    if (head.columnfilter.arrayfield) {
+				if (!val) val = [];
+				//For array fields, the value will be an array.
+				//e.g. ['developer','manager','accountant']
+				//In this case we only want to see if some value in the includeValues matches any of the elements in the val array
+				shouldInclude = ((filterAction.includeValues)&&(filterAction.includeValues.length>0))?filterAction.includeValues.some(sv => val.includes(sv)):true;
+				shouldExclude = ((filterAction.excludeValues)&&(filterAction.excludeValues.length>0))?filterAction.excludeValues.some(sv => val.includes(sv)):false;
+			    } else {
+				//Assuming val is a straight string
+				//this.selectedNames.some(sn => sn == val);
+				shouldInclude = ((filterAction.includeValues)&&(filterAction.includeValues.length>0))?filterAction.includeValues.some(sv => sv == val):true;
+				shouldExclude = ((filterAction.excludeValues)&&(filterAction.excludeValues.length>0))?filterAction.excludeValues.some(sv => sv == val):false;
+			    }
+			    //console.log('inc:'+shouldInclude+' exc:'+shouldExclude);
 			}
-			
+
 			return ((shouldInclude) && (!shouldExclude));
 		    });
 		}

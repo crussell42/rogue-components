@@ -109,6 +109,10 @@ export const RcColumnFilter = {
 	    }
 	    return this.showexclude;
 	},
+
+	//Main 2 way binding of the selectedcolumnfilters property.
+	//This is where we communicate with parent what (FilterActions) we want it to perform.
+	//a FilterAction is a self contained object that the parent can use to filter the items....see dedup method
 	
 	selectedColumnFiltersLocal: {
 	    get: function() {
@@ -134,6 +138,7 @@ export const RcColumnFilter = {
 	    return ( ((this.selectedNames) && (this.selectedNames.length>0)) || ((this.removedNames)&&(this.removedNames.length>0)) );
 	},
 
+	//This gives the starting original list of items to display.
 	uniqueNames() {
 	    let valDataType = 'string';
 	    if (this.header.columnfilter.hasOwnProperty('dataType')) {
@@ -180,7 +185,21 @@ export const RcColumnFilter = {
 		//console.log('uniqueNames items.length:'+this.items.length,' ANS:',ans);
 
 	    } else if (valDataType == 'date') {
+
 		ans = this.header.columnfilter.ranges.map(x => x.name);
+
+	    } else if (valDataType == 'objref') {
+		
+		let lookupKey = this.header.columnfilter.filterItemLookupKey;
+		let retKey = this.header.columnfilter.filterItemTextKey;
+
+		this.items.forEach((item) => {
+		    let key = _.get(item,this.header.key);
+		    let foundObj = this.header.columnfilter.filterItems.find((refObj)=> {if (key == refObj[lookupKey]) return refObj});
+		    if (foundObj) ans.push(foundObj[retKey]);
+		});
+		ans = [...new Set(ans)];
+		ans.sort();		
 	    }
 	    
 	    //forceinclude values from columnfilter definition.
@@ -248,9 +267,11 @@ export const RcColumnFilter = {
 	// -or if you dont like dogs
 	// filterAction = {cname:'animal', includeValues: [], excludeValues: ['Dog']}
 	// Lot of the logic below is dedupeing because this is called from a watcher.
-	
+
+	// val is the [] value of the v-select
 	dedupAddFilterAction(val,exclude) {
 
+	    //console.log('val:',val,' exclude:',exclude);
 
 	    let filterAction = {cname:this.header.key};
 	    let cfaIndex = this.selectedColumnFiltersLocal.findIndex((cfa) => {return cfa.cname == this.header.key});
@@ -275,11 +296,56 @@ export const RcColumnFilter = {
 		    this.selectedColumnFiltersLocal.splice(cfaIndex,1);
 		}
 	    } else {
-		//This actually trigers the reactive.
-		filterAction.includeValues = newIncludeValues;
-		filterAction.excludeValues = newExcludeValues;
+		// OBJREF dataTtype
+		// If this is a 'objref' datatype filter, we gotta return the
+		// filterItemLookupKey of selected object, NOT the displayed string which was dereferenced from the
+		// columnfilter.filterItems
+		if (this.header.columnfilter.dataType=='objref') {		   
+		    let lookupKey = this.header.columnfilter.filterItemLookupKey;
+		    let textKey = this.header.columnfilter.filterItemTextKey;
+
+		    filterAction.includeValues = [];
+		    filterAction.excludeValues = [];
+		    
+		    if ((lookupKey)&&(textKey)) {
+
+			newIncludeValues.forEach((v) => {
+			    let refObj = this.header.columnfilter.filterItems.find((filterItem)=>{
+				if (filterItem[textKey] == v) return filterItem;
+			    });
+			    if (refObj) {
+				filterAction.includeValues.push(refObj[lookupKey]);
+			    } else {
+				filterAction.includeValues.push(val);
+			    }
+			});
+
+			newExcludeValues.forEach((v) => {
+			    let refObj = this.header.columnfilter.filterItems.find((filterItem)=>{
+				if (filterItem[textKey] == v) return filterItem;
+			    });
+			    if (refObj) {
+				filterAction.excludeValues.push(refObj[lookupKey]);
+			    } else {
+				filterAction.excludeValues.push(val);
+			    }
+			});
+
+		    } else {
+			console.log('objref columnfilter did not have filterItemTextKey or filterLookupKey');
+		    }
+		} else {
+		    //This actually trigers the reactive.
+		    //Note push does not do it?
+		    //NOT a objref type		    
+		    filterAction.includeValues = newIncludeValues;
+		    filterAction.excludeValues = newExcludeValues;		    
+		}
+
+		//ALL
 		
 		if (cfaIndex<0) {
+		    console.log('Adding filterAction:',filterAction);
 		    this.selectedColumnFiltersLocal.push(filterAction);
 		}
 	    }
@@ -294,6 +360,7 @@ export const RcColumnFilter = {
 	    this.dedupAddFilterAction(val,true);
 	},
 	selectedNames: async function(val,oldVal) {
+
 	    this.dedupAddFilterAction(val);
 	},	
     },
