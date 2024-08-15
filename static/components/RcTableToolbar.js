@@ -44,7 +44,7 @@ export const RcTableToolbar = {
 	loadfunc:  null,
 
 	page: {type:Number, default: 1},
-	itemsPerPage: {type:Number, default: 10},
+	itemsPerPage: {type:Number, default: 100},
 
     },
     data: function() {

@@ -38,7 +38,7 @@ export const RcTable = {
 
 	colorizerows: {type:Boolean, default: false},
 
-	itemsPerPage: {type: Number, default: 10},
+	itemsPerPage: {type: Number, default: 100},
 	page: {type: Number, default: 1},
     },
     setup(props,ctx) {

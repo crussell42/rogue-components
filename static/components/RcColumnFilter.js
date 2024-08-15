@@ -176,8 +176,13 @@ export const RcColumnFilter = {
 		    //SINGLE VALUE STRING.
 		    //console.log('PATH:'+this.header.value);
 		    //ans = [...new Set(this.items.map(item => item[this.header.value]))]; <-Does NOT work for nested path.gotta lodashit
-		    
-		    ans = [...new Set(this.items.map(item => _.get(item,this.header.key))) ];
+		    //NOW we may have a value function on the column for computed column
+		    //And so would need to use its value
+		    if (_.isFunction(this.header.value)) {
+			ans = [...new Set(this.items.map(item => this.header.value(item))) ];		
+		    } else {		    
+			ans = [...new Set(this.items.map(item => _.get(item,this.header.key))) ];
+		    }
 		}
 		
 		ans = [...ans];

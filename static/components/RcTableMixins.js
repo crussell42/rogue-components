@@ -77,7 +77,16 @@ export const RcTableMixins = {
 		    if (head.columnfilter.hasOwnProperty('dataType')) valDataType = head.columnfilter.dataType;
 		    
 		    ans = ans.filter((i) => {
-			let val = _.get(i,filterAction.cname);			
+			//Now with vuetify 3.6.11 we have a column.value that may be a function 
+			let val = null;
+			//orig let val = _.get(i,filterAction.cname);
+			if (_.isFunction(head.value)) {
+			    val = head.value(i);
+			} else {
+			    val = _.get(i,filterAction.cname);
+			}
+
+			
 			let shouldInclude = true;
 			let shouldExclude = false;
 

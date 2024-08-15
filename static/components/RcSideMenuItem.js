@@ -14,6 +14,8 @@ export const RcSideMenuItem = {
 	user: {type: Object, default(rawProps) {return null}},
     },
     setup(props,ctx) {
+	//Why do I do a dereference here. It seems that props.item is a one way binding and so this should
+	//not be necessary....
 	const cow = ref(props.item);
 	return {
 	    cow,
@@ -46,28 +48,28 @@ export const RcSideMenuItem = {
 
     template: `
 
-<v-list-group v-if="(cow.subItems && (cow.subItems.length>0) && userAllowed(cow))" :value="cow.key" color="red">
+    <!-- PARENT item (has children and user allowed to see it) (red) when opened -->
+    <v-list-group v-if="(cow.subItems && (cow.subItems.length>0) && userAllowed(cow))" :value="cow.key" color="red">
+      <template v-slot:activator="{on:click,props}">
+	<v-list-item
+	  v-bind="props"
+	  :prepend-icon="cow.icon"
+	  :title="cow.label"
+	  >
+	</v-list-item>
+      </template>
+      <!-- recursively load all children-->
+      <rc-side-menu-item v-for="subItem in cow.subItems" :item="subItem" :user="user"/>
+    </v-list-group>
 
-  <template v-slot:activator="{on:click,props}">
-    <v-list-item
-      v-bind="props"
-      :prepend-icon="cow.icon"
-      :title="cow.label"      
-      >
+    <!-- CHILD item -->
+    <v-list-item v-else v-show="userAllowed(cow)"
+		 :prepend-icon="cow.icon"
+		 :title="cow.label"
+		 :value="cow.key"
+		 :href="(cow.to && cow.to.length>0)?cow.to:null"
+		 >
     </v-list-item>
-  </template>
-
-  <rc-side-menu-item v-for="subItem in cow.subItems" :item="subItem" :user="user"/>
-
-</v-list-group>
-
-<v-list-item v-else v-show="userAllowed(cow)"
-	     :prepend-icon="cow.icon"
-	     :title="cow.label"
-	     :value="cow.key"
-	     :href="(cow.to && cow.to.length>0)?cow.to:null"
-	     >
-</v-list-item>
 	     
 `
     

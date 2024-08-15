@@ -1,3 +1,5 @@
+//THE LEFT SIDE DRAWER MENU (Genericish)
+
 import {ref,reactive,computed} from 'vue'
 
 //CIRCULAR import {RcSideMenuItem} from './RcSideMenuItem.js'
@@ -55,7 +57,7 @@ export const sideMenuItems = ref([
 const opened = ref([]);
 
 function collapseSubMenus() {
-
+    console.log('collapseSubMenus before opened:',opened);
     opened.value = [];
     //NOTE setting or removing an app is NOT what is causing the menu to collapse...it appears to JUST be reallocation of variable.
     //maybe they use a watcher......??????
@@ -126,7 +128,7 @@ export const RcSideMenu = {
 	    },	    
 	},
 	
-	menuItems() {
+	menuItemsWithKeys() {
 	    //For the n depth expanding/contracting menu to work, each group must have unique id.
 	    //Kind hackey but it works...In theory, we could just use the label or label.label.label...
 	    let outterCount = 0; //HACK 
@@ -144,6 +146,8 @@ export const RcSideMenu = {
 	},
     },
     methods: {
+	//local browser window user session storage (wuss)...user level state maintained locally.
+	//TODO: create globally defined headless vue component to make this available to vue.
 	wussGet(varName) {
 	    if (window.sessionStorage) {
 		let wussName = this.userCtxName(varName);
@@ -170,15 +174,18 @@ export const RcSideMenu = {
 	let railWussVal = this.wussGet('railState');
 	if (railWussVal!=null) this.localRail = railWussVal;
 
-	//this.rail = false;
+	//example of controlling menu programatically
+	//this.rail = false; (opens full side menu)
 	//this.opened.push('b-3');
 	//this.opened.push('a-2');
-	//this.pageProps.rail = false;
 	
     },
     watch: {
 	opened: {
 	    handler(v,p) {
+		//console.log('opened watcher:',v,' prev:',p);
+		//always open full menu when going from empty to not empty.
+		if ((p)&&(p.length==0)&&(v)&&(v.length>0)) this.localRail = false;
 		this.wussSet('menuState',this.opened);
 	    },
 	    deep: true
@@ -203,7 +210,7 @@ export const RcSideMenu = {
   v-model:opened="opened"
   
   >
-  <template v-for="(itm,ndx) in menuItems">
+  <template v-for="(itm,ndx) in menuItemsWithKeys">
 
     <rc-side-menu-item :item="itm" :user="user">
     </rc-side-menu-item>
