@@ -57,7 +57,7 @@ export const sideMenuItems = ref([
 const opened = ref([]);
 
 function collapseSubMenus() {
-    console.log('collapseSubMenus before opened:',opened);
+    //console.log('collapseSubMenus before opened:',opened);
     opened.value = [];
     //NOTE setting or removing an app is NOT what is causing the menu to collapse...it appears to JUST be reallocation of variable.
     //maybe they use a watcher......??????
