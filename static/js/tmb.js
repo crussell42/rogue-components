@@ -29,6 +29,7 @@ var tmb = (function() {
 
     // Always return an either [err,data] err is a string.
     tmb.eitherFetch = async function(nurl,data,multipart,method) {
+	//console.log('tmb.eitherFetch: nurl:',nurl,' data:',data,' multipart:',multipart,' method:',method);
 	try {
 	    let options = {
 		redirect: 'follow'
@@ -60,9 +61,8 @@ var tmb = (function() {
 		if (method) options.method = method; //Allow   DELETE
 		else options.method = 'GET';         //Default GET (redundant)
 	    }
-	    //console.log('OPTIONS:',options);
+
 	    const res = await fetch(nurl,options,300000);
-	    //console.log('RES',res);
 	    let resObj = null;
 	    if (!res.ok) {
 		throw'HTTP ERROR: ['+nurl+']['+res.status+'] ['+res.statusText+']';
@@ -79,8 +79,8 @@ var tmb = (function() {
 	    }
 	    return [null,resObj]
 	} catch (ferr) {
-	    console.log('tmb.eitherFetch:',ferr);
-	    return [ferr,null];
+	    console.log('tmb.eitherFetch error:',ferr);
+	    return [ferr.toString(),null];
 	}
     }
     

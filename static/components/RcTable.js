@@ -19,6 +19,8 @@ export const RcTable = {
 	uniquekey: {type:String, default: 'id'}, //default is already id for item-value.....
 	//items: {type: Object, default(rawProps) {return null}},
 
+	pageName: {type:String, default: 'someuniquepagenameusedforcontext'},
+	
 	//Header props
 	allheaders: null,
 	visibleheadernames:  {type: Object, default(rawProps) {return []}},
@@ -331,6 +333,8 @@ export const RcTable = {
 	      
 	      v-model:page="localPage"
 	      v-model:items-per-page="localItemsPerPage"
+
+              :page-name="pageName"
 	      >
 	      
 	      <template v-slot:toolbar-buttons>

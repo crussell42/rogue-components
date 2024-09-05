@@ -27,7 +27,7 @@ export const RcTableToolbar = {
     props: {
 	search: {type: String, default: ''},
 
-	pagename: {type: String, default: ''},
+	pageName: {type: String, default: ''},
 	title: {type: String, default: ''},
 	exportFileName: {type: String, default: ''},
 	exportData: null,
@@ -272,17 +272,17 @@ export const RcTableToolbar = {
 	    }).map(fh => fh.title);
 	},
 	ctxName(varName) {
-	    if ((this.pagename)&&(this.pagename.length>0)) {
-		return 'osa_'+this.pagename + '_'+varName;
+	    if ((this.pageName)&&(this.pageName.length>0)) {
+		return 'osf_'+this.pageName + '_'+varName;
 	    }
 	    let pname = window.location.pathname.split('/').pop();
             if (pname) {
 		let qname = pname.split('?');
 		if (qname.length>0) {
 		    qname = qname.shift();
-		    return 'osa_'+qname+'_'+varName;
+		    return 'osf_'+qname+'_'+varName;
 		} else {
-		    return 'osa_'+pname+'_'+varName;
+		    return 'osf_'+pname+'_'+varName;
 		}
 	    }
 	    return 'osa_'+varName;
