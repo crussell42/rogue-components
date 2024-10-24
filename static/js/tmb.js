@@ -27,6 +27,20 @@ var tmb = (function() {
 //(function(namespace,undefined) {}())
 (function(tmb,undefined) {
 
+    // linear conversion funkage e.g.
+    //OldRange = (OldMax - OldMin)  
+    //NewRange = (NewMax - NewMin)  
+    //NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
+    tmb.lerp = function(x, y, a) { return x * (1 - a) + y * a};
+    tmb.clamp = function(a, min = 0, max = 1) { return Math.min(max, Math.max(min, a))};
+    tmb.invlerp = function(x, y, a) { return this.clamp((a - x) / (y - x))};
+    tmb.range = function(x1, y1, x2, y2, a) { return this.lerp(x2, y2, this.invlerp(x1, y1, a))};
+    //let ageColorIndex = Math.round(this.range(0,120,0,9,42))
+    //example linear convert value 42 of range 0..120 to the range 0..9
+
+
+
+    
     // Always return an either [err,data] err is a string.
     tmb.eitherFetch = async function(nurl,data,multipart,method) {
 	//console.log('tmb.eitherFetch: nurl:',nurl,' data:',data,' multipart:',multipart,' method:',method);
