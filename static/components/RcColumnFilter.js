@@ -165,7 +165,16 @@ export const RcColumnFilter = {
 		} else if (this.arrayfield) {
 		    //MULTI VALUE ARRAY
 		    this.items.forEach((itm) => {
-			let tarr = itm[this.header.key];
+			let tarr = [];
+			if (_.isFunction(this.header.value)) {
+			    tarr = this.items.map(item => this.header.value(item));
+			    tarr = tarr.flat(Infinity);
+			    tarr = [...new Set(tarr)];
+			} else {
+			    tarr = itm[this.header.key];
+			}
+			
+			//let tarr = itm[this.header.key];
 			//console.log('TARR',tarr);
 			if ((tarr)&&(tarr.length>0)) {
 			    //tarr = tarr.map(function(t) {return tmb.nub(t);});
