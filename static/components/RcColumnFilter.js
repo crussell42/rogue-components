@@ -217,8 +217,10 @@ export const RcColumnFilter = {
 	    }
 	    
 	    //forceinclude values from columnfilter definition.
-	    //todo: handle the other dataTypes this works for unique strings 
+	    //todo: handle the other dataTypes this works for unique strings
+	    //console.log('CHECK FORCEINCLUDE:',this.header.columnfilter);
 	    if ((this.header.columnfilter.forceinclude)&&(this.header.columnfilter.forceinclude.length>0)) {
+		//console.log('FORCE INCLUDE:',this.header.columnfilter.forceinclude);
 		ans = [...new Set([...ans,...this.header.columnfilter.forceinclude])];
 		this.header.columnfilter.forceinclude.forEach((fiv)=> {
 		    if (!this.selectedNames.includes(fiv)) this.selectedNames.push(fiv);
@@ -368,7 +370,9 @@ export const RcColumnFilter = {
     created() {
 
     },
-
+    mounted() {
+	//console.log('MOUNTED:',this.selectedNames);
+    },
     watch: {
 	removedNames: async function(val,oldVal) {
 	    this.dedupAddFilterAction(val,true);

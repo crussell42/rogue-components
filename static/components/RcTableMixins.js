@@ -66,7 +66,7 @@ export const RcTableMixins = {
 	// Could or should turn into a reduce call and fail fast on first 'false'
 	// e.g. row 0 check col filter 0,1,2,3 until a false is found. If no false show the row. (LOGICAL AND)
 	columnFilterReduce(items,selectedFilters) {
-	    //console.log('columnFilterReduce:',selectedFilters);
+	    console.log('columnFilterReduce:',selectedFilters);
 	    let ans = items;
 	    
 	    selectedFilters.forEach((filterAction) => {
