@@ -5,6 +5,52 @@ import {RcSelectMenu} from './RcSelectMenu.js'
 import {RcColumnFilter} from './RcColumnFilter.js'
 import {RcPagination} from './RcPagination.js'
 
+/*
+	pushTableFilter: function(columnKey,includes,excludes) {
+	    let filterAction = {
+		cname: columnKey,
+		includeValues: (includes&&(includes.length>0))?includes:[],
+		excludeValues: (excludes&&(excludes.length>0))?excludes:[],
+	    };
+	    this.selectedColumnFilters.push(filterAction);
+	}
+*/
+
+export const localHeaders = ref([]);
+
+
+/* Composable to add a value to a column filters selectedValues in a column filter. 
+   This should also cause an reduceColumnFilters in the parent.
+   -another way without actualling setting a selected value:
+       From the parent, do this to cause a filter to occur without adding the selected value in the v-select component.
+
+	    let filterAction = {
+		cname: columnKey,
+		includeValues: (includes&&(includes.length>0))?includes:[],
+		excludeValues: (excludes&&(excludes.length>0))?excludes:[],
+	    };
+	    e.g. dogFilterAction = {cname:'fake_crew_name',includeValues: ['Bob'], excludeValues: []}
+	    this.selectedColumnFilters.push(dogFilterAction);
+*/
+export const addColumnFilterValues = (columnName,includeValues,excludeValues) => {
+    //console.log('RcTable.addColumnFilterValue:',columnName,' includes:',includes,' excludes:',excludes);
+    //console.log('localHeaders:',localHeaders);
+    //I did this by creating the localHeaders copy of the headers passed in
+    //and use the columnfilter.includes field (which translates into the localSelectedIncludeValues in RcColumnFilter.
+    let h = localHeaders.value.find((lh) => {if (lh.key == columnName) return lh;});
+    if ((h)&&(h.columnfilter)) {
+	if ((includeValues)&&(includeValues.length>0)) {
+	    if (!h.columnfilter.hasOwnProperty('include')) h.columnfilter.include = [];
+	    h.columnfilter.include = includeValues;
+	}
+	if ((excludeValues)&&(excludeValues.length>0)) {
+	    if (!h.columnfilter.hasOwnProperty('exclude')) h.columnfilter.exclude = [];
+	    h.columnfilter.exclude = excludeValues;
+	}
+    }
+    
+}
+
 export const RcTable = {
     components: {
 	RcTableToolbar,
@@ -49,10 +95,14 @@ export const RcTable = {
 	const colorizeSetup = ref(props.colorizerows);
 	const localItemsPerPage = ref(props.itemsPerPage);
 	const localPage = ref(props.page);
+
+	localHeaders.value = props.allheaders();
+	
 	return {
 	    localItemsPerPage,
 	    localPage,
 	    colorizeSetup,
+	    localHeaders
 	}
     },
     data() {	
@@ -107,7 +157,8 @@ export const RcTable = {
 	},
 	
 	visibleHeaders() {
-	    let vhs = this.allheaders().filter((ah) => {
+	    //let vhs = this.allheaders().filter((ah) => {
+	    let vhs = this.localHeaders.filter((ah) => {
 		if (ah.required) return true;
 		return this.visibleheadernames.includes(ah.title);
 	    });
@@ -321,7 +372,7 @@ export const RcTable = {
 	      :export-file-name="exportFileName"
 	      :export-data="filtereditems"
 	      
-	      :allheaders="allheaders"
+	      :allheaders="localHeaders"
 	      v-model:visibleheaders="visibleHeaderNamesLocal"
 
 	      :loadfunc="loadfunc"
@@ -402,7 +453,8 @@ export const RcTable = {
                 :showexclude="column.columnfilter.showexclude"
                 :arrayfield="column.columnfilter.arrayfield"
 		v-model:selectedcolumnfilters="selectedColumnFiltersLocal"
-		:include="column.columnfilter.include"
+		v-model:include="column.columnfilter.include"
+		v-model:exclude="column.columnfilter.exclude"
 		>
 	      </rc-column-filter>
 

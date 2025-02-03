@@ -1,4 +1,4 @@
-import {ref,reactive, mergeProps} from 'vue'
+import {ref,reactive, mergeProps,computed} from 'vue'
 
 export const RcColumnFilter = {
 
@@ -79,12 +79,34 @@ export const RcColumnFilter = {
 	tooltip: {type: String, default: 'Click for Column Filter'},
     },
 
-    setup(props,ctx) {
-	const selectedNames = ref(props.include);
-	const removedNames = ref(props.exclude);
+    setup(props,context) {
+
+	function twoWay(name) {
+	    if (props.hasOwnProperty(name)) {
+		return computed({
+		    get: function() {
+			return props[name] || {};
+		    },
+		    set: function(val) {
+			context.emit("update:"+name,val);
+		    },
+		});
+	    } else {
+		console.log('No Property named:',name);
+	    }
+	    return null;
+	};
+
+	//const localSelectedIncludeValues = ref(props.include);
+
+	const localSelectedExcludeValues = twoWay('exclude'); //ref(props.exclude);
+	
+	const localSelectedIncludeValues = twoWay('include');
+	//const localSelectedExcludeValues = twoWay('exclude');
+	
 	return {
-	    selectedNames,
-	    removedNames,
+	    localSelectedIncludeValues,
+	    localSelectedExcludeValues,
 	}
     },
 
@@ -93,9 +115,6 @@ export const RcColumnFilter = {
 	return {
 	    showmenu: false,
 	    
-	    //selectedNames: Vue.util.extend([],this.include),
-	    //removedNames: Vue.util.extend([],this.exclude),
-
 	    fixedUniqueNames: [],
 	    NO_TAGS_LABEL: '*Empty*',
 	}
@@ -135,7 +154,7 @@ export const RcColumnFilter = {
 	    return "Don't Show These "+this.header.title;
 	},
 	filterActive() {
-	    return ( ((this.selectedNames) && (this.selectedNames.length>0)) || ((this.removedNames)&&(this.removedNames.length>0)) );
+	    return ( ((this.localSelectedIncludeValues) && (this.localSelectedIncludeValues.length>0)) || ((this.localSelectedExcludeValues)&&(this.localSelectedExcludeValues.length>0)) );
 	},
 
 	//This gives the starting original list of items to display.
@@ -223,7 +242,8 @@ export const RcColumnFilter = {
 		//console.log('FORCE INCLUDE:',this.header.columnfilter.forceinclude);
 		ans = [...new Set([...ans,...this.header.columnfilter.forceinclude])];
 		this.header.columnfilter.forceinclude.forEach((fiv)=> {
-		    if (!this.selectedNames.includes(fiv)) this.selectedNames.push(fiv);
+
+		    if (!this.localSelectedIncludeValues.includes(fiv)) this.localSelectedIncludeValues.push(fiv);
 		});
 	    }
 	    //console.log('uniqueItems for columnfilter:',ans);
@@ -264,8 +284,8 @@ export const RcColumnFilter = {
 	},
 
 	clearFilter() {
-	    this.selectedNames=[];
-	    this.removedNames=[];
+	    this.localSelectedIncludeValues=[];
+	    this.localSelectedExcludeValues=[];
 	},
 
 	// ****FilterActions...the main output of this component to be used by PARENT or above to actually do the filtering
@@ -371,14 +391,18 @@ export const RcColumnFilter = {
 
     },
     mounted() {
-	//console.log('MOUNTED:',this.selectedNames);
+
     },
     watch: {
-	removedNames: async function(val,oldVal) {
+	//header: function(val,oldVal) {
+	//    console.log('WATCH RcColumnFilter.watch header:',val);
+	//},
+	localSelectedExcludeValues: async function(val,oldVal) {
+	    //console.log('RcColumnFilter localSelectedExcludeValues changed to:',val);
 	    this.dedupAddFilterAction(val,true);
 	},
-	selectedNames: async function(val,oldVal) {
-
+	localSelectedIncludeValues: async function(val,oldVal) {
+	    //console.log('RcColumnFilter localSelectedIncludeValues changed to:',val);
 	    this.dedupAddFilterAction(val);
 	},	
     },
@@ -472,7 +496,7 @@ export const RcColumnFilter = {
 	    <v-list>
 	      <v-list-item>
 		<v-list-item-action>
-		  <v-select v-model="selectedNames" :items="uniqueNames" :label="includeLabel" density="compact" multiple>	
+		  <v-select v-model="localSelectedIncludeValues" :items="uniqueNames" :label="includeLabel" density="compact" multiple>	
 		  </v-select>
 		</v-list-item-action>
 	      </v-list-item>			  
@@ -481,7 +505,7 @@ export const RcColumnFilter = {
 	    <v-list v-show="showExcludeLocal">
 	      <v-list-item>
 		<v-list-item-action>
-		  <v-select v-model="removedNames" :items="uniqueNames" :label="excludeLabel" density="compact" multiple>	
+		  <v-select v-model="localSelectedExcludeValues" :items="uniqueNames" :label="excludeLabel" density="compact" multiple>	
 		  </v-select>
 		</v-list-item-action>
 	      </v-list-item>			  
