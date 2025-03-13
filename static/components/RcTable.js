@@ -1,5 +1,5 @@
 import {ref,reactive} from 'vue'
-
+import {useDisplay} from 'vuetify'
 import {RcTableToolbar} from './RcTableToolbar.js'
 import {RcSelectMenu} from './RcSelectMenu.js'
 import {RcColumnFilter} from './RcColumnFilter.js'
@@ -97,12 +97,15 @@ export const RcTable = {
 	const localPage = ref(props.page);
 
 	localHeaders.value = props.allheaders();
+
+	const { smAndDown } = useDisplay();
 	
 	return {
 	    localItemsPerPage,
 	    localPage,
 	    colorizeSetup,
-	    localHeaders
+	    localHeaders,
+	    smAndDown,
 	}
     },
     data() {	
@@ -428,6 +431,8 @@ export const RcTable = {
         
 
             :row-props="rowColor"
+
+	    :mobile="smAndDown"
 	    >
 	    <!--
 		Vuetify 3 things that dont work now.
