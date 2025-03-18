@@ -157,12 +157,21 @@ export const RcColumnFilter = {
 	    return ( ((this.localSelectedIncludeValues) && (this.localSelectedIncludeValues.length>0)) || ((this.localSelectedExcludeValues)&&(this.localSelectedExcludeValues.length>0)) );
 	},
 
+	filterDataType() {
+	    let dt = 'string';
+	    if (this.header.columnfilter.hasOwnProperty('dataType')) {
+		dt = this.header.columnfilter.dataType; 
+	    }
+	    return dt;
+	},
+	
 	//This gives the starting original list of items to display.
 	uniqueNames() {
-	    let valDataType = 'string';
-	    if (this.header.columnfilter.hasOwnProperty('dataType')) {
-		valDataType = this.header.columnfilter.dataType; 
-	    }
+	    //let valDataType = 'string';
+	    //if (this.header.columnfilter.hasOwnProperty('dataType')) {
+	    //	valDataType = this.header.columnfilter.dataType; 
+	    //}
+	    let valDataType = this.filterDataType;
 	    let ans = [];
 	    // ONLY WANT TO CALL THIS WHEN FULL DATA SET HAS BEEN CHANGED AND BEFORE ANY FILTERS APPLIED.
 	    // WATCH OUT FOR [Vue warn]: You may have an infinite update loop in a component render function.
@@ -217,6 +226,8 @@ export const RcColumnFilter = {
 		ans.sort((a,b) => { return this.mySort(a,b); });
 		//console.log('uniqueNames items.length:'+this.items.length,' ANS:',ans);
 
+	    } else if (valDataType == 'boolean') {
+		ans = [{title:'True',value:true},{title:'False',value:false}]
 	    } else if (valDataType == 'date') {
 
 		ans = this.header.columnfilter.ranges.map(x => x.name);
@@ -497,7 +508,7 @@ export const RcColumnFilter = {
 	      <v-list-item>
 		<v-list-item-action>
 		  <v-select v-model="localSelectedIncludeValues" :items="uniqueNames" :label="includeLabel" density="compact" multiple>	
-		  </v-select>
+		  </v-select>		  
 		</v-list-item-action>
 	      </v-list-item>			  
 	    </v-list>

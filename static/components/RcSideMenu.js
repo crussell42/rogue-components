@@ -57,21 +57,9 @@ export const sideMenuItems = ref([
 const opened = ref([]);
 
 function collapseSubMenus() {
-    //console.log('collapseSubMenus before opened:',opened);
+
     opened.value = [];
-    //NOTE setting or removing an app is NOT what is causing the menu to collapse...it appears to JUST be reallocation of variable.
-    //maybe they use a watcher......??????
-    //console.log('after:'+opened.value);
-    /*
-    sideMenuItems.value.forEach((itm)=> {
-	if ((itm.subItems) && (itm.subItems.length>0)) {
-	    //console.log('collapse '+itm.label+' curVal:'+itm.active);
-	    //NOTE: below, gotta use the parens so that rvalue is a boolean so from other components it seems like we are loosing reactivity???
-	    //wonky behaviou itm.active= !itm.active;
-	    itm.active= (!itm.active);	
-	}
-    });
-    */
+
 }
 
 
@@ -79,9 +67,8 @@ function collapseSubMenus() {
 export const RcSideMenu = {
 
     components: {
-	//RcSideMenuItem,
+
     },
-    //emits: ['update:rail'],
 
     props:  {
 	items: {type: Object, default(rawProps) {return null}},
@@ -96,22 +83,12 @@ export const RcSideMenu = {
 	
 	const userCtxName = (varName) => {return 'osf_user_'+props.user.id+'_'+varName};
 	const {sideMenuItems} = useSideMenuItems();
-//	const localRail = computed({
-//	    get: ()=> props.rail,
-//	    set: (val)=> {
-//		console.log('EMITTING:',val);
-//		ctx.emit('update:rail', val);
-//	    },
-//	});
-
-
 
 	
 	return {
 	    sideMenuItems,
 	    collapseSubMenus,
 	    opened,
-//	    localRail,
 	    userCtxName,
 	}
     },
@@ -123,14 +100,13 @@ export const RcSideMenu = {
 	localRail: {
 	    get: function() { return this.rail},
 	    set: function(val) {
-		//console.log('EMITTING:',val);
 		this.$emit('update:rail', val);
 	    },	    
 	},
 	
 	menuItemsWithKeys() {
 	    //For the n depth expanding/contracting menu to work, each group must have unique id.
-	    //Kind hackey but it works...In theory, we could just use the label or label.label.label...
+	    //Kinda hackey but it works...In theory, we could just use the label or label.label.label...
 	    let outterCount = 0; //HACK 
 	    const keyItems = (objArr,depth,count) => {
 		const depthPrefixes = ['a','b','c','d','e'];

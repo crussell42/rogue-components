@@ -315,7 +315,14 @@ var tmb = (function() {
 	d = d.setDate(d.getDate() + numDays);
 	return d;	
     }
-    
+
+    tmb.adjustHourOfDate = function(d,numHours) {
+	let h = d.getHours()+numHours;
+	//console.log('d.getHours:',d.getHours(),' numHours:',numHours,' h:',h);
+	let ans = new Date(d.setHours(h));
+	return ans;	
+    }
+
     tmb.adjustDayOfDateStr = function (dstr, numDays) {
 	let d = tmb.dateFromYoda(dstr);	
 	//d = d.setDate(d.getDate() + numDays);
