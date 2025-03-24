@@ -93,6 +93,7 @@ export const RcSideMenu = {
 	}
     },
     data() { return {
+	hot: null,
 	opened: [],
     }},
     computed: {
@@ -147,9 +148,13 @@ export const RcSideMenu = {
 	let openedWussVal = this.wussGet('menuState');
 	if (openedWussVal) this.opened = openedWussVal;
 
+	let hotWussVal = this.wussGet('menuHot');
+	if (hotWussVal) this.hot = hotWussVal;
+	
 	let railWussVal = this.wussGet('railState');
 	if (railWussVal!=null) this.localRail = railWussVal;
 
+	//console.log('RcSideMenu.mounted opened:',this.opened,' hot:',this.hot,' rail:',this.rail);
 	//example of controlling menu programatically
 	//this.rail = false; (opens full side menu)
 	//this.opened.push('b-3');
@@ -157,6 +162,9 @@ export const RcSideMenu = {
 	
     },
     watch: {
+	//hot(v,ov) {
+	//    console.log('RcSideMenu hot v:',v,' ov:',ov);
+	//},
 	opened: {
 	    handler(v,p) {
 		//console.log('opened watcher:',v,' prev:',p);
@@ -166,6 +174,7 @@ export const RcSideMenu = {
 	    },
 	    deep: true
 	},
+
 	localRail: function(v,ov) {
 	    //console.log('rail state:',ov,' => ',v);
 	    this.wussSet('railState',v);
@@ -188,7 +197,7 @@ export const RcSideMenu = {
   >
   <template v-for="(itm,ndx) in menuItemsWithKeys">
 
-    <rc-side-menu-item :item="itm" :user="user">
+    <rc-side-menu-item :item="itm" :user="user" :opened="opened" :hot="hot">
     </rc-side-menu-item>
     
   </template>
