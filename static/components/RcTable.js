@@ -98,13 +98,14 @@ export const RcTable = {
 
 	localHeaders.value = props.allheaders();
 
-	const { smAndDown } = useDisplay();
+	const { xs,smAndDown } = useDisplay();
 	
 	return {
 	    localItemsPerPage,
 	    localPage,
 	    colorizeSetup,
 	    localHeaders,
+	    xs,
 	    smAndDown,
 	}
     },
@@ -432,7 +433,7 @@ export const RcTable = {
 
             :row-props="rowColor"
 
-	    :mobile="smAndDown"
+	    :mobile="xs"
 	    >
 	    <!--
 		Vuetify 3 things that dont work now.
