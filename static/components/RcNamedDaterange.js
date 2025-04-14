@@ -1,8 +1,8 @@
 import {ref,reactive, computed, mergeProps} from 'vue'
 
 
-//export const RcNamedDaterange = {
-export default {
+export const RcNamedDaterange = {
+//export default {
 
     props: {			
 

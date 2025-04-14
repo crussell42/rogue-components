@@ -14,6 +14,7 @@ export const RcSideMenuItem = {
 	user: {type: Object, default(rawProps) {return null}},
 	opened: {type: Object, default(rawProps) {return []}},
 	hot: {type: String, default:''},
+	clickdata: {type: Object, default(rawProps) {return null}},
     },
     setup(props,context) {
 
@@ -88,6 +89,13 @@ export const RcSideMenuItem = {
 	},
 	itemClicked(item) {
 	    this.wussSet('menuHot',item.key);
+	    if (_.isFunction(item.click)) {
+ 		//console.log('itemClicked:',item.click);
+		if (this.clickdata) {
+		    item.click(this.clickdata);
+		} else item.click(item);
+	    }
+
 	},
 
     },

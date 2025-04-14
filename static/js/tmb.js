@@ -240,6 +240,7 @@ var tmb = (function() {
     // date format 2022-11-01
     tmb.mdf = function(dv) {
 	if (_.isString(dv)) return dv;
+	//console.log('WTF DUDE:',dv);
 	let month = '' + (dv.getMonth() + 1);
 	let day = '' + dv.getDate();
 	//let year = dv.getFullYear();
@@ -432,15 +433,18 @@ var tmb = (function() {
     tmb.commonDateRangeNames = ['Today','This Week','Last Week','This Month','This Quarter','This Year','Last 7 days','Last 30 days','Custom'];
 
     
-    tmb.dateRangeFromName = function(dateRangeName) {
+    tmb.dateRangeFromName = function(dateRangeName,planting) {
 	//Always fall back to today.
 	//if (!dateRangeName) return;
 	//console.log('dateRangeFromName:'+dateRangeName+'  current daterange:'+this.daterange);
+	//console.log('dateRangeFromName:',dateRangeName,' planting:',planting);
+		    
+
 	
 	let startDate = new Date();
 	let endDate = new Date();
 
-	if (!tmb.commonDateRangeNames.includes(dateRangeName)) return [startDate,endDate];
+	//if (!tmb.commonDateRangeNames.includes(dateRangeName)) return [startDate,endDate];
 	
 	if (dateRangeName.indexOf('This Week')>=0) {
 	    startDate = tmb.dateFromYoda(tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate)));
@@ -467,12 +471,39 @@ var tmb = (function() {
 	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-6));		
 	} else if (dateRangeName.indexOf('Last 30 days')>=0) {
 	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-29));		
+	} else if (dateRangeName.indexOf('Planting')>=0) {
+	    //console.log('WTF DUDE:',planting);
+	    if (planting) {		
+		startDate = new Date(planting.effective_date);
+		console.log('START DATE OF PLANTING:',startDate);
+	    } else {
+		startDate.setDate(1);
+		startDate.setMonth(0);
+	    }
 	}
 	
 	return [startDate,endDate];
     }
 
+    tmb.datesBetween = function(range) {
+	let ans = [];
+	if ((range)&&(range.length==2)) {
+	    let startDate = null;
+	    if (_.isDate(range[0])) startDate = range[0];
+	    else startDate = tmb.dateFromYoda(range[0]);
+	    let endDate = null
+	    if (_.isDate(range[1])) endDate = range[1];
+	    else endDate = tmb.dateFromYoda(range[1]);
 
+	    let current = _.clone(startDate);
+	    while (current<=endDate) {
+		ans.push(new Date(current));
+		current.setDate(current.getDate()+1);		
+	    }
+	}
+	//console.log('DATES BETWEEN:',ans);
+	return ans;
+    }
     
     
     ////////////////OBJECT/ARRAY FUNCTIONS////////////////////////

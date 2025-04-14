@@ -1,6 +1,6 @@
 //THE LEFT SIDE DRAWER MENU (Genericish)
 
-import {ref,reactive,computed} from 'vue'
+import {ref,reactive,computed,toRaw} from 'vue'
 
 //CIRCULAR import {RcSideMenuItem} from './RcSideMenuItem.js'
 //NOTE: Since RcSideMenuItem is recursive, we have to register it globally.
@@ -73,20 +73,25 @@ export const RcSideMenu = {
     props:  {
 	items: {type: Object, default(rawProps) {return null}},
 	rail: {type: Boolean, default: false},
-	user: {type: Object, default(rawProps) {return null}}
+	user: {type: Object, default(rawProps) {return null}},
+	clickdata: {type: Object, default(rawProps) {return null}}
     },
     setup(props,ctx) {
-	if (props.items) {
-	    console.log('OVERRIDING SIDE MENU');
-	}
-
-	
 	const userCtxName = (varName) => {return 'osf_user_'+props.user.id+'_'+varName};
+
 	const {sideMenuItems} = useSideMenuItems();
 
-	
+	let localSideMenuItems = [];
+
+	if (props.items) {
+	    localSideMenuItems = toRaw(props.items); //LOCAL
+	} else {
+	    localSideMenuItems = toRaw(sideMenuItems); //GLOBAL
+	}
+
 	return {
-	    sideMenuItems,
+	    localSideMenuItems,
+	    //sideMenuItems,
 	    collapseSubMenus,
 	    opened,
 	    userCtxName,
@@ -110,6 +115,8 @@ export const RcSideMenu = {
 	    //Kinda hackey but it works...In theory, we could just use the label or label.label.label...
 	    let outterCount = 0; //HACK 
 	    const keyItems = (objArr,depth,count) => {
+		//console.log('keyItems typeof:',typeof(objArr));
+		
 		const depthPrefixes = ['a','b','c','d','e'];
 		
 		objArr.forEach((obj,ndx) => {
@@ -118,8 +125,8 @@ export const RcSideMenu = {
 		    if (obj.subItems && obj.subItems.length>0) keyItems(obj.subItems,depth+1,outterCount);
 		});
 	    }
-	    keyItems(this.sideMenuItems,0,outterCount);
-	    return this.sideMenuItems;
+	    keyItems(this.localSideMenuItems,0,outterCount);
+	    return this.localSideMenuItems;
 	},
     },
     methods: {
@@ -197,7 +204,7 @@ export const RcSideMenu = {
   >
   <template v-for="(itm,ndx) in menuItemsWithKeys">
 
-    <rc-side-menu-item :item="itm" :user="user" :opened="opened" :hot="hot">
+    <rc-side-menu-item :item="itm" :user="user" :opened="opened" :hot="hot" :clickdata="clickdata">
     </rc-side-menu-item>
     
   </template>
