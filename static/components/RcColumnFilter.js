@@ -80,7 +80,7 @@ export const RcColumnFilter = {
     },
 
     setup(props,context) {
-
+	//console.log('RcColumnFilter SETUP:',props);
 	function twoWay(name) {
 	    if (props.hasOwnProperty(name)) {
 		return computed({
@@ -102,6 +102,7 @@ export const RcColumnFilter = {
 	const localSelectedExcludeValues = twoWay('exclude'); //ref(props.exclude);
 	
 	const localSelectedIncludeValues = twoWay('include');
+	if (localSelectedIncludeValues.length>0) console.log('SETUP HAS INCLUDE VALUES:',localSelectedIncludeValues);
 	//const localSelectedExcludeValues = twoWay('exclude');
 	
 	return {
