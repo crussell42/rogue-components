@@ -39,11 +39,13 @@ export const addColumnFilterValues = (columnName,includeValues,excludeValues) =>
     //and use the columnfilter.includes field (which translates into the localSelectedIncludeValues in RcColumnFilter.
     let h = localHeaders.value.find((lh) => {if (lh.key == columnName) return lh;});
     if ((h)&&(h.columnfilter)) {
-	if ((includeValues)&&(includeValues.length>0)) {
+	//if ((includeValues)&&(includeValues.length>0)) {
+	if (includeValues) {
 	    if (!h.columnfilter.hasOwnProperty('include')) h.columnfilter.include = [];
 	    h.columnfilter.include = includeValues;
 	}
-	if ((excludeValues)&&(excludeValues.length>0)) {
+	//if ((excludeValues)&&(excludeValues.length>0)) {
+	if (excludeValues) {
 	    if (!h.columnfilter.hasOwnProperty('exclude')) h.columnfilter.exclude = [];
 	    h.columnfilter.exclude = excludeValues;
 	}
@@ -211,6 +213,7 @@ export const RcTable = {
 		return this.selectedcolumnfilters;
 	    },
 	    set: function(value) {
+		console.log('selectedColumnFiltersLocal EMITTING');
 		this.$emit('update:selectedcolumnfilters',value);		
 	    }
 	},

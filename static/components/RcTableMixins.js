@@ -67,6 +67,12 @@ export const RcTableMixins = {
 	// e.g. row 0 check col filter 0,1,2,3 until a false is found. If no false show the row. (LOGICAL AND)
 	columnFilterReduce(items,selectedFilters) {
 	    console.log('columnFilterReduce:',selectedFilters);
+
+	    //selectedFilters here are actually FilterAction objects
+	    //e.g. [{cname: 'fake_plan_farms', includeValues: ['SMFF.TOWN'], excludeValues: ['FL.FARM1']},
+	    //HOW does this get called?
+	    // by COMPUTED filteredItems
+	    
 	    let ans = items;
 	    
 	    selectedFilters.forEach((filterAction) => {
