@@ -196,7 +196,42 @@ export const RcTableToolbar = {
 			    //oneRec[columnName] = _.get(item,objPath,'');
 			    //console.log('columnName ['+columnName+'] objPath ['+objPath+'] value ['+_.get(item,objPath,'')+']');
 			    //oneRec[valueName] = item[valueName];
-			    _.set(oneRec,valueName,_.get(item,valueName,''));
+
+
+			    //WANKER
+			    //Columns that have a value: method, we must call the method to get the value
+
+			    let derivedValue = null;
+			    let formattedDerivedValue = null;
+			    
+			    let valuesHeader = this.computedheaders.find(h => h.key == valueName);
+			    if (valuesHeader.hasOwnProperty('value')) {
+				if (_.isFunction(valuesHeader.value)) {
+				    derivedValue = valuesHeader.value(item);
+				} else {
+				    derivedValue = _.get(item,valueName);
+				}			    
+
+			    } else {			    
+				//ORIGINAL _.set(oneRec,valueName,_.get(item,valueName,''));
+				derivedValue = _.get(item,valueName,'');
+			    }
+
+			    //Once derived, a formatter may be run on it as well which produces funky output.
+			    //For instance, it might use a unit of measure field in the row to further define how the
+			    // output should appear to the user.
+			    formattedDerivedValue = derivedValue;
+			    if (valuesHeader.hasOwnProperty('formatter')) {
+				// params for any formatter (val,header,row)
+				if (_.isFunction(valuesHeader.formatter)) {
+				    formattedDerivedValue = valuesHeader.formatter(derivedValue,valuesHeader,item);
+				} else {
+				    //really nothing to do if its not a function...I guess we could use the value of it???
+				}
+			    }
+			    
+			    _.set(oneRec,valueName,formattedDerivedValue);
+			    
 			});
 			//console.log('ONE REC:',JSON.stringify(oneRec));
 			ans.push(oneRec);
