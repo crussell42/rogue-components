@@ -30,7 +30,11 @@ export const RcTableMixins = {
 	searchFilterReduce (value, search, rawitem) {
 	    //console.log('searchFilterReduce:',value,' search:',search,' rawitem:',rawitem);
 	    if ((!value)&&(tmb.nub(search).length>0)) {
+		let rowString = this.mapVisibleColumnValues(rawitem).join(','); 
 		let showRow = this.mapVisibleColumnValues(rawitem).join(',').indexOf(search.toLowerCase())>=0;
+		if (showRow) {
+		    console.log('searchFilterReduce found [',search.toLowerCase(),'] in [',rowString,']');
+		}
 		return showRow;
 	    } else return true;
 	},
@@ -66,7 +70,7 @@ export const RcTableMixins = {
 	// Could or should turn into a reduce call and fail fast on first 'false'
 	// e.g. row 0 check col filter 0,1,2,3 until a false is found. If no false show the row. (LOGICAL AND)
 	columnFilterReduce(items,selectedFilters) {
-	    console.log('columnFilterReduce:',selectedFilters);
+	    //console.log('columnFilterReduce:',selectedFilters);
 
 	    //selectedFilters here are actually FilterAction objects
 	    //e.g. [{cname: 'fake_plan_farms', includeValues: ['SMFF.TOWN'], excludeValues: ['FL.FARM1']},

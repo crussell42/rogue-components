@@ -63,8 +63,8 @@ export const RcSideMenuItem = {
 		if (this.user) {
 		    if (this.user.isadmin) return true;
 		    if ((this.user.roles)&&(this.user.roles.length>0)) {
-			console.log('userAllowed menuItem.requiredRoles:',menuItem.requiredRoles);
-			console.log('user roles:',this.user?.roles);
+			//console.log('userAllowed menuItem.requiredRoles:',menuItem.requiredRoles);
+			//console.log('user roles:',this.user?.roles);
 			found = menuItem.requiredRoles.some(r => this.user.roles.includes(r));
 		    }
 		}
