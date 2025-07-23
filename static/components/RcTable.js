@@ -101,7 +101,32 @@ export const RcTable = {
 	localHeaders.value = props.allheaders();
 
 	const { xs,smAndDown } = useDisplay();
-	
+
+	//const shiftKeyOn = ref(false);
+	const keyDownHandler = function ({ key }) {
+	    if (key == "Shift") {
+		console.log('RcTable shift ON');
+		//shiftKeyOn.value = true;
+		window.shiftKeyOn = true;
+	    }
+	};
+	const keyUpHandler = function ({ key }) {
+	    if (key == "Shift") {
+		console.log('RcTable shift OFF');
+		//shiftKeyOn.value = false;
+		window.shiftKeyOn = false;
+	    }
+	};
+	if (!window.hasOwnProperty('shiftKeyOn')) {
+	    window.addEventListener("keydown", keyDownHandler);
+	    window.addEventListener("keyup", keyUpHandler);
+	}
+
+	//beforeDestroy() {
+	//window.removeEventListener("keydown", this.keyDownHandler);
+	//window.removeEventListener("keyup", this.keyUpHandler);
+
+
 	return {
 	    localItemsPerPage,
 	    localPage,
@@ -109,6 +134,9 @@ export const RcTable = {
 	    localHeaders,
 	    xs,
 	    smAndDown,
+
+	    //shiftKeyOn,
+	    keyUpHandler,keyDownHandler,
 	}
     },
     data() {	
@@ -123,6 +151,9 @@ export const RcTable = {
 	    tableOptions: null,
 
 	    //colorizerows: true,
+	    lastSelected: null,
+	    currentSelected: null,
+	    currentItems: [],
 	}
     },
     computed: {
@@ -246,6 +277,81 @@ export const RcTable = {
 	},
     },
     methods: {
+	//currentItems: function(x) {
+	//    console.log('DAMN:',x);
+	//},
+	asIntArr: function(lower,upper,step) {
+	    return Array.from({length:((upper-lower)/step)+1},(value,index) => lower + index * step);
+	},
+
+	
+	bulkSelect: function(a,b,c) {
+	    if ((a.length>this.selectedLocal.length)&&(window.shiftKeyOn)) {
+		if (!this.currentItems) this.currentItems = this.filtereditems;
+		//console.log('bulkSelect currentItems length:',this.currentItems);
+		let visibleItems = this.currentItems.map((ci)=>{return ci.raw});
+		let newItem = null;
+		let newSel = a.filter(x=> !this.selectedLocal.includes(x));
+		if (newSel.length==1) newItem = newSel[0];
+		
+		if (newItem) {
+		    let newItemIndex = visibleItems.findIndex(i=> i==newItem);
+		    console.log('shift:',window.shiftKeyOn,' newItemIndex:',newItemIndex);
+		    let ndxs = a.map((s)=>{
+			return visibleItems.findIndex(i=> i==s);
+		    });
+		    
+		    ndxs.sort();
+		    let oldNdxs = ndxs.filter(i=> i!=newItemIndex);//.reduce((acc,(i)=>{if (i<newItemIndex) acc=i;return acc;}),0);
+		    let max = oldNdxs.reduce((acc,i)=>{
+			if (i>acc) acc=i;			
+			return acc
+		    },-1);
+		    let min = oldNdxs.reduce((acc,i)=>{
+			if (i<acc) acc=i;
+			return acc
+		    },9999999);
+		    
+		    console.log('ndxs:',ndxs,' oldNdxs:',oldNdxs,'min:',min,' max:',max,' newItemIndex:',newItemIndex);
+		    if ((min == 9999999)&&(max==-1)) {
+			console.log('ignore');
+		    } else {
+			let newIndexes = [];
+			if ((newItemIndex>min) && (newItemIndex<max)) {
+			    console.log('middle ignore');
+			} else if ((newItemIndex<min) && (min != 9999999)) {
+			    if (min-newItemIndex < 2) console.log('contiguous up ignore');
+			    else {
+				newIndexes = this.asIntArr(newItemIndex,min,1);
+				console.log('UP:',newIndexes);//this.asIntArr(newItemIndex,min,1));
+			    }
+			} else if ((newItemIndex>max) && (max != -1)) {
+			    if (newItemIndex - max < 2) console.log('contiguous down ignore');
+			    else {
+				newIndexes = this.asIntArr(max,newItemIndex,1);
+				console.log('DOWN:',newIndexes);			    
+			    }
+			}
+
+			if (newIndexes.length>0) {
+			    //addIndexes = addIndexes.slice(1,addIndexes.length-1);
+			    //console.log('RESULT:',newIndexes);
+			    let newSelected = this.selectedLocal;
+			    newIndexes.forEach((i)=>{
+				newSelected.push(visibleItems[i]);
+			    });
+			    //note new one would be duplicated so we dedupe it with set
+			    this.selectedLocal = [... new Set(newSelected)];
+			    
+			}
+			
+		    }
+
+		    
+		    //console.log('currentItems:',this.currentItems);
+		}		
+	    }
+	},
 
 	//In vuetify2 this would have 
 	//Captured the @current-items event from the table.
@@ -433,6 +539,8 @@ export const RcTable = {
 
 	    @update:options="optionsUpdate($event)"
         
+	    @update:modelValue="bulkSelect"
+	    @update:current-items="currentItems = $event"
 
             :row-props="rowColor"
 
