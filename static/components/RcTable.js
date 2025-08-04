@@ -102,26 +102,30 @@ export const RcTable = {
 
 	const { xs,smAndDown } = useDisplay();
 
-	//const shiftKeyOn = ref(false);
+	// window.shiftKeyOn should already be set on the window when this loads
+	/*
 	const keyDownHandler = function ({ key }) {
 	    if (key == "Shift") {
-		console.log('RcTable shift ON');
+		console.log('RcTable.shift ON');
 		//shiftKeyOn.value = true;
 		window.shiftKeyOn = true;
 	    }
 	};
 	const keyUpHandler = function ({ key }) {
 	    if (key == "Shift") {
-		console.log('RcTable shift OFF');
+		console.log('RcTable.shift OFF');
 		//shiftKeyOn.value = false;
 		window.shiftKeyOn = false;
 	    }
 	};
-	if (!window.hasOwnProperty('shiftKeyOn')) {
+	if (typeof window.shiftKeyOn == 'undefined') {
+	//if (!window.hasOwnProperty('shiftKeyOn')) {
+	    console.log('RcTable adding key handlers');
 	    window.addEventListener("keydown", keyDownHandler);
 	    window.addEventListener("keyup", keyUpHandler);
 	}
-
+	*/
+	
 	//beforeDestroy() {
 	//window.removeEventListener("keydown", this.keyDownHandler);
 	//window.removeEventListener("keyup", this.keyUpHandler);
@@ -134,9 +138,6 @@ export const RcTable = {
 	    localHeaders,
 	    xs,
 	    smAndDown,
-
-	    //shiftKeyOn,
-	    keyUpHandler,keyDownHandler,
 	}
     },
     data() {	
