@@ -433,7 +433,9 @@ var tmb = (function() {
     tmb.commonDateRangeNames = ['Today','This Week','Last Week','This Month','This Quarter','This Year','Last 7 days','Last 30 days','Custom'];
 
     
-    tmb.dateRangeFromName = function(dateRangeName,planting) {
+    tmb.dateRangeFromName = function(dateRangeName,effectiveDateObj) {
+
+	//console.log('dateRangeFromName:',dateRangeName,' effectiveDateObj:',effectiveDateObj);
 	//Always fall back to today.
 	//if (!dateRangeName) return;
 	//console.log('dateRangeFromName:'+dateRangeName+'  current daterange:'+this.daterange);
@@ -473,9 +475,33 @@ var tmb = (function() {
 	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-29));		
 	} else if (dateRangeName.indexOf('Planting')>=0) {
 	    //console.log('WTF DUDE:',planting);
-	    if (planting) {		
-		startDate = new Date(planting.effective_date);
-		console.log('START DATE OF PLANTING:',startDate);
+	    if (effectiveDateObj) {
+
+		let effDateStr = '';
+		let parts = effectiveDateObj.effective_date.split('T');
+		if (parts.length>0) effDateStr = parts[0];
+		else effDateStr = effectiveDateObj.effective_date;
+
+		//console.log('TMB PLANTING effDateStr:',effDateStr);
+
+		//console.log('YODOG planting watch: effectiveDateObj.effective_date:',effectiveDateObj.effective_date,' Date of same:',new Date(effectiveDateObj.effective_date)); //,' yoda of same:',tmb.yoda(effectiveDateObj.effective_date),' effDateStr:',effDateStr);
+		
+		//startDate = new Date(effectiveDateObj.effective_date);
+		//coming in as 2025-02-11T05:00:00.000Z
+		startDate = tmb.dateFromYoda(effDateStr);
+		//console.log('START DATE OF PLANTING:',startDate);
+	    } else {
+		startDate.setDate(1);
+		startDate.setMonth(0);
+	    }
+	} else if (dateRangeName.indexOf('Season')>=0) {
+	    //console.log('WTF DUDE:',planting);
+	    if (effectiveDateObj) {
+		//console.log('season watch: effectiveDateObj.effective_date:',effectiveDateObj.effective_date,' Date of same:',new Date(effectiveDateObj.effective_date),' yoda of same:',tmb.yoda(effectiveDateObj.effective_date));
+		//startDate = new Date(effectiveDateObj.effective_date);
+		// coming in a '2025-06-01'
+		startDate = tmb.dateFromYoda(tmb.yoda(effectiveDateObj.effective_date));
+		//console.log('START DATE OF SEASON:',startDate);
 	    } else {
 		startDate.setDate(1);
 		startDate.setMonth(0);
