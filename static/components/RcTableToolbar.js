@@ -302,9 +302,14 @@ export const RcTableToolbar = {
 	    this.$emit('input',this.toolbarSearchText);
 	},
 	allSelectableHeaderNames() {
-            return this.computedheaders.filter((ah) => {
+	    let colNames = this.computedheaders.filter((ah) => {
 		return (!ah.required);
 	    }).map(fh => fh.title);
+	    colNames.sort();
+	    return colNames;
+            //return this.computedheaders.filter((ah) => {
+	    //	return (!ah.required);
+	    //}).map(fh => fh.title);
 	},
 	ctxName(varName) {
 	    if ((this.pageName)&&(this.pageName.length>0)) {

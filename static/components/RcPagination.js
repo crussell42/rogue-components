@@ -78,15 +78,49 @@ export const RcPagination = {
 	},
 
 
+	ctxName(varName) {
+	    
+	    //if ((this.pageName)&&(this.pageName.length>0)) {
+	    //	return 'osf_'+this.pageName + '_'+varName;
+	    //}
+	    //Application wide (user) setting 
+	    //let pname = window.location.pathname.split('/').pop();
+            //if (pname) {
+	    //	let qname = pname.split('?');
+	    //	if (qname.length>0) {
+	    //	    qname = qname.shift();
+	    //	    return 'osf_'+qname+'_'+varName;
+	    //	} else {
+	    //	    return 'osf_'+pname+'_'+varName;
+	    //	}
+	    //}
+	    return 'osf_'+varName;
+	},
+
+	
     },
     mounted() {
+	if (window.sessionStorage) {
+	    if (window.sessionStorage.getItem(this.ctxName('pagination'))) {
+		let savedPagination = JSON.parse(window.sessionStorage.getItem(this.ctxName('pagination')));
+		//this.localPage = savedPagination.page;
+		this.localItemsPerPage = savedPagination.itemsPerPage;
+	    }
+	}
 
     },
     watch: {
 	localItemsPerPage: function(val,oldVal) {
 	    //Ugly but effective way to close the activator menu when the v-select for number of items per page
 	    //value changes.
-	    if (val !== oldVal) this.showipp=false;
+	    if (val !== oldVal) {
+		this.showipp=false;
+
+		if (window.sessionStorage) {		    
+		    window.sessionStorage.setItem(this.ctxName('pagination'),JSON.stringify({itemsPerPage:val}));
+		}
+	    }
+	    
 	},
     },
 
