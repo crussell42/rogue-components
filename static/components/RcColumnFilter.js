@@ -228,7 +228,7 @@ export const RcColumnFilter = {
 		//console.log('uniqueNames items.length:'+this.items.length,' ANS:',ans);
 
 	    } else if (valDataType == 'boolean') {
-		ans = [{title:'True',value:true},{title:'False',value:false}]
+		ans = [{title:'True',value:true},{title:'False',value:false},{title:'Not Set',value:null}]
 	    } else if (valDataType == 'date') {
 
 		ans = this.header.columnfilter.ranges.map(x => x.name);
