@@ -61,6 +61,7 @@ export const RcTableToolbar = {
 
 	    filtermenu: false,
 
+	    columnNameSortState: 0, //0-unsorted, 1-sorted ascending, -1-sort decending
             //selectedrowfilternames: Vue.util.extend([],this.rowfiltersselected),
 	    //Ok, this pulls it through once but does not seem to be bound to the data version.
 	    //This the "2-way" contract does not seem to be complete unless we put a watcher on the prop and
@@ -72,6 +73,12 @@ export const RcTableToolbar = {
     },
     computed: {
 
+	columnNameSortIcon() {
+	    if (this.columnNameSortState == -1) return 'mdi-sort-variant'; //descending
+	    else if (this.columnNameSortState == 1) return 'mdi-sort-reverse-variant'; //ascending
+	    return 'mdi-sort-variant-off';
+	},
+	
 	//pageCount () {
 	//    console.log('pageCount:',Math.ceil(this.exportData.length / this.localItemsPerPage));
         //    return Math.ceil(this.exportData.length / this.localItemsPerPage);
@@ -272,6 +279,12 @@ export const RcTableToolbar = {
 	mergeProps,
 
 
+	columnNameSort() {
+	    this.columnNameSortState += 1;
+	    if (this.columnNameSortState>1) this.columnNameSortState = -1;
+	    //console.log('columnNameSortState:',this.columnNameSortState);
+	},
+	
 	exportHL7: async function() {
 	    //dataToExport, exportHeaderNames,fullExportFileName
 	    this.exportHiddenColumns=true;
@@ -305,7 +318,10 @@ export const RcTableToolbar = {
 	    let colNames = this.computedheaders.filter((ah) => {
 		return (!ah.required);
 	    }).map(fh => fh.title);
-	    colNames.sort();
+	    if (this.columnNameSortState != 0) {
+		if (this.columnNameSortState == 1) colNames.sort();
+		else if (this.columnNameSortState == -1) colNames.sort().reverse();
+	    }
 	    return colNames;
             //return this.computedheaders.filter((ah) => {
 	    //	return (!ah.required);
@@ -606,22 +622,80 @@ export const RcTableToolbar = {
 		  >
 	  	  <v-icon>mdi-ballot-outline</v-icon>
 		</v-btn>
-	      </template>
+	      </template>	      
 	      <span>
 		Select columns to display
 	      </span>
 	    </v-tooltip>
 	  </template>
 	  <v-card class="mx-auto" max-width="300">
-	    
+
 	    <v-list density="compact">
-	      <v-list-subheader>Optional Columns</v-list-subheader>
+	      <v-list-item>
+	      	<v-list-item-action>		  
+
+		  <v-btn
+		    color="primary"
+		    density="compact"		  		  
+		    variant="outlined"
+		    elevation="3"
+		    @click="columnNameSort"
+		    >
+		    Sort <v-icon>{{columnNameSortIcon}}</v-icon>
+		  </v-btn>
+
+		  <v-btn
+		    color="secondary"
+		    density="compact"		  		  
+		    variant="outlined"
+		    elevation="3"
+		    @click="columnmenu = false;"
+		    >
+		    Cancel
+		  </v-btn>
+
+		</v-list-item-action>
+	      </v-list-item>
+	      <v-list-item>
+		<v-list-item-title density="compact">
+		  <v-row><v-col>Optional Columns</v-col></v-row>
+		</v-list-item-title>
+	      </v-list-item>
+
 	      <v-list-item v-for="hname in allSelectableHeaderNames()" :key="hname" color="primary" density="compact">
-		<!--<v-list-item-title v-text="hname"></v-list-item-title>-->
 		<v-checkbox hide-details class="mx-auto" v-model="childVisibleHeaders" :value="hname" :label="hname" multiple density="compact" color="primary">	
 		</v-checkbox>
 		
-	      </v-list-item>		    
+	      </v-list-item>
+
+	      <v-list-item>
+	      	<v-list-item-action>		  
+
+
+		  <v-btn
+		    color="primary"
+		    density="compact"		  		  
+		    variant="outlined"
+		    elevation="3"
+		    @click="columnNameSort"
+		    >
+		    Sort <v-icon>{{columnNameSortIcon}}</v-icon>
+		  </v-btn>
+
+		  <v-btn
+		    color="secondary"
+		    density="compact"		  		  
+		    variant="outlined"
+		    elevation="3"
+		    @click="columnmenu = false;"
+		    >
+		    Cancel
+		  </v-btn>
+
+		</v-list-item-action>
+	      </v-list-item>
+
+	      
 	    </v-list>
 	  </v-card>
 	</v-menu>
@@ -689,14 +763,6 @@ export const RcTableToolbar = {
 	      </v-text-field>
 	    </v-card-text>
 	    <v-card-actions>
-	      <v-btn color="primary"
-		     variant="outlined"
-		     size="small"
-		     elevation="3"
-		     @click="exportmenu = false;"
-		     >
-		Cancel
-	      </v-btn>
 	      <v-btn v-if="childExportRadioGroup == 'hl7'"
 		     color="primary"
 		     variant="outlined"
@@ -724,6 +790,16 @@ export const RcTableToolbar = {
 		  Export
 		</v-btn>
 	      </json-excel>
+
+	      <v-btn color="secondary"
+		     variant="outlined"
+		     size="small"
+		     elevation="3"
+		     @click="exportmenu = false;"
+		     >
+		Cancel
+	      </v-btn>
+
 	      
 	    </v-card-actions>
 	    
