@@ -204,7 +204,7 @@ export const RcSideMenu = {
   >
   <template v-for="(itm,ndx) in menuItemsWithKeys">
 
-    <rc-side-menu-item :item="itm" :user="user" :opened="opened" :hot="hot" :clickdata="clickdata">
+    <rc-side-menu-item :rail="localRail" :item="itm" :user="user" :opened="opened" :hot="hot" :clickdata="clickdata">
     </rc-side-menu-item>
     
   </template>

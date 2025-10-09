@@ -1,4 +1,4 @@
-import {ref,reactive,defineAsyncComponent, computed, nextTick} from 'vue'
+import {ref,reactive,defineAsyncComponent, computed, nextTick, mergeProps} from 'vue'
 
 //Note that the only way I could get this recursive component to work was to
 //register it globally (see scope.ejs)
@@ -15,6 +15,7 @@ export const RcSideMenuItem = {
 	opened: {type: Object, default(rawProps) {return []}},
 	hot: {type: String, default:''},
 	clickdata: {type: Object, default(rawProps) {return null}},
+	rail: {type: Boolean, default:false},
     },
     setup(props,context) {
 
@@ -27,6 +28,7 @@ export const RcSideMenuItem = {
 	return {
 	    cow,
 	    userCtxName,
+	    mergeProps,
 	}
     },
     data() { return {
@@ -109,13 +111,22 @@ export const RcSideMenuItem = {
     <!-- PARENT item (has children and user allowed to see it) (red) when opened -->
     <v-list-group v-if="(cow.subItems && (cow.subItems.length>0) && userAllowed(cow))" :value="cow.key" color="primary">
       <template v-slot:activator="{on:click,props}">
-	<v-list-item
-	  v-bind="props"
-	  :prepend-icon="cow.icon"
-	  :title="cow.label"
-	  @click="groupClicked(cow)"
-	  >
-	</v-list-item>
+
+	<v-tooltip location="bottom" :disabled="!rail">
+	  <template v-slot:activator="{ props: tooltip }">
+
+	    <v-list-item
+	      v-bind="mergeProps(props,tooltip)"
+	      :prepend-icon="cow.icon"
+	      :title="rail?'':cow.label"
+	      @click="groupClicked(cow)"
+	      >
+	    </v-list-item>
+	    
+	  </template>
+	  {{cow.label}}
+	</v-tooltip>
+
       </template>
 
       <!-- recursively load all children-->
@@ -124,22 +135,36 @@ export const RcSideMenuItem = {
 	:item="subItem"
 	:user="user"
 	:hot="hot"
+	:rail="rail"
 	/>
       
     </v-list-group>
 
     <!-- CHILD item -->
-    <v-list-item v-else v-show="userAllowed(cow)"
-		 :prepend-icon="cow.icon"
-		 :title="cow.label"
-		 :value="cow.key"
-		 :href="(cow.to && cow.to.length>0)?cow.to:null"
-                 @click="itemClicked(cow)"
-		 :base-color="hotColor"
-                 :color="hotColor"
-                 active-class="text-purple"
-		 >
-    </v-list-item>
+    <div v-else>
+    <v-tooltip location="bottom" :disabled="!rail">
+      <template v-slot:activator="{ props: tooltip }">
+    
+	<v-list-item 
+	  
+	  v-show="userAllowed(cow)"
+	  v-bind="tooltip"
+	  :prepend-icon="cow.icon"
+	  :title="rail?'':cow.label"
+	  :value="cow.key"
+	  :href="(cow.to && cow.to.length>0)?cow.to:null"
+	  @click="itemClicked(cow)"
+	  :base-color="hotColor"
+	  :color="hotColor"
+	  active-class="text-purple"
+	  >
+	</v-list-item>
+
+      </template>
+      {{cow.label}}
+    </v-tooltip>
+    </div>
+
 	     
 `
     

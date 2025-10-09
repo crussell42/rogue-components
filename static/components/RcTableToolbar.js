@@ -658,7 +658,7 @@ export const RcTableToolbar = {
 	      </v-list-item>
 	      <v-list-item>
 		<v-list-item-title density="compact">
-		  <v-row><v-col>Optional Columns</v-col></v-row>
+		  <v-row><v-col>Show Columns</v-col></v-row>
 		</v-list-item-title>
 	      </v-list-item>
 
