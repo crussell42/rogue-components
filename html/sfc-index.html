@@ -7,8 +7,8 @@
 
     <title>SFC Rogue Components Test Page</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/vuetify@3.5.2/dist/vuetify-labs.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.10.5/dist/vuetify-labs.min.css" rel="stylesheet">
 
     <style>
 
@@ -292,9 +292,9 @@
     <script type="importmap">
       {
 	  "imports": {
-	      "vue": "https://unpkg.com/vue@3.4.15/dist/vue.esm-browser.js",
-              "vuetify": "https://unpkg.com/vuetify@3.5.2/dist/vuetify-labs.esm.js",
-	      "vuetifycolors": "https://unpkg.com/vuetify@3.5.2/lib/util/colors.mjs",
+	      "vue": "https://unpkg.com/vue@3.5.13/dist/vue.esm-browser.js",
+              "vuetify": "https://cdn.jsdelivr.net/npm/vuetify@3.10.5/dist/vuetify-labs.esm.js",
+	      "vuetifycolors": "https://cdn.jsdelivr.net/npm/vuetify@3.10.5/lib/util/colors.js",
 	      "vue-json-excel3": "https://unpkg.com/vue-json-excel3@1.0.0/dist/vue-json-excel.esm.js"
 	      
 	  }
@@ -459,7 +459,7 @@
 	      toolbarAction: async function(item) {
 		  let selectedIds = [];
 		  if (!item) selectedIds = this.selected.map(s => s.id);
-		  else selectedIds.push(item.raw.id);
+		  else selectedIds.push(item.id);
 		  console.log('selectedIds:',selectedIds);
 		  if (!await this.$refs.confirm.open("Confirm",'Run action on ids ['+selectedIds+']')) {
 		      console.log('ACTION CANCELED');
