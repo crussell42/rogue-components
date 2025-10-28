@@ -570,6 +570,8 @@ export const RcTable = {
 		:items="allitems"
                 :showexclude="column.columnfilter.showexclude"
                 :arrayfield="column.columnfilter.arrayfield"
+                :stringarrayfield="column.columnfilter.stringarrayfield"
+
 		v-model:selectedcolumnfilters="selectedColumnFiltersLocal"
 		v-model:include="column.columnfilter.include"
 		v-model:exclude="column.columnfilter.exclude"

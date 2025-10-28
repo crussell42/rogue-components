@@ -104,7 +104,7 @@ export const RcColumnFilter = {
 	const localSelectedIncludeValues = twoWay('include');
 	if (localSelectedIncludeValues.length>0) console.log('SETUP HAS INCLUDE VALUES:',localSelectedIncludeValues);
 	//const localSelectedExcludeValues = twoWay('exclude');
-	
+
 	return {
 	    localSelectedIncludeValues,
 	    localSelectedExcludeValues,
@@ -178,44 +178,32 @@ export const RcColumnFilter = {
 	    // WATCH OUT FOR [Vue warn]: You may have an infinite update loop in a component render function.
 	    // Only reactive value that should mater is this.items
 	    // stringarrayfield and arrayfield are just props.
+
 	    if (valDataType == 'string') {
 		if (this.stringarrayfield) {
-		    //MULTI VALUE STRING
-		    this.items.forEach((itm) => {
-			let tarr = [];
-			let itmVal = itm[this.header.key];
-			if ((!itmVal)||(itmVal.trim().length==0)) {
-			    tarr.push(this.NO_TAGS_LABEL);
-			} else tarr = itmVal.split(',');
-			tarr = tarr.map(function(t) {return tmb.nub(t);});
-			if ((tarr)&&(tarr.length>0)) ans = [...new Set([...ans, ...tarr])];
-			//console.log('TARR:',ans);
-		    });
+		    let tarr = [];
+		    if (_.isFunction(this.header.value)) {
+			tarr = this.items.map(item => this.header.value(item));
+		    } else {
+			tarr = this.items.map(item => _.get(item,this.header.key));
+		    }
+		    //tarr looks lile ['a,b,c','d','e','f,g']
+		    console.log('TARR:',tarr);
+		    let xtarr = tarr.map(v=>v.split(','));		    
+		    ans = [...new Set(xtarr.flat(Infinity))];
+		    
 		} else if (this.arrayfield) {
-		    //MULTI VALUE ARRAY
-		    this.items.forEach((itm) => {
-			let tarr = [];
-			if (_.isFunction(this.header.value)) {
-			    tarr = this.items.map(item => this.header.value(item));
-			    tarr = tarr.flat(Infinity);
-			    tarr = [...new Set(tarr)];
-			} else {
-			    tarr = itm[this.header.key];
-			}
-			
-			//let tarr = itm[this.header.key];
-			//console.log('TARR',tarr);
-			if ((tarr)&&(tarr.length>0)) {
-			    //tarr = tarr.map(function(t) {return tmb.nub(t);});
-			    ans = [...new Set([...ans, ...tarr])];
-			}
-		    });
+		    let tarr = [];
+		    if (_.isFunction(this.header.value)) {
+			tarr = this.items.map(item => this.header.value(item));
+		    } else {
+			tarr = this.items.map(item => _.get(item,this.header.key));			
+		    }
+		    tarr = tarr.flat(Infinity);
+		    ans = [...new Set(tarr)];
+		    //console.log('UNIQUE ABS:',ans);
 		} else {
 		    //SINGLE VALUE STRING.
-		    //console.log('PATH:'+this.header.value);
-		    //ans = [...new Set(this.items.map(item => item[this.header.value]))]; <-Does NOT work for nested path.gotta lodashit
-		    //NOW we may have a value function on the column for computed column
-		    //And so would need to use its value
 		    if (_.isFunction(this.header.value)) {
 			ans = [...new Set(this.items.map(item => this.header.value(item))) ];		
 		    } else {		    
@@ -225,7 +213,6 @@ export const RcColumnFilter = {
 		
 		ans = [...ans];
 		ans.sort((a,b) => { return this.mySort(a,b); });
-		//console.log('uniqueNames items.length:'+this.items.length,' ANS:',ans);
 
 	    } else if (valDataType == 'boolean') {
 		ans = [{title:'True',value:true},{title:'False',value:false},{title:'Not Set',value:null}]
