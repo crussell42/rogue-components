@@ -1,4 +1,5 @@
 import {ref, reactive, mergeProps} from 'vue'
+import {useDisplay} from 'vuetify'
 
 export const RcPagination = {
     components: {
@@ -10,8 +11,9 @@ export const RcPagination = {
 	itemsPerPage: {type:Number, default: 100},
     },
     setup(props,context) {
-	
+	const { xs,smAndDown } = useDisplay();
 	return {
+	    xs, smAndDown,
 	}
     },
     data: function() {
@@ -61,6 +63,11 @@ export const RcPagination = {
 	    let pe = (((this.localPage) * (this.localItemsPerPage<0?this.totalRecords:this.localItemsPerPage)));
 	    let maxRec = (pe>this.totalRecords)?this.totalRecords:pe;
 	    return 'p'+this.localPage+' ('+(((this.localPage-1) * this.localItemsPerPage)+1)+'-'+maxRec+') of '+this.totalRecords;
+	},
+	mobilePaginationSummary() {
+	    let pe = (((this.localPage) * (this.localItemsPerPage<0?this.totalRecords:this.localItemsPerPage)));
+	    let maxRec = (pe>this.totalRecords)?this.totalRecords:pe;
+	    return 'rec('+(((this.localPage-1) * this.localItemsPerPage)+1)+'..'+maxRec+')';
 	},
 
 	
@@ -127,130 +134,122 @@ export const RcPagination = {
 
     template: `
 	<v-col>
-	  <v-row>
+	  <v-row v-if="!xs">
 
-	      <v-menu
-		v-model="showipp"
-		:close-on-content-click="false"
-                class="pa-0"
+	    <v-menu
+	      v-model="showipp"
+	      :close-on-content-click="false"
+              class="pa-0"
+	      
+	      >
 
-		>
 
-
-		<template v-slot:activator="{ props: menu }">		  
-		  <v-tooltip location="top">
-		    <template v-slot:activator="{ props: tooltip }">		      
-		      <v-btn
-			density="compact"
-			min-width="136" width="136"
-			variant="outlined"
-			class="elevation-1"
-			color="primary"
-			v-bind="mergeProps(menu,tooltip)"
-                        
-			>
-			<div class="text-caption">{{paginationSummary}}</div>
-		      </v-btn>
-		    </template>
-		    <span>Select Rows Per Page</span>
-		  </v-tooltip>
-		</template>
-
-		<v-card width="300">
-		  <v-card-text>
-		    <div class="text-caption text-center">Select Rows Per Page</div>
-		    <!--
-		    <v-text-field
-		      v-model.number="localItemsPerPage"
-		      type="number"
-		      style="width: 80px"
+	      <template v-slot:activator="{ props: menu }">		  
+		<v-tooltip location="top">
+		  <template v-slot:activator="{ props: tooltip }">		      
+		    <v-btn
 		      density="compact"
-		      hide-details
+		      min-width="136" width="136"
 		      variant="outlined"
-		      ></v-text-field>
-		    -->
-
-		    <v-select
-		      :items="rowsPerPageItems"
-		      v-model="localItemsPerPage"
-		      density="compact"
+		      class="elevation-1"
+		      color="primary"
+		      v-bind="mergeProps(menu,tooltip)"
+                      
 		      >
-		    </v-select>
-
-		  </v-card-text>
-		</v-card>			  
-	      </v-menu>
+		      <div class="text-caption">{{paginationSummary}}</div>
+		    </v-btn>
+		  </template>
+		  <span>Select Rows Per Page</span>
+		</v-tooltip>
+	      </template>
 	      
-	    </v-row>
+	      <v-card width="300">
+		<v-card-text>
+		  <div class="text-caption text-center">Select Rows Per Page</div>
+		  <v-select
+		    :items="rowsPerPageItems"
+		    v-model="localItemsPerPage"
+		    density="compact"
+		    >
+		  </v-select>
+		  
+		</v-card-text>
+	      </v-card>			  
+	    </v-menu>
+	      
+	  </v-row>
 	    
-            <v-row>
-	      
-	      <v-tooltip location="bottom">
-		<template v-slot:activator="{ props: tooltip }">		      
-		  <v-btn :disabled="((itemsPerPage<0)||(localPage<=1))"
-			 @click="decrPage"
-			 density="compact"
-			 min-width="30" width="30"
-			 variant="outlined"
-			 class="elevation-1"
-			 color="primary"
-			 v-bind="tooltip">
-		    <v-icon>mdi-chevron-left</v-icon>
-		  </v-btn>
-		</template>
-		Previous Page
-	      </v-tooltip>
+          <v-row>
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">		      
+		<v-btn :disabled="((itemsPerPage<0)||(localPage<=1))"
+		       @click="decrPage"
+		       density="compact"
+		       min-width="30" width="30"
+		       variant="outlined"
+		       class="elevation-1"
+		       color="primary"
+		       v-bind="tooltip">
+		  <v-icon>mdi-chevron-left</v-icon>
+		</v-btn>
+	      </template>
+	      Previous Page
+	    </v-tooltip>
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">		      	      
+		<v-btn :disabled="((itemsPerPage<0)||(localPage<=1))"
+		       @click="setPage(1)"
+		       density="compact"
+		       min-width="30" width="30"
+		       variant="outlined"
+		       class="elevation-1"
+		       color="primary"
+		       v-bind="tooltip">
+		  <v-icon>mdi-page-first</v-icon>
+		</v-btn>		  
+	      </template>
+	      First Page
+	    </v-tooltip>
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">		      		  
+		<v-btn :disabled="(localPage==pageCount)"
+		       @click="setPage(pageCount)"
+		       density="compact"
+		       min-width="30" width="30"
+		       variant="outlined"
+		       class="elevation-1"
+		       color="primary"
+		       v-bind="tooltip">
+		  <v-icon>mdi-page-last</v-icon>
+		</v-btn>
+	      </template>
+	      Last Page
+	    </v-tooltip>
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">		      
+		<v-btn :disabled="(localPage==pageCount)"
+		       @click="incrPage"
+		       density="compact"
+		       min-width="30" width="30"
+		       variant="outlined"
+		       class="elevation-1"
+		       color="primary"
+		       v-bind="tooltip">
+		  <v-icon>mdi-chevron-right</v-icon>
+		</v-btn>
+	      </template>
+	      Next Page
+	    </v-tooltip>
 
-	      <v-tooltip location="bottom">
-		<template v-slot:activator="{ props: tooltip }">		      	      
-		  <v-btn :disabled="((itemsPerPage<0)||(localPage<=1))"
-			 @click="setPage(1)"
-			 density="compact"
-			 min-width="30" width="30"
-			 variant="outlined"
-			 class="elevation-1"
-			 color="primary"
-			 v-bind="tooltip">
-		    <v-icon>mdi-page-first</v-icon>
-		  </v-btn>		  
-	      	</template>
-		First Page
-	      </v-tooltip>
-	      
-	      <v-tooltip location="bottom">
-		<template v-slot:activator="{ props: tooltip }">		      		  
-		  <v-btn :disabled="(localPage==pageCount)"
-			 @click="setPage(pageCount)"
-			 density="compact"
-			 min-width="30" width="30"
-			 variant="outlined"
-			 class="elevation-1"
-			 color="primary"
-			 v-bind="tooltip">
-		    <v-icon>mdi-page-last</v-icon>
-		  </v-btn>
-		</template>
-		Last Page
-	      </v-tooltip>
+	    <span class="text-caption" v-if="xs">{{mobilePaginationSummary}}</span>
 
-	      <v-tooltip location="bottom">
-		<template v-slot:activator="{ props: tooltip }">		      
-		  <v-btn :disabled="(localPage==pageCount)"
-			 @click="incrPage"
-			 density="compact"
-			 min-width="30" width="30"
-			 variant="outlined"
-			 class="elevation-1"
-			 color="primary"
-			 v-bind="tooltip">
-		    <v-icon>mdi-chevron-right</v-icon>
-		  </v-btn>
-		</template>
-		Next Page
-	      </v-tooltip>
-	      
-	    </v-row>
-	  </v-col>
+	    
+	  </v-row>
+	</v-col>
 
 
     `,

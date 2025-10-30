@@ -515,6 +515,8 @@ export const RcTable = {
 	  </v-card-title>
 
 	  <!-- note absence of :search="search". We want the text search filter to run in method searchFilterReduce (RcTableMixins) -->
+	  <!-- :show-select="!xs" :disable-sort="xs" -->
+	  
 	  <v-data-table
 
 	    :items="filtereditems"
@@ -535,6 +537,7 @@ export const RcTable = {
 	    show-expand
 	    
 	    show-select
+	    
 	    v-model="selectedLocal"
 	    return-object
 
@@ -653,12 +656,10 @@ export const RcTable = {
 
 		  
 
-
-
-
 	    <!-- Add Special item selection menu component to replace default selection header actions
                  Vuetify 3.3.9 to 3.5.2 column. changed back to header.
-             -->	    
+              -->
+	    
 	    <template v-slot:header.data-table-select="{ props: props }">              
 	      <rc-select-menu			
 		:items="filtereditems"
@@ -668,7 +669,21 @@ export const RcTable = {
 	      </rc-select-menu>
 	    </template>
 
-
+	    <!--DNW 
+	    <template v-slot:data-table-select="{ props: props }">
+	      ZZZ
+	    </template>
+	    <template v-if="xs" v-slot:item.data-table-select="{ item, isSelected, select }">
+	      <v-checkbox
+		:input-value="isSelected"
+		@change="select(!isSelected)"
+		hide-details
+		class="ma-0 pa-0"
+		>
+	      </v-checkbox>
+	    </template>
+	    -->
+	    
 	    <template v-slot:tfoot>	      
 
 	      <tr>
