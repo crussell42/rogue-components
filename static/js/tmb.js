@@ -415,11 +415,27 @@ var tmb = (function() {
 	if (!tmb.commonDateRangeNames.includes(dateRangeName)) return [startDate,endDate];
 	
 	if (dateRangeName.indexOf('This Week')>=0) {
-	    startDate = tmb.dateFromYoda(tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate)));
+	    //ORIG startDate = tmb.dateFromYoda(tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate)));
+	    let thisMonday = tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate));
+	    let thisWednesday = tmb.adjustDayOfDateStr(thisMonday,2);
+
+	    //This weeks Wednesday
+	    
+	    startDate = tmb.dateFromYoda(thisWednesday);
+	    endDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(thisWednesday,6));	    
+	    
 	} else if (dateRangeName.indexOf('Last Week')>=0) {
-	    let newStartDateStr = tmb.adjustDayOfDateStr(tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate)),-7);
-	    startDate = tmb.dateFromYoda(newStartDateStr);
-	    endDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(newStartDateStr,6));
+	    //ORIGlet newStartDateStr = tmb.adjustDayOfDateStr(tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate)),-7);
+	    //startDate = tmb.dateFromYoda(newStartDateStr);
+	    //endDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(newStartDateStr,6));
+
+	    let thisMonday = tmb.adjustToFirstDayOfWeek(tmb.yoda(startDate));
+	    let lastMonday = tmb.adjustDayOfDateStr(thisMonday,-7);
+	    let lastWednesday = tmb.adjustDayOfDateStr(lastMonday,2);
+	    	    
+	    startDate = tmb.dateFromYoda(lastWednesday);
+	    endDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(lastWednesday,6));
+
 	} else if (dateRangeName.indexOf('This Month')>=0) {
 	    startDate.setDate(1); //set date to first day of month.
 	    //console.log('This Month:',startDate,endDate);
