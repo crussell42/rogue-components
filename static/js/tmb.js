@@ -62,7 +62,7 @@ var tmb = (function() {
 	    }
 	    //console.log('OPTIONS:',options);
 	    const res = await fetch(nurl,options,300000);
-	    //console.log('RES',res);
+	    console.log('RES',res);
 	    let resObj = null;
 	    if (!res.ok) {
 		throw'HTTP ERROR: ['+nurl+']['+res.status+'] ['+res.statusText+']';
@@ -70,6 +70,7 @@ var tmb = (function() {
 		try {
 		    resObj = await res.json();
 		} catch (jperr) {
+		    
 		    throw 'RESPONSE JSON ERROR: '+jperr;
 		}
 		if (resObj.error) {
