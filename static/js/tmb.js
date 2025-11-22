@@ -68,7 +68,11 @@ var tmb = (function() {
 		throw'HTTP ERROR: ['+nurl+']['+res.status+'] ['+res.statusText+']';
 	    } else {
 		try {
-		    resObj = await res.json();
+		    console.log('SEEMS OK');
+		    let txt = await res.text();
+		    console.log('TEXT:',txt);
+		    //resObj = await res.json();
+		    
 		} catch (jperr) {
 		    
 		    throw 'RESPONSE JSON ERROR: '+jperr;
