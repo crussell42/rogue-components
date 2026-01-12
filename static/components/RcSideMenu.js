@@ -1,6 +1,6 @@
 //THE LEFT SIDE DRAWER MENU (Genericish)
 
-import {ref,reactive,computed,toRaw} from 'vue'
+import {ref,reactive,computed,toRaw,toValue} from 'vue'
 
 //CIRCULAR import {RcSideMenuItem} from './RcSideMenuItem.js'
 //NOTE: Since RcSideMenuItem is recursive, we have to register it globally.
@@ -90,6 +90,7 @@ export const RcSideMenu = {
 	}
 
 	return {
+	    toValue,
 	    localSideMenuItems,
 	    //sideMenuItems,
 	    collapseSubMenus,
@@ -204,7 +205,7 @@ export const RcSideMenu = {
   >
   <template v-for="(itm,ndx) in menuItemsWithKeys">
 
-    <rc-side-menu-item :rail="localRail" :item="itm" :user="user" :opened="opened" :hot="hot" :clickdata="clickdata">
+    <rc-side-menu-item v-if="!toValue(itm.hide)" :rail="localRail" :item="itm" :user="user" :opened="opened" :hot="hot" :clickdata="clickdata">
     </rc-side-menu-item>
     
   </template>
