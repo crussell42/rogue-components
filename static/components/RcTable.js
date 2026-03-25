@@ -90,6 +90,7 @@ export const RcTable = {
 
 	itemsPerPage: {type: Number, default: 100},
 	page: {type: Number, default: 1},
+	showSelect: {type: Boolean, default: true},
     },
     setup(props,ctx) {
 	//const dataItems = ref(props.items);
@@ -198,6 +199,7 @@ export const RcTable = {
 	    //let vhs = this.allheaders().filter((ah) => {
 	    let vhs = this.localHeaders.filter((ah) => {
 		if (ah.required) return true;
+		//if (this.visibleheadernames.length==0) return true;
 		return this.visibleheadernames.includes(ah.title);
 	    });
 	    /* VUE2.6 PASSTHROUGH FIX no longer needed
@@ -476,7 +478,7 @@ export const RcTable = {
     template: `
 
        <v-card>
-	  <v-card-title>
+	  <v-card-title class="no-print">
 
 	    <rc-table-toolbar
 	      v-model:search="searchLocal"
@@ -500,6 +502,7 @@ export const RcTable = {
 	      v-model:items-per-page="localItemsPerPage"
 
               :page-name="pageName"
+
 	      >
 	      
 	      <template v-slot:toolbar-buttons>
@@ -536,7 +539,7 @@ export const RcTable = {
 	    dense
 	    show-expand
 	    
-	    show-select
+	    :show-select="showSelect"
 	    
 	    v-model="selectedLocal"
 	    return-object

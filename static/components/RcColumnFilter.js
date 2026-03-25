@@ -417,7 +417,7 @@ export const RcColumnFilter = {
 	      <template v-slot:activator="{ props: tooltip }">
 		<v-chip
 		  v-bind="mergeProps(menu,tooltip)"
-		  class="pa-1"
+		  class="pa-1 no-print"
 		  variant="text"
 		  style="min-width:0"
 		  >
