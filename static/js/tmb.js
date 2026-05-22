@@ -521,10 +521,16 @@ var tmb = (function() {
 	    if (_.isDate(range[1])) endDate = range[1];
 	    else endDate = tmb.dateFromYoda(range[1]);
 
+	    startDate.setHours(0,0,0,0);
+	    endDate.setHours(0,0,0,0);
+	    
 	    let current = _.clone(startDate);
 	    while (current<=endDate) {
-		ans.push(new Date(current));
-		current.setDate(current.getDate()+1);		
+		let nd = new Date(current);
+		nd.setHours(0,0,0,0);
+		ans.push(nd);
+		//ans.push(new Date(current));
+		current.setDate(current.getDate()+1);
 	    }
 	}
 	//console.log('DATES BETWEEN:',ans);
