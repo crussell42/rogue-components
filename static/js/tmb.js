@@ -428,7 +428,102 @@ var tmb = (function() {
     }
     ///////////////////////////NAMED DATE RANGES/////////////////////// 
     // Date Range Names...these are always handy when doing metrics and very commonly used..
+
+    tmb.scrubd = function(d) {
+	return new Date(d.setHours(0,0,0,0));
+    }
+    tmb.dateRangeFuncMap = {
+	//yes I know that at precisely midnight this wont work.
+	//Assumes week from monday to sunday
+	'Today': ()=>{
+	    let startDate = new Date();
+	    let endDate = new Date();
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];},
+	'This Week': ()=>{
+	    let endDate = new Date();
+	    let startDate = tmb.dateFromYoda(tmb.adjustToFirstDayOfWeek(tmb.yoda(endDate)))
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'Last Week': () =>{	    
+	    let newStartDateStr = tmb.adjustDayOfDateStr(tmb.adjustToFirstDayOfWeek(tmb.yoda(new Date())),-7);
+	    let startDate = tmb.dateFromYoda(newStartDateStr);
+	    let endDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(newStartDateStr,6));
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'This Month': () =>{
+	    let startDate = new Date();
+	    let endDate = new Date()
+	    startDate.setDate(1); //set date to first day of month.
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'This Quarter': () =>{
+	    let startDate = new Date();
+	    let endDate = new Date();
+	    //??startDate = new Date(endDate);
+	    let maxQtrMonth = (Math.floor(endDate.getMonth()/3)) * 3;
+	    startDate.setMonth(maxQtrMonth,1);
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'This Year': () => {
+	    let startDate = new Date();
+	    let endDate = new Date();
+	    startDate.setMonth(0);		
+	    startDate.setDate(1);
+
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'Last 7 days': ()=>{
+	    let startDate = new Date();
+	    let endDate = new Date();
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-6));
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'Last 30 days': ()=> {
+	    let startDate = new Date();
+	    let endDate = new Date();	    
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-29));
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'1 Year(365 days)': ()=> {
+	    let startDate = new Date();
+	    let endDate = new Date();	    
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-364));
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'2 Year(730 days)': ()=> {
+	    let startDate = new Date();
+	    let endDate = new Date();	    
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-364 * 2));
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'3 Year(1095 days)': ()=> {
+	    let startDate = new Date();
+	    let endDate = new Date();	    
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-364 * 3));
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'4 Year(1460 days)': ()=> {
+	    let startDate = new Date();
+	    let endDate = new Date();	    
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-364 * 4));
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	},
+	'5 Year(1825 days)': ()=> {
+	    let startDate = new Date();
+	    let endDate = new Date();	    
+	    startDate = tmb.dateFromYoda(tmb.adjustDayOfDateStr(tmb.yoda(startDate),-364 * 5));
+	    return [tmb.scrubd(startDate),tmb.scrubd(endDate)];
+	}
+    }
     
+    tmb.dateRangeFunc = function(rangeName) {
+	if (tmb.dateRangeFuncMap.hasOwnProperty(rangeName)) {
+	    //console.log('tmb.dateRangeFunc:',rangeName);
+	    
+	    return tmb.dateRangeFuncMap[rangeName]();
+	}
+	return [tmb.yoda(),tmb.yoda()];
+    }
     
     tmb.commonDateRangeNames = ['Today','This Week','Last Week','This Month','This Quarter','This Year','Last 7 days','Last 30 days','Custom'];
 
@@ -520,7 +615,6 @@ var tmb = (function() {
 	    let endDate = null
 	    if (_.isDate(range[1])) endDate = range[1];
 	    else endDate = tmb.dateFromYoda(range[1]);
-
 	    startDate.setHours(0,0,0,0);
 	    endDate.setHours(0,0,0,0);
 	    
@@ -531,6 +625,7 @@ var tmb = (function() {
 		ans.push(nd);
 		//ans.push(new Date(current));
 		current.setDate(current.getDate()+1);
+		//current.setHours(0,0,0,0);
 	    }
 	}
 	//console.log('DATES BETWEEN:',ans);
