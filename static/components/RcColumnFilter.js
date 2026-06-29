@@ -71,6 +71,7 @@ export const RcColumnFilter = {
 	stringarrayfield: {type: Boolean, defaut: false},
 	arrayfield: {type: Boolean, defaut: false},
 	showexclude: {type: Boolean, default: true},
+	//multiple: {type: Boolean, default: true},
 	
 	anycolumnfiltersselected: {type: Number, default: 0}, //.sync int force re-filter from parent.
 
@@ -104,7 +105,7 @@ export const RcColumnFilter = {
 	const localSelectedIncludeValues = twoWay('include');
 	if (localSelectedIncludeValues.length>0) console.log('SETUP HAS INCLUDE VALUES:',localSelectedIncludeValues);
 	//const localSelectedExcludeValues = twoWay('exclude');
-
+	
 	return {
 	    localSelectedIncludeValues,
 	    localSelectedExcludeValues,
@@ -328,6 +329,7 @@ export const RcColumnFilter = {
 		if (cfaIndex>=0) {
 		    //remove it since its all empty
 		    //console.log('deleting because empty');
+		    //console.log('DELETING selectedColumnFilterLocal value at index ['+cfaIndex+']');
 		    this.selectedColumnFiltersLocal.splice(cfaIndex,1);
 		}
 	    } else {
