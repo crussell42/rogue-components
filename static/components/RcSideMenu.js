@@ -31,9 +31,15 @@ import {ref,reactive,computed,toRaw,toValue} from 'vue'
 	Then, you can set the state of the side menu by changing the opened array:
 	e.g. opened.push('a-1') would force the 2nd menu item open.
 */
-
+export const sideMenuItems = reactive([]);
 export function useSideMenuItems(override) {
-    if (override) sideMenuItems.value = override;
+    //if (override) sideMenuItems.value = override;
+    if (override) {
+	//sideMenuItems.splice(0);
+	//sideMenuItems = override;
+	Object.assign(sideMenuItems,override);
+	//console.log('useSideMenuItems override:',sideMenuItems);
+    }
     return {
 	opened,
 	sideMenuItems,
@@ -43,7 +49,8 @@ export function useSideMenuItems(override) {
 
 
 //ordered list
-export const sideMenuItems = ref([
+
+export const XXsideMenuItems = ref([
 
     {label:'Home', icon:'mdi-home', to: '/'},
     {label:'Settings', icon:'mdi-cogs', active: false, subItems: [
@@ -79,19 +86,20 @@ export const RcSideMenu = {
     setup(props,ctx) {
 	const userCtxName = (varName) => {return 'osf_user_'+props.user.id+'_'+varName};
 
-	const {sideMenuItems} = useSideMenuItems();
+	//const {sideMenuItems} = useSideMenuItems();
 
-	let localSideMenuItems = [];
+	//let localSideMenuItems = reactive(props.items);
 
-	if (props.items) {
-	    localSideMenuItems = toRaw(props.items); //LOCAL
-	} else {
-	    localSideMenuItems = toRaw(sideMenuItems); //GLOBAL
-	}
-
+	//if (props.items) {
+	    //localSideMenuItems = toRaw(props.items); //LOCAL
+	    //localSideMenuItems = props.items; //LOCAL
+	//} else {
+	    //localSideMenuItems = toRaw(sideMenuItems); //GLOBAL
+	//}
+	//console.log('setup localSideMenuItems:',localSideMenuItems);
 	return {
 	    toValue,
-	    localSideMenuItems,
+	    //localSideMenuItems,
 	    //sideMenuItems,
 	    collapseSubMenus,
 	    opened,
@@ -100,10 +108,17 @@ export const RcSideMenu = {
     },
     data() { return {
 	hot: null,
-	opened: [],
+	//WTFDUDE opened: [],
     }},
     computed: {
 
+	localSideMenuItems() {
+	    //return this.items;
+	    if (this.items && (this.items.length>0)) return this.items;
+	    //console.log('USING GLOBAL:',sideMenuItems);
+	    return sideMenuItems;
+	},
+	
 	localRail: {
 	    get: function() { return this.rail},
 	    set: function(val) {
@@ -114,6 +129,9 @@ export const RcSideMenu = {
 	menuItemsWithKeys() {
 	    //For the n depth expanding/contracting menu to work, each group must have unique id.
 	    //Kinda hackey but it works...In theory, we could just use the label or label.label.label...
+
+	    let items = toRaw(this.localSideMenuItems);
+	    
 	    let outterCount = 0; //HACK 
 	    const keyItems = (objArr,depth,count) => {
 		//console.log('keyItems typeof:',typeof(objArr));
@@ -124,10 +142,13 @@ export const RcSideMenu = {
 		    outterCount+=1;
 		    obj.key = depthPrefixes[depth]+'-'+outterCount;
 		    if (obj.subItems && obj.subItems.length>0) keyItems(obj.subItems,depth+1,outterCount);
-		});
+		});		
 	    }
 	    keyItems(this.localSideMenuItems,0,outterCount);
+	    console.log('RcSideMenu menuItemsWithKeys:',this.localSideMenuItems);
 	    return this.localSideMenuItems;
+	    //keyItems(items,0,outterCount);
+	    //return items;
 	},
     },
     methods: {
@@ -153,6 +174,7 @@ export const RcSideMenu = {
 	},
     },
     mounted() {
+	
 	let openedWussVal = this.wussGet('menuState');
 	if (openedWussVal) this.opened = openedWussVal;
 
@@ -161,7 +183,7 @@ export const RcSideMenu = {
 	
 	let railWussVal = this.wussGet('railState');
 	if (railWussVal!=null) this.localRail = railWussVal;
-
+	
 	//console.log('RcSideMenu.mounted opened:',this.opened,' hot:',this.hot,' rail:',this.rail);
 	//example of controlling menu programatically
 	//this.rail = false; (opens full side menu)
@@ -175,7 +197,7 @@ export const RcSideMenu = {
 	//},
 	opened: {
 	    handler(v,p) {
-		//console.log('opened watcher:',v,' prev:',p);
+		//console.log('RcSideMenu.opened watcher:',v,' prev:',p);
 		//always open full menu when going from empty to not empty.
 		if ((p)&&(p.length==0)&&(v)&&(v.length>0)) this.localRail = false;
 		this.wussSet('menuState',this.opened);
@@ -194,7 +216,6 @@ export const RcSideMenu = {
     //  @update:opened="v=> openedUpdated(v)"
     //
     template: `
-
 
 <v-list
   density="compact" 
