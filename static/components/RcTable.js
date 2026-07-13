@@ -91,6 +91,9 @@ export const RcTable = {
 	itemsPerPage: {type: Number, default: 100},
 	page: {type: Number, default: 1},
 	showSelect: {type: Boolean, default: true},
+	showExpand: {type: Boolean, default: false},
+
+	hidetoolbar: {type: Boolean, default: false},
     },
     setup(props,ctx) {
 	//const dataItems = ref(props.items);
@@ -481,6 +484,9 @@ export const RcTable = {
 	  <v-card-title class="no-print">
 
 	    <rc-table-toolbar
+	      
+	      v-if="!hidetoolbar"
+	      
 	      v-model:search="searchLocal"
 
 	      :title="title"
@@ -519,7 +525,7 @@ export const RcTable = {
 
 	  <!-- note absence of :search="search". We want the text search filter to run in method searchFilterReduce (RcTableMixins) -->
 	  <!-- :show-select="!xs" :disable-sort="xs" -->
-	  
+	  <!-- show-expand -->
 	  <v-data-table
 
 	    :items="filtereditems"
@@ -537,8 +543,8 @@ export const RcTable = {
 	    class="elevation-1"
 	    
 	    dense
-	    show-expand
-	    
+
+	    :show-expand="showExpand"
 	    :show-select="showSelect"
 	    
 	    v-model="selectedLocal"
@@ -690,7 +696,9 @@ export const RcTable = {
 	    <template v-slot:tfoot>	      
 
 	      <tr>
-		<td/>
+
+		<td v-if="showSelect"></td>
+
 		<td v-for="visHead in visibleHeaders" align="right" class="pr-4">
 		  <b v-if="visHead.hasOwnProperty('totaler')">
 		    <v-divider></v-divider>
@@ -703,8 +711,8 @@ export const RcTable = {
 	    </template>
 
 	    <template v-slot:bottom>
-              <!--
-	      <span>
+              
+	      <span v-if="hidetoolbar && (itemsPerPage > -1)">
 		<v-spacer></v-spacer>
 		<div>
 		  <rc-pagination
@@ -715,7 +723,7 @@ export const RcTable = {
 		  </rc-pagination>
 		</div>
 	      </span>
-              -->
+              
 	    </template>
 
 	  </v-data-table>
