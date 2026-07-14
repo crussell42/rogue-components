@@ -1,4 +1,4 @@
-import {ref, reactive, mergeProps} from 'vue'
+import {ref, reactive, mergeProps,toValue} from 'vue'
 import {useDisplay} from 'vuetify'
 
 import {RcPagination} from './RcPagination.js'
@@ -127,8 +127,18 @@ export const RcTableToolbar = {
 	//},
 	
 	computedheaders() {
-	    if (typeof(this.allheaders) == 'object') return this.allheaders;
-	    else return this.allheaders();
+	    console.log('computedheaders isFunction:',_.isFunction(this.allheaders));
+	    //if (_.isFunction(this.allheaders)) return this.allheaders();
+	    //else return this.allheaders;
+	    //else return this.allheaders();
+	    //return toValue(this.allheaders);
+	    if (typeof(this.allheaders) == 'object') {
+		console.log('     using OBJECT form');
+		return this.allheaders;
+	    } else {
+		console.log('     using METHOD form');
+		return this.allheaders();
+	    }
 	},
 	
 	fullExportFileName() {

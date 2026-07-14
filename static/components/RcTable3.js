@@ -1,8 +1,8 @@
-import {ref,reactive,toValue} from 'vue'
+import {ref,reactive,toValue,computed} from 'vue'
 import {useDisplay} from 'vuetify'
 import {RcTableToolbar} from './RcTableToolbar.js'
 import {RcSelectMenu} from './RcSelectMenu.js'
-import {RcColumnFilter} from './RcColumnFilter.js'
+import {RcColumnFilter3} from './RcColumnFilter3.js'
 import {RcPagination} from './RcPagination.js'
 
 /*
@@ -16,7 +16,7 @@ import {RcPagination} from './RcPagination.js'
 	}
 */
 
-export const localHeaders = ref([]);
+//ZZZexport const localHeaders = ref([]);
 
 
 /* Composable to add a value to a column filters selectedValues in a column filter. 
@@ -53,11 +53,11 @@ export const addColumnFilterValues = (columnName,includeValues,excludeValues) =>
     
 }
 
-export const RcTable = {
+export const RcTable3 = {
     components: {
 	RcTableToolbar,
 	RcSelectMenu,
-	RcColumnFilter,
+	RcColumnFilter3,
 	RcPagination,
     },
     props:  {
@@ -70,7 +70,8 @@ export const RcTable = {
 	pageName: {type:String, default: 'someuniquepagenameusedforcontext'},
 	
 	//Header props
-	allheaders: null,
+	//allheaders: null,
+	allheaders: {type: Object, default(rawProps) {return []}},
 	visibleheadernames:  {type: Object, default(rawProps) {return []}},
 
 	//TOOLBAR PASSTHROUGH PROPS using localSearch.
@@ -98,12 +99,32 @@ export const RcTable = {
     setup(props,ctx) {
 	//const dataItems = ref(props.items);
 
+	function twoWay(name) {
+	    if (props.hasOwnProperty(name)) {
+		return computed({
+		    get: function() {
+			return props[name]; //not here || {};
+		    },
+		    set: function(val) {
+			context.emit("update:"+name,val);
+		    },
+		});
+	    } else {
+		console.log('No Property named:',name);
+	    }
+	    return null;
+	};
+
+
+	
 	const colorizeSetup = ref(props.colorizerows);
 	const localItemsPerPage = ref(props.itemsPerPage);
 	const localPage = ref(props.page);
 
 	//localHeaders.value = props.allheaders();
-	localHeaders.value = toValue(props.allheaders);
+	//ZZZlocalHeaders.value = toValue(props.allheaders);
+	const localHeaders = twoWay('allheaders');
+	
 
 	const { xs,smAndDown } = useDisplay();
 
@@ -578,18 +599,18 @@ export const RcTable = {
 
 	    <template v-for="bhead in visibleHeaders" v-slot:[bhead.header_slot_name]="{ column }">
 
-	      <rc-column-filter v-if="column.hasOwnProperty('columnfilter')"
+	      <rc-column-filter3 v-if="column.hasOwnProperty('columnfilter')"
 		:header="column"
 		:items="allitems"
                 :showexclude="column.columnfilter.showexclude"
                 :arrayfield="column.columnfilter.arrayfield"
                 :stringarrayfield="column.columnfilter.stringarrayfield"
 
-		v-model:selectedcolumnfilters="selectedColumnFiltersLocal"
+		:selectedcolumnfilters="selectedColumnFiltersLocal"
 		v-model:include="column.columnfilter.include"
 		v-model:exclude="column.columnfilter.exclude"
 		>
-	      </rc-column-filter>
+	      </rc-column-filter3>
 
 	      <v-tooltip v-if="bhead.sortable ||(bhead.sortable == undefined)" location="top">
 		<template v-slot:activator="{ props: tooltip }">			  
