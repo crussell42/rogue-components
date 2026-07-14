@@ -711,20 +711,48 @@ export const RcTable = {
 	      </tr>	      
 	    </template>
 
+	    <template v-slot:top>
+	      <div class="no-print">
+		<v-row>
+		  <v-col cols="10">		    
+		  </v-col>
+		  <v-spacer></v-spacer>              
+		  <v-col cols="2">
+		    <span v-if="hidetoolbar && (itemsPerPage > -1)">		  
+		      <div>
+			<rc-pagination
+			  :filtereditems="filtereditems"
+			  v-model:page="localPage"
+			  v-model:items-per-page="localItemsPerPage">
+			  
+			</rc-pagination>
+		      </div>
+		    </span>
+		  </v-col>
+		</v-row>
+	      </div>
+	    </template>
+	    
 	    <template v-slot:bottom>
-              
-	      <span v-if="hidetoolbar && (itemsPerPage > -1)">
-		<v-spacer></v-spacer>
-		<div>
-		  <rc-pagination
-		    :filtereditems="filtereditems"
-		    v-model:page="localPage"
-		    v-model:items-per-page="localItemsPerPage">
-		    
-		  </rc-pagination>
-		</div>
-	      </span>
-              
+	      <div class="no-print">
+		<v-row>
+		  <v-col cols="10">		    
+		  </v-col>
+		  <v-spacer></v-spacer>              
+		  <v-col cols="2">
+		    <span v-if="hidetoolbar && (itemsPerPage > -1)">		  
+		      <div>
+			<rc-pagination
+			  :filtereditems="filtereditems"
+			  v-model:page="localPage"
+			  v-model:items-per-page="localItemsPerPage">
+			  
+			</rc-pagination>
+		      </div>
+		    </span>
+		  </v-col>
+		</v-row>
+	      </div>
 	    </template>
 
 	  </v-data-table>
