@@ -1,0 +1,268 @@
+import {ref, reactive, mergeProps} from 'vue'
+import {useDisplay} from 'vuetify'
+
+export const RcPagination3 = {
+    components: {
+    },
+
+    props: {
+	filtereditems: null,
+	page: {type:Number, default: 1},
+	itemsPerPage: {type:Number, default: 100},
+	btncolor: {type: String, default: 'primary'},
+    },
+    setup(props,context) {
+	const { xs,smAndDown } = useDisplay();
+	return {
+	    xs, smAndDown,
+	}
+    },
+    data: function() {
+	return {
+	    rowsPerPageItems: [
+		{value:5,title:" 5 Records"},
+		{value:10,title:" 10 Records"},
+		{value:20,title:" 20 Records"},
+		{value:100,title:" 100 Records"},
+		{value:-1,title:'All'}],
+	    
+	    showipp: false,
+
+	}
+    },
+    computed: {
+
+	localPage: {
+	    get: function() {
+		//console.log('rc-pagination read page:',this.page);
+		return this.page;
+	    },
+	    set: function(value) {
+		//console.log('rc-pagination emit update:page:',value);
+		this.$emit('update:page',value);
+	    }	    
+	},
+
+	localItemsPerPage: {
+	    get: function() {
+		return (this.itemsPerPage*1);
+	    },
+	    set: function(value) {
+		this.$emit('update:itemsPerPage',value);
+	    }	    
+	},
+	
+	
+	totalRecords() {
+	    if (this.filtereditems) return this.filtereditems.length;
+	    return 0;
+
+	},
+	pageCount() {
+	    if (this.localItemsPerPage<0) return 1;
+            else return Math.ceil(this.totalRecords / this.localItemsPerPage);
+	},
+	paginationSummary() {
+	    let pe = (((this.localPage) * (this.localItemsPerPage<0?this.totalRecords:this.localItemsPerPage)));
+	    let maxRec = (pe>this.totalRecords)?this.totalRecords:pe;
+	    let startRecNum = ((this.localPage - 1) * this.localItemsPerPage)+1;
+	    if (startRecNum > maxRec) {
+		//console.log('WOAH BROTHER');
+		this.setPage(1);
+	    }
+	    return 'p'+this.localPage+' ('+startRecNum+'-'+maxRec+') of '+this.totalRecords;
+	},
+	mobilePaginationSummary() {
+	    let pe = (((this.localPage) * (this.localItemsPerPage<0?this.totalRecords:this.localItemsPerPage)));
+	    let maxRec = (pe>this.totalRecords)?this.totalRecords:pe;
+	    return 'rec('+(((this.localPage-1) * this.localItemsPerPage)+1)+'..'+maxRec+')';
+	},
+
+	
+    },
+    methods: {
+	mergeProps,
+	incrPage() {
+	    if (this.localPage<this.pageCount) this.localPage=this.localPage+1;
+	},
+	decrPage() {
+	    if (this.localPage>1) this.localPage=this.localPage-1;
+	},
+	setPage(val) {
+	    this.localPage = (val*1);
+	},
+
+
+	ctxName(varName) {
+	    
+	    //if ((this.pageName)&&(this.pageName.length>0)) {
+	    //	return 'osf_'+this.pageName + '_'+varName;
+	    //}
+	    //Application wide (user) setting 
+	    //let pname = window.location.pathname.split('/').pop();
+            //if (pname) {
+	    //	let qname = pname.split('?');
+	    //	if (qname.length>0) {
+	    //	    qname = qname.shift();
+	    //	    return 'osf_'+qname+'_'+varName;
+	    //	} else {
+	    //	    return 'osf_'+pname+'_'+varName;
+	    //	}
+	    //}
+	    return 'osf_'+varName;
+	},
+
+	
+    },
+    mounted() {
+	if (window.sessionStorage) {
+	    if (window.sessionStorage.getItem(this.ctxName('pagination'))) {
+		let savedPagination = JSON.parse(window.sessionStorage.getItem(this.ctxName('pagination')));
+		//this.localPage = savedPagination.page;
+		if (savedPagination) this.localItemsPerPage = savedPagination.itemsPerPage;
+	    }
+	}
+
+    },
+    watch: {
+	//filtereditems: function(val,oldVal) {
+	//    console.log('filtereditems.length:',this.filtereditems.length);
+	//},
+	localItemsPerPage: function(val,oldVal) {
+	    //Ugly but effective way to close the activator menu when the v-select for number of items per page
+	    //value changes.
+	    if (val !== oldVal) {
+		this.showipp=false;
+
+		if (window.sessionStorage) {		    
+		    window.sessionStorage.setItem(this.ctxName('pagination'),JSON.stringify({itemsPerPage:val}));
+		}
+	    }
+	    
+	},
+    },
+
+
+    template: `
+	<v-col>
+	  <v-row v-if="!xs">
+
+	    <v-menu
+	      v-model="showipp"
+	      :close-on-content-click="false"
+              class="pa-0"
+	      
+	      >
+
+
+	      <template v-slot:activator="{ props: menu }">		  
+		<v-tooltip location="top">
+		  <template v-slot:activator="{ props: tooltip }">		      
+		    <v-btn
+		      density="compact"
+		      min-width="136" width="136"
+		      variant="outlined"
+		      class="elevation-1"
+		      :color="btncolor"
+		      v-bind="mergeProps(menu,tooltip)"
+                      
+		      >
+		      <div class="text-caption">{{paginationSummary}}</div>
+		    </v-btn>
+		  </template>
+		  <span>Select Rows Per Page</span>
+		</v-tooltip>
+	      </template>
+	      
+	      <v-card width="300">
+		<v-card-text>
+		  <div class="text-caption text-center">Select Rows Per Page</div>
+		  <v-select
+		    :items="rowsPerPageItems"
+		    v-model="localItemsPerPage"
+		    density="compact"
+		    >
+		  </v-select>
+		  
+		</v-card-text>
+	      </v-card>			  
+	    </v-menu>
+	      
+	  </v-row>
+	    
+          <v-row>
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">		      
+		<v-btn :disabled="((itemsPerPage<0)||(localPage<=1))"
+		       @click="decrPage"
+		       density="compact"
+		       min-width="30" width="30"
+		       variant="outlined"
+		       class="elevation-1"
+		       :color="btncolor"
+		       v-bind="tooltip">
+		  <v-icon>mdi-chevron-left</v-icon>
+		</v-btn>
+	      </template>
+	      Previous Page
+	    </v-tooltip>
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">		      	      
+		<v-btn :disabled="((itemsPerPage<0)||(localPage<=1))"
+		       @click="setPage(1)"
+		       density="compact"
+		       min-width="30" width="30"
+		       variant="outlined"
+		       class="elevation-1"
+		       :color="btncolor"
+		       v-bind="tooltip">
+		  <v-icon>mdi-page-first</v-icon>
+		</v-btn>		  
+	      </template>
+	      First Page
+	    </v-tooltip>
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">		      		  
+		<v-btn :disabled="(localPage==pageCount)"
+		       @click="setPage(pageCount)"
+		       density="compact"
+		       min-width="30" width="30"
+		       variant="outlined"
+		       class="elevation-1"
+		       :color="btncolor"
+		       v-bind="tooltip">
+		  <v-icon>mdi-page-last</v-icon>
+		</v-btn>
+	      </template>
+	      Last Page
+	    </v-tooltip>
+	    
+	    <v-tooltip location="bottom">
+	      <template v-slot:activator="{ props: tooltip }">		      
+		<v-btn :disabled="(localPage==pageCount)"
+		       @click="incrPage"
+		       density="compact"
+		       min-width="30" width="30"
+		       variant="outlined"
+		       class="elevation-1"
+		       :color="btncolor"
+		       v-bind="tooltip">
+		  <v-icon>mdi-chevron-right</v-icon>
+		</v-btn>
+	      </template>
+	      Next Page
+	    </v-tooltip>
+
+	    <span class="text-caption" v-if="xs">{{mobilePaginationSummary}}</span>
+
+	    
+	  </v-row>
+	</v-col>
+
+
+    `,
+
+}
