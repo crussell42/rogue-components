@@ -3,7 +3,7 @@ import {useDisplay} from 'vuetify'
 import {RcTableToolbar} from './RcTableToolbar.js'
 import {RcSelectMenu} from './RcSelectMenu.js'
 import {RcColumnFilter3} from './RcColumnFilter3.js'
-import {RcPagination} from './RcPagination.js'
+import {RcPagination3} from './RcPagination3.js'
 
 /*
 	pushTableFilter: function(columnKey,includes,excludes) {
@@ -58,7 +58,7 @@ export const RcTable3 = {
 	RcTableToolbar,
 	RcSelectMenu,
 	RcColumnFilter3,
-	RcPagination,
+	RcPagination3,
     },
     props:  {
 	allitems: null,
@@ -95,6 +95,7 @@ export const RcTable3 = {
 	showExpand: {type: Boolean, default: false},
 
 	hidetoolbar: {type: Boolean, default: false},
+	totalerOffset: {type: Number, default: 0},
     },
     setup(props,ctx) {
 	//const dataItems = ref(props.items);
@@ -106,7 +107,7 @@ export const RcTable3 = {
 			return props[name]; //not here || {};
 		    },
 		    set: function(val) {
-			context.emit("update:"+name,val);
+			ctx.emit("update:"+name,val);
 		    },
 		});
 	    } else {
@@ -118,9 +119,13 @@ export const RcTable3 = {
 
 	
 	const colorizeSetup = ref(props.colorizerows);
-	const localItemsPerPage = ref(props.itemsPerPage);
-	const localPage = ref(props.page);
 
+	//WINGLEBAT
+	//const localItemsPerPage = ref(props.itemsPerPage);
+	//const localPage = ref(props.page);
+	const localItemsPerPage = twoWay('itemsPerPage');
+	const localPage = twoWay('page');
+	
 	//localHeaders.value = props.allheaders();
 	//ZZZlocalHeaders.value = toValue(props.allheaders);
 	const localHeaders = twoWay('allheaders');
@@ -164,6 +169,7 @@ export const RcTable3 = {
 	    localHeaders,
 	    xs,
 	    smAndDown,
+
 	}
     },
     data() {	
@@ -181,6 +187,7 @@ export const RcTable3 = {
 	    lastSelected: null,
 	    currentSelected: null,
 	    currentItems: [],
+	    
 	}
     },
     computed: {
@@ -315,7 +322,7 @@ export const RcTable3 = {
 	
 	bulkSelect: function(a,b,c) {
 	    if ((a.length>this.selectedLocal.length)&&(window.shiftKeyOn)) {
-		if (!this.currentItems) this.currentItems = this.filtereditems;
+		if (!this.currentItems) this.currentItems = this.filtereditems?this.filtereditems:[];
 		//console.log('bulkSelect currentItems length:',this.currentItems);
 		let visibleItems = this.currentItems.map((ci)=>{return ci.raw});
 		let newItem = null;
@@ -580,6 +587,8 @@ export const RcTable3 = {
             :row-props="rowColor"
 
 	    :mobile="xs"
+
+	    class="dog-footer"
 	    >
 	    <!--
 		Vuetify 3 things that dont work now.
@@ -589,8 +598,14 @@ export const RcTable3 = {
 
                 Note cell-props works like row-props
 	    -->
-	    
 
+
+	    <!-- PASSTHROUGH SLOTS -->
+	    
+	    <template v-for="(_, name) in $slots" v-slot:[name]="slotData">
+              <slot :name="name" v-bind="slotData" />
+	    </template>
+	    
 	    <!-- COLUMN FILTERS -->
 	    <!--
 	    <template v-for="bhead in visibleHeaders.filter((h) => (h.hasOwnProperty('columnfilter')) )" v-slot:[bhead.header_slot_name]="{ column }">
@@ -613,12 +628,13 @@ export const RcTable3 = {
 	      </rc-column-filter3>
 
 	      <v-tooltip v-if="bhead.sortable ||(bhead.sortable == undefined)" location="top">
-		<template v-slot:activator="{ props: tooltip }">			  
+		<template v-slot:activator="{ props: tooltip }">
+		  <!--class="pa-0" -->
 		  <v-chip
-		    v-bind="tooltip"
-		    class="pa-0"
+		    v-bind="tooltip"		    
 		    variant="text"
 		    style="cursor:pointer!important;"
+		    :class="'pa-0'+((column.title == 'Actions')?' no-print':'')"
 		    >
 		    <template v-slot:append>
 		      <v-icon v-show="isAscSort(bhead.key)">mdi-chevron-up</v-icon>
@@ -632,7 +648,7 @@ export const RcTable3 = {
 
 	      <v-chip
 		v-else
-		class="pa-0"
+		:class="'pa-0'+((column.title == 'Actions')?' no-print':'')"
 		variant="text"
 		style="cursor:pointer!important;"
 		>
@@ -713,36 +729,40 @@ export const RcTable3 = {
 		>
 	      </v-checkbox>
 	    </template>
+style="background-color:pink;opacity:1 !important;"
+#9c27b0 == 'purple lighten-3'
 	    -->
 	    
-	    <template v-slot:tfoot>	      
+	    <template v-slot:tfoot="{ items }">	      
+	      <tfoot style="background-color:#9c27b0;color:white;opacity:1 !important;position:sticky;bottom:0;">
+		<tr>
+		  <td v-for="n in totalerOffset"></td>
+		  <!--<td v-if="showSelect"></td>-->
 
-	      <tr>
-
-		<td v-if="showSelect"></td>
-
-		<td v-for="visHead in visibleHeaders" align="right" class="pr-4">
-		  <b v-if="visHead.hasOwnProperty('totaler')">
-		    <v-divider></v-divider>
-		    <strong>
-		      {{visHead.totaler(filtereditems,visHead.key)}}
-		    </strong>
-		  </b>
-		</td>
-	      </tr>	      
+		  <td v-for="visHead in visibleHeaders" align="right" class="pr-4 grey--text">
+		    <b v-if="visHead.hasOwnProperty('totaler')">
+		      <v-divider></v-divider>
+		      <strong>
+			{{visHead.totaler(filtereditems,visHead.key)}}
+		      </strong>
+		    </b>
+		  </td>
+		</tr>
+	      </tfoot>
 	    </template>
 
-	    <template v-slot:bottom>
-              
+
+	    <template v-slot:bottom>              
 	      <span v-if="hidetoolbar && (itemsPerPage > -1)">
 		<v-spacer></v-spacer>
 		<div>
-		  <rc-pagination
+		  <!-- NOT REALLY NEEDED since we can pull pagination out.
+		  <rc-pagination3
 		    :filtereditems="filtereditems"
 		    v-model:page="localPage"
-		    v-model:items-per-page="localItemsPerPage">
-		    
-		  </rc-pagination>
+		    v-model:items-per-page="localItemsPerPage">		    
+		  </rc-pagination3>
+		  -->		  
 		</div>
 	      </span>
               

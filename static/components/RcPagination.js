@@ -53,7 +53,7 @@ export const RcPagination = {
 	
 	
 	totalRecords() {
-            return this.filtereditems.length
+            return this.filtereditems?.length
 	},
 	pageCount() {
 	    if (this.localItemsPerPage<0) return 1;
