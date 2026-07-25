@@ -588,7 +588,6 @@ export const RcTable3 = {
 
 	    :mobile="xs"
 
-	    class="dog-footer"
 	    >
 	    <!--
 		Vuetify 3 things that dont work now.
@@ -601,9 +600,21 @@ export const RcTable3 = {
 
 
 	    <!-- PASSTHROUGH SLOTS -->
-	    
+	    <!-- THIS CAUSES MASSIVE DELAY BETWEEN TABS
 	    <template v-for="(_, name) in $slots" v-slot:[name]="slotData">
               <slot :name="name" v-bind="slotData" />
+	    </template>
+	    -->
+	    <template v-slot:header.data-table-group>
+	      <!--just blank it out for now. not sure of bindings
+	      <slot name="data-table-group" v-bind="scope">	    
+	      </slot>	      
+	      -->
+	    </template>
+
+	    <template v-slot:group-header="{ item, columns, toggleGroup, isGroupOpen }">
+	      <slot name="group-header" v-bind="{ item, columns, toggleGroup, isGroupOpen }">	    
+	      </slot>
 	    </template>
 	    
 	    <!-- COLUMN FILTERS -->
