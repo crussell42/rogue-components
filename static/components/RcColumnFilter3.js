@@ -207,9 +207,25 @@ export const RcColumnFilter3 = {
 		} else {
 		    //SINGLE VALUE STRING.
 		    if (_.isFunction(this.header.value)) {
-			ans = [...new Set(this.items.map(item => tmb.nub(this.header.value(item)))) ];		
+			ans = [
+			    ...new Set(
+				this.items.map(item => {
+				    let v = this.header.value(item);
+				    if (v == null) return null;
+				    else return tmb.nub(v);
+				})
+			    )
+			];		
 		    } else {		    
-			ans = [...new Set(this.items.map(item => tmb.nub(_.get(item,this.header.key)))) ];
+			ans = [
+			    ...new Set(
+				this.items.map(item => {
+				    let v = _.get(item,this.header.key);
+				    if (v == null) return null;
+				    else return tmb.nub(v);
+				})
+			    )
+			];
 		    }
 		}
 		
@@ -281,7 +297,8 @@ export const RcColumnFilter3 = {
 	mySort(a,b) {
 	    let aa = tmb.nub(''+a);
 	    let bb = tmb.nub(''+b);
-	    return aa.localeCompare(bb,{'sensitivity':'base'});
+	    //return aa.localeCompare(bb,{'sensitivity':'base'});
+	    return (a===null)?-1:(b===null)?1:aa.localeCompare(bb,{'sensitivity':'base'}); //float nulls to top.
 	},
 
 	clearFilter() {

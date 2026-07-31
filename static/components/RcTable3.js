@@ -589,27 +589,14 @@ export const RcTable3 = {
 	    :mobile="xs"
 
 	    >
-	    <!--
-		Vuetify 3 things that dont work now.
-		:item-class="rowColor"	    
-		@current-items="curItems"
-		See 	    @update:options="curItems($event)"
-
-                Note cell-props works like row-props
-	    -->
-
-
 	    <!-- PASSTHROUGH SLOTS -->
 	    <!-- THIS CAUSES MASSIVE DELAY BETWEEN TABS
 	    <template v-for="(_, name) in $slots" v-slot:[name]="slotData">
               <slot :name="name" v-bind="slotData" />
 	    </template>
 	    -->
+
 	    <template v-slot:header.data-table-group>
-	      <!--just blank it out for now. not sure of bindings
-	      <slot name="data-table-group" v-bind="scope">	    
-	      </slot>	      
-	      -->
 	    </template>
 
 	    <template v-slot:group-header="{ item, columns, toggleGroup, isGroupOpen }">
@@ -665,43 +652,21 @@ export const RcTable3 = {
 		>
 		<strong>{{ column.title }}</strong>
 	      </v-chip>
-
 	      
 	    </template>
 
-
-	    <!-- Expand Item -->
 	    <template v-slot:expanded-row="{ columns, item }">
 	      <td :colspan="columns.length">
 		<v-card>
 		  <div class="block-content" style="background:cyan;">
-		    <!--change item.raw to just item to see the meta info on each row-->
 		    <pre style="white-space: pre-wrap;">{{JSON.stringify(item,null,2)}}</pre>
 		  </div>
 		</v-card>
 	      </td>
 	    </template>
 	    
-	    <!--VUE3 version of PASSTHROUGH slots. e.g. item.<key> as defined in parent will get passed through to v-data-table 
-		But this does not bring the header into the equation.
-		<template v-for="(_, slot) of $slots" v-slot:[slot]="scope">
-		  <slot :name="slot" v-bind="scope">
-		  </slot>
-		</template>
-		These allow the formatter on the column to be used....e.g. formatter=tmb.percentStr
-
-		Updating to 3.5.2 vuetify and vue 3.4.15 creates some real fungus.
-		item.raw went away so no longer scope.item.raw[chead.key]
-		try to do v-else with slot :name="chead.item_slot_name and it breaks??????
-		Only solution I found was to just use <slot> no name within the template v-for loop...
-
-		Note that we are creating overrieable slots. From the Parent Component, specify these slots
-		to override.
-	     -->
-		  
 	    <template v-for="dhead in nonSpecialVisibleHeadersWithoutFormatter" v-slot:[dhead.item_slot_name]="scope">
 	      <slot :name="dhead.item_slot_name" v-bind="scope">
-		<!-- fake columns in cases where :value property is set on header, just use the scope.value -->
 		{{scope.value?scope.value:scope.item[dhead.key]}}
 	      </slot>
 	    </template>
@@ -712,12 +677,6 @@ export const RcTable3 = {
 	      </slot>	       	       
 	    </template>
 
-		  
-
-	    <!-- Add Special item selection menu component to replace default selection header actions
-                 Vuetify 3.3.9 to 3.5.2 column. changed back to header.
-              -->
-	    
 	    <template v-slot:header.data-table-select="{ props: props }">              
 	      <rc-select-menu			
 		:items="filtereditems"
@@ -727,23 +686,6 @@ export const RcTable3 = {
 	      </rc-select-menu>
 	    </template>
 
-	    <!--DNW 
-	    <template v-slot:data-table-select="{ props: props }">
-	      ZZZ
-	    </template>
-	    <template v-if="xs" v-slot:item.data-table-select="{ item, isSelected, select }">
-	      <v-checkbox
-		:input-value="isSelected"
-		@change="select(!isSelected)"
-		hide-details
-		class="ma-0 pa-0"
-		>
-	      </v-checkbox>
-	    </template>
-style="background-color:pink;opacity:1 !important;"
-#9c27b0 == 'purple lighten-3'
-	    -->
-	    
 	    <template v-slot:tfoot="{ items }">	      
 	      <tfoot style="background-color:#9c27b0;color:white;opacity:1 !important;position:sticky;bottom:0;">
 		<tr>
@@ -767,13 +709,6 @@ style="background-color:pink;opacity:1 !important;"
 	      <span v-if="hidetoolbar && (itemsPerPage > -1)">
 		<v-spacer></v-spacer>
 		<div>
-		  <!-- NOT REALLY NEEDED since we can pull pagination out.
-		  <rc-pagination3
-		    :filtereditems="filtereditems"
-		    v-model:page="localPage"
-		    v-model:items-per-page="localItemsPerPage">		    
-		  </rc-pagination3>
-		  -->		  
 		</div>
 	      </span>
               
