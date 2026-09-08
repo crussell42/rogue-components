@@ -1,6 +1,8 @@
 import {ref,reactive,toValue,computed} from 'vue'
 import {useDisplay} from 'vuetify'
-import {RcTableToolbar} from './RcTableToolbar.js'
+//import {RcTableToolbar} from './RcTableToolbar.js'
+import {RcTableToolbar3} from './RcTableToolbar3.js'
+
 import {RcSelectMenu} from './RcSelectMenu.js'
 import {RcColumnFilter3} from './RcColumnFilter3.js'
 import {RcPagination3} from './RcPagination3.js'
@@ -55,7 +57,7 @@ export const addColumnFilterValues = (columnName,includeValues,excludeValues) =>
 
 export const RcTable3 = {
     components: {
-	RcTableToolbar,
+	RcTableToolbar3,
 	RcSelectMenu,
 	RcColumnFilter3,
 	RcPagination3,
@@ -93,7 +95,7 @@ export const RcTable3 = {
 	page: {type: Number, default: 1},
 	showSelect: {type: Boolean, default: true},
 	showExpand: {type: Boolean, default: false},
-
+	showFixedFooter: {type: Boolean, default: true},
 	hidetoolbar: {type: Boolean, default: false},
 	totalerOffset: {type: Number, default: 0},
     },
@@ -104,9 +106,11 @@ export const RcTable3 = {
 	    if (props.hasOwnProperty(name)) {
 		return computed({
 		    get: function() {
+			//console.log('RcTable3 reading:'+name+' val:',props[name]);
 			return props[name]; //not here || {};
 		    },
 		    set: function(val) {
+			//console.log('RcTable3 emitting update:'+name+' val:',val);
 			ctx.emit("update:"+name,val);
 		    },
 		});
@@ -500,8 +504,8 @@ export const RcTable3 = {
 	//    let parr = p.map((i)=>i.id);
 	//    console.log(parr,' => ',varr);
         //},
-	//localPage: function(ov,v) {
-	//    console.log('rctable watch ov:',ov,' v:',v);
+	//localPage: function(v,ov) {
+	//    console.log('rctable3 localPage:',v,' old:',ov);
 	//},
 	//selectedLocal: function(v,ov) {
 	//    console.log('RcTable selectedLocal:',v);
@@ -512,7 +516,7 @@ export const RcTable3 = {
        <v-card>
 	  <v-card-title class="no-print">
 
-	    <rc-table-toolbar
+	    <rc-table-toolbar3
 	      
 	      v-if="!hidetoolbar"
 	      
@@ -548,7 +552,7 @@ export const RcTable3 = {
 	      </template>
 
 	      
-	    </rc-table-toolbar>
+	    </rc-table-toolbar3>
 	    
 	  </v-card-title>
 
@@ -687,7 +691,7 @@ export const RcTable3 = {
 	    </template>
 
 	    <template v-slot:tfoot="{ items }">	      
-	      <tfoot style="background-color:#9c27b0;color:white;opacity:1 !important;position:sticky;bottom:0;">
+	      <tfoot v-if="showFixedFooter" style="background-color:#9c27b0;color:white;opacity:1 !important;position:sticky;bottom:0;">
 		<tr>
 		  <td v-for="n in totalerOffset"></td>
 		  <!--<td v-if="showSelect"></td>-->

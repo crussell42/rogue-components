@@ -222,7 +222,10 @@ export const RcColumnFilter3 = {
 				this.items.map(item => {
 				    let v = _.get(item,this.header.key);
 				    if (v == null) return null;
-				    else return tmb.nub(v);
+				    else {
+					if (_.isString(v)) return tmb.nub(v);
+					if (_.isNumber(v)) return tmb.nub(v.toString());
+				    }
 				})
 			    )
 			];
