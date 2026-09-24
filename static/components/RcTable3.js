@@ -446,6 +446,7 @@ export const RcTable3 = {
 	},
 	/* Vuetify 3 does not support :item-class property on v-data-table yet so hide for now */
 	rowColor: function(row) {
+	    
 	    //console.log('colorizerows:',this.colorizerows,' rowColor:',row);
 	    //if ((this.hasOwnProperty('colorizerows'))&&(this.colorizerows==false)) return [];
 	    
@@ -571,6 +572,8 @@ export const RcTable3 = {
 
 	    v-model:expanded="expanded"
 
+            :row-props="rowColor"
+
 	    v-bind="$attrs"
 	    
 	    class="elevation-1"
@@ -588,7 +591,7 @@ export const RcTable3 = {
 	    @update:modelValue="bulkSelect"
 	    @update:current-items="currentItems = $event"
 
-            :row-props="rowColor"
+
 
 	    :mobile="xs"
 
