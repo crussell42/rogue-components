@@ -833,7 +833,7 @@ export const RcTableToolbar3 = {
 		      Export
 		    </v-btn>
 
-		    WTF MAAM
+		    
 		    <!--
 		    <json-excel
 		      v-else
@@ -855,6 +855,18 @@ export const RcTableToolbar3 = {
 		      </v-btn>
 		    </json-excel>
 		    -->
+
+		    <v-btn
+		      color="primary"
+		      variant="outlined"
+		      size="small"
+		      elevation="3"
+		      @click="exportmenu = false;exportRaw()"
+		      >
+		      Export
+		    </v-btn>
+
+		    
 		    <v-btn color="secondary"
 			   variant="outlined"
 			   size="small"
