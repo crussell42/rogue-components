@@ -515,7 +515,7 @@ export const RcTable3 = {
     template: `
 
        <v-card>
-	  <v-card-title class="no-print">
+	  <v-card-title v-if="!hidetoolbar" class="no-print">
 
 	    <rc-table-toolbar3
 	      
