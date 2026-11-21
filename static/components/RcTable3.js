@@ -86,6 +86,7 @@ export const RcTable3 = {
 
 	rowfiltersfunc: null,
 	loadfunc: null,
+	printfunc: null,
 	selectedrowfilterkeys: {type:Object, default(rawProps) {return []}}, //v-model: 2 way
 	selectedcolumnfilters: {type:Object, default(rawProps) {return []}}, //.sync array of filterAction objects.
 
@@ -532,6 +533,8 @@ export const RcTable3 = {
 	      v-model:visibleheaders="visibleHeaderNamesLocal"
 
 	      :loadfunc="loadfunc"
+              :printfunc="printfunc"
+
 	      :reloadtext="reloadtext"	      
 	      :rowfiltersfunc="rowfiltersfunc"
 

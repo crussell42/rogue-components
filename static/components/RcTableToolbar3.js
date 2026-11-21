@@ -68,6 +68,8 @@ export const RcTableToolbar3 = {
 	zerofunc: null,
 	loadfunc:  null,
 
+	printfunc: null,
+
 	page: {type:Number, default: 1},
 	itemsPerPage: {type:Number, default: 100},
 
@@ -781,7 +783,7 @@ export const RcTableToolbar3 = {
 		      </v-btn>
 		    </template>
 		    <span>
-		      Export table to Excel or CSV
+		      Export/Print table
 		    </span>
 		  </v-tooltip>
 		</template>
@@ -1273,7 +1275,7 @@ export const RcTableToolbar3 = {
 		</v-btn>
 	      </template>
 	      <span>
-		Export table to Excel or CSV
+		Export/Print table
 	      </span>
 	    </v-tooltip>
 	  </template>
@@ -1289,7 +1291,7 @@ export const RcTableToolbar3 = {
 		<v-radio
 		  label="Export Excel"
 		  value="xls"
-		  >			
+		  >		  
 		</v-radio>
                 <!--NO
 		<v-radio
@@ -1299,15 +1301,23 @@ export const RcTableToolbar3 = {
 		  >			
 		</v-radio>
 		-->
+		<v-radio
+		  v-if="printfunc"
+		  label="Print"
+		  value="print"
+		  >
+		</v-radio>
 	      </v-radio-group>
 	      
 	      <v-switch
+		v-show="!(childExportRadioGroup == 'print')"
 		v-model="exportHiddenColumns"
 		label="Export All Columns"
 		>
 	      </v-switch>
 	      
 	      <v-text-field
+		v-show="!(childExportRadioGroup == 'print')"
 		v-model="localFileName"
 		label="Export File Name"
 		dense
@@ -1331,9 +1341,9 @@ export const RcTableToolbar3 = {
 		variant="outlined"
 		size="small"
 		elevation="3"
-		@click="exportmenu = false;exportRaw()"
+		@click="exportmenu = false;(childExportRadioGroup=='print')?printfunc():exportRaw()"
 		>
-		Export
+		{{childExportRadioGroup=='print'?'Print':'Export'}}
 	      </v-btn>
 	      <!--
 	      <json-excel v-else
